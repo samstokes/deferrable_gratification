@@ -1,4 +1,5 @@
 require 'rspec/core/rake_task'
+require 'yard'
 
 namespace :spec do
   RSpec::Core::RakeTask.new(:default)
@@ -9,5 +10,7 @@ namespace :spec do
   end
 end
 task :spec => 'spec:default'
+
+YARD::Rake::YardocTask.new(:doc)
 
 task :default => :spec
