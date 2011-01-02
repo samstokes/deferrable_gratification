@@ -42,8 +42,10 @@ describe EventMachine::Deferrable do
       subject { DeferredFailure.new("does not compute") >> DeferredPlus.new(2) }
 
       it 'should fail with "does not compute"' do
-        subject.errback {|error| error.should == 'does not compute' }
+        error = nil
+        subject.errback {|e| error = e }
         subject.go
+        error.should == 'does not compute'
       end
     end
 
@@ -51,8 +53,10 @@ describe EventMachine::Deferrable do
       subject { DeferredConstant.new(1) >> DeferredFailure.new("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
-        subject.errback {|error| error.should == 'why disassemble?' }
+        error = nil
+        subject.errback {|e| error = e }
         subject.go
+        error.should == 'why disassemble?'
       end
     end
   end
