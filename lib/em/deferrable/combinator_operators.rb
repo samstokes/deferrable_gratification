@@ -7,5 +7,9 @@ module EventMachine::Deferrable
     def >>(subsequent)
       ::EventMachine::Deferrable::Combinators::Bind.new(self, subsequent)
     end
+
+    def <<(previous)
+      previous >> self
+    end
   end
 end

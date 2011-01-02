@@ -60,4 +60,38 @@ describe EventMachine::Deferrable do
       end
     end
   end
+
+
+  describe '#<<' do
+    describe 'DeferredPlus.new(2) << DeferredConstant.new(1)' do
+      subject { DeferredPlus.new(2) << DeferredConstant.new(1) }
+
+      it 'should succeed with 2 + 1' do
+        subject.callback {|result| result.should == (2 + 1) }
+        subject.go
+      end
+    end
+
+    describe 'DeferredFailure.new("does not compute") << DeferredConstant.new(1)' do
+      subject { DeferredFailure.new("does not compute") << DeferredConstant.new(1) }
+
+      it 'should fail with "does not compute"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == 'does not compute'
+      end
+    end
+
+    describe 'DeferredPlus.new(2) << DeferredFailure.new("why disassemble?")' do
+      subject { DeferredPlus.new(2) << DeferredFailure.new("why disassemble?") }
+
+      it 'should fail with "why disassemble?"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == 'why disassemble?'
+      end
+    end
+  end
 end
