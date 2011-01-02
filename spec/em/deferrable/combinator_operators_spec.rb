@@ -12,6 +12,7 @@ describe EventMachine::Deferrable do
     def initialize(value); @value = value; end
     def go; succeed(@value); end
   end
+  def const_d(value); DeferredConstant.new(value); end
 
   # Example deferrable which immediately succeeds with the sum of the lhs
   # passed to its constructor and the rhs passed to #go.
@@ -20,12 +21,14 @@ describe EventMachine::Deferrable do
     def initialize(lhs); @lhs = lhs; end
     def go(rhs); succeed(@lhs + rhs); end
   end
+  def plus_d(lhs); DeferredPlus.new(lhs); end
 
   # Example deferrable which immediately fails.
   class DeferredFailure < DeferrableWithOperators
     def initialize(error = 'oops'); @error = error; end
     def go(*args); fail(@error); end
   end
+  def fail_d(*args); DeferredFailure.new(*args); end
 
 
   describe '#>>' do
@@ -91,6 +94,65 @@ describe EventMachine::Deferrable do
         subject.errback {|e| error = e }
         subject.go
         error.should == 'why disassemble?'
+      end
+    end
+  end
+
+
+  describe '.chain' do
+    describe 'DeferrableWithOperators.chain()' do
+      subject { DeferrableWithOperators.chain() }
+      it { should be_nil }
+    end
+
+    describe 'DeferrableWithOperators.chain(const_d(2))' do
+      subject { DeferrableWithOperators.chain(const_d(2)) }
+
+      it 'should succeed with 2' do
+        subject.callback {|result| result.should == 2 }
+        subject.go
+      end
+    end
+
+    describe 'DeferrableWithOperators.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DeferrableWithOperators.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4)) }
+
+      it 'should succeed with 1 + 2 + 3 + 4' do
+        subject.callback {|result| result.should == (1 + 2 + 3 + 4) }
+        subject.go
+      end
+    end
+
+    describe 'DeferrableWithOperators.chain(fail_d("oops"))' do
+      subject { DeferrableWithOperators.chain(fail_d("oops")) }
+
+      it 'should fail with "oops"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == "oops"
+      end
+    end
+
+    describe 'DeferrableWithOperators.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DeferrableWithOperators.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4)) }
+
+      it 'should fail with "doh"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == "doh"
+      end
+    end
+
+    describe 'DeferrableWithOperators.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!"))' do
+      subject { DeferrableWithOperators.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!")) }
+
+      it 'should fail with "so close!"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == "so close!"
       end
     end
   end

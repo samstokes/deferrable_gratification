@@ -11,5 +11,16 @@ module EventMachine::Deferrable
     def <<(previous)
       previous >> self
     end
+
+
+    def self.included(base)
+      base.send :extend, ClassMethods
+    end
+
+    module ClassMethods
+      def chain(*actions)
+        actions.inject(&:>>)
+      end
+    end
   end
 end
