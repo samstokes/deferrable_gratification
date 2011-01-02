@@ -1,4 +1,4 @@
-require 'em/deferrable/combinator_operators'
+require 'deferrable_combinators'
 
 describe EventMachine::Deferrable do
   class DeferrableWithOperators

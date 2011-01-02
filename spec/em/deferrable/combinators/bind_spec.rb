@@ -1,4 +1,4 @@
-require 'em/deferrable/combinators/bind'
+require 'deferrable_combinators'
 
 describe EventMachine::Deferrable::Combinators::Bind do
   class MockDeferrable < EventMachine::DefaultDeferrable
