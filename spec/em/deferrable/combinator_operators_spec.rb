@@ -1,4 +1,4 @@
-require 'deferrable_combinators'
+require 'deferrable_gratification'
 
 describe EventMachine::Deferrable do
   class DeferrableWithOperators
