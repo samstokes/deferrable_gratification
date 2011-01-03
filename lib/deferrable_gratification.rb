@@ -1,5 +1,5 @@
-require File.join(File.dirname(__FILE__), *%w[em deferrable combinators])
-require File.join(File.dirname(__FILE__), *%w[em deferrable combinator_operators])
+require File.join(File.dirname(__FILE__), *%w[deferrable_gratification combinators])
+require File.join(File.dirname(__FILE__), *%w[deferrable_gratification combinator_operators])
 
 # Make sure the combinator implementations themselves support the combinator
 # operators.  Have to do this here, rather than just including the module
