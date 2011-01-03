@@ -9,3 +9,6 @@ module DeferrableGratification
   # default_deferrable.rb and combinator_operators.rb.
   DefaultDeferrable.send :include, CombinatorOperators
 end
+
+# Shorthand
+DG = DeferrableGratification

@@ -3,7 +3,7 @@ require 'deferrable_gratification'
 describe DeferrableGratification::CombinatorOperators do
   # Example deferrable which immediately succeeds with a constant value
   # e.g. DeferredConstant.new(1).go =~> 1
-  class DeferredConstant < DeferrableGratification::DefaultDeferrable
+  class DeferredConstant < DG::DefaultDeferrable
     def initialize(value); @value = value; end
     def go; succeed(@value); end
   end
@@ -12,14 +12,14 @@ describe DeferrableGratification::CombinatorOperators do
   # Example deferrable which immediately succeeds with the sum of the lhs
   # passed to its constructor and the rhs passed to #go.
   # e.g. DeferredPlus.new(2).go(1) =~> 3
-  class DeferredPlus < DeferrableGratification::DefaultDeferrable
+  class DeferredPlus < DG::DefaultDeferrable
     def initialize(lhs); @lhs = lhs; end
     def go(rhs); succeed(@lhs + rhs); end
   end
   def plus_d(lhs); DeferredPlus.new(lhs); end
 
   # Example deferrable which immediately fails.
-  class DeferredFailure < DeferrableGratification::DefaultDeferrable
+  class DeferredFailure < DG::DefaultDeferrable
     def initialize(error = 'oops'); @error = error; end
     def go(*args); fail(@error); end
   end
@@ -140,13 +140,13 @@ describe DeferrableGratification::CombinatorOperators do
 
 
   describe '.chain' do
-    describe 'DeferrableGratification::DefaultDeferrable.chain()' do
-      subject { DeferrableGratification::DefaultDeferrable.chain() }
+    describe 'DG::DefaultDeferrable.chain()' do
+      subject { DG::DefaultDeferrable.chain() }
       it { should be_nil }
     end
 
-    describe 'DeferrableGratification::DefaultDeferrable.chain(const_d(2))' do
-      subject { DeferrableGratification::DefaultDeferrable.chain(const_d(2)) }
+    describe 'DG::DefaultDeferrable.chain(const_d(2))' do
+      subject { DG::DefaultDeferrable.chain(const_d(2)) }
 
       it 'should succeed with 2' do
         result = nil
@@ -156,8 +156,8 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferrableGratification::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DeferrableGratification::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should succeed with 1 + 2 + 3 + 4' do
         result = nil
@@ -167,8 +167,8 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferrableGratification::DefaultDeferrable.chain(fail_d("oops"))' do
-      subject { DeferrableGratification::DefaultDeferrable.chain(fail_d("oops")) }
+    describe 'DG::DefaultDeferrable.chain(fail_d("oops"))' do
+      subject { DG::DefaultDeferrable.chain(fail_d("oops")) }
 
       it 'should fail with "oops"' do
         error = nil
@@ -178,8 +178,8 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferrableGratification::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DeferrableGratification::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should fail with "doh"' do
         error = nil
@@ -189,8 +189,8 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferrableGratification::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!"))' do
-      subject { DeferrableGratification::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!")) }
+    describe 'DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!"))' do
+      subject { DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!")) }
 
       it 'should fail with "so close!"' do
         error = nil
