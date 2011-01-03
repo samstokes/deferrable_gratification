@@ -10,6 +10,10 @@ module DeferrableGratification
       previous >> self
     end
 
+    def map(&block)
+      DeferrableGratification::Combinators::Map.new(self, &block)
+    end
+
 
     def self.included(base)
       base.send :extend, ClassMethods

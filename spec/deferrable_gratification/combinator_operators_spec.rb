@@ -105,6 +105,47 @@ describe DeferrableGratification::CombinatorOperators do
   end
 
 
+  describe '#map' do
+    describe 'DeferredConstant.new("Hello").map(&:upcase)' do
+      subject { DeferredConstant.new("Hello").map(&:upcase) }
+
+      it 'should succeed with "HELLO"' do
+        result = nil
+        subject.callback {|r| result = r }
+        subject.go
+        result.should == 'HELLO'
+      end
+    end
+
+    describe 'DeferredFailure.new("oops").map(&:upcase)' do
+      subject { DeferredFailure.new("oops").map(&:upcase) }
+
+      it 'should fail with "oops"' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should == 'oops'
+      end
+    end
+
+    describe 'DeferredConstant.new("Hello").map { raise "kaboom!" }' do
+      subject { DeferredConstant.new("Hello").map { raise "kaboom!" } }
+
+      it 'should catch the exception' do
+        lambda { subject.go }.should_not raise_error
+      end
+
+      it 'should fail and pass through the exception' do
+        error = nil
+        subject.errback {|e| error = e }
+        subject.go
+        error.should be_a(RuntimeError)
+        error.message.should =~ /kaboom!/
+      end
+    end
+  end
+
+
   describe '.chain' do
     describe 'DeferrableWithOperators.chain()' do
       subject { DeferrableWithOperators.chain() }
