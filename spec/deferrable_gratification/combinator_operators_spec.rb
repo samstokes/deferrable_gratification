@@ -38,8 +38,10 @@ describe DeferrableGratification::CombinatorOperators do
       subject { DeferredConstant.new(1) >> DeferredPlus.new(2) }
 
       it 'should succeed with 1 + 2' do
-        subject.callback {|result| result.should == (1 + 2) }
+        result = nil
+        subject.callback {|r| result = r }
         subject.go
+        result.should == (1 + 2)
       end
     end
 
@@ -72,8 +74,10 @@ describe DeferrableGratification::CombinatorOperators do
       subject { DeferredPlus.new(2) << DeferredConstant.new(1) }
 
       it 'should succeed with 2 + 1' do
-        subject.callback {|result| result.should == (2 + 1) }
+        result = nil
+        subject.callback {|r| result = r }
         subject.go
+        result.should == (2 + 1)
       end
     end
 
@@ -111,8 +115,10 @@ describe DeferrableGratification::CombinatorOperators do
       subject { DeferrableWithOperators.chain(const_d(2)) }
 
       it 'should succeed with 2' do
-        subject.callback {|result| result.should == 2 }
+        result = nil
+        subject.callback {|r| result = r }
         subject.go
+        result.should == 2
       end
     end
 
@@ -120,8 +126,10 @@ describe DeferrableGratification::CombinatorOperators do
       subject { DeferrableWithOperators.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should succeed with 1 + 2 + 3 + 4' do
-        subject.callback {|result| result.should == (1 + 2 + 3 + 4) }
+        result = nil
+        subject.callback {|r| result = r }
         subject.go
+        result.should == (1 + 2 + 3 + 4)
       end
     end
 
