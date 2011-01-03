@@ -10,14 +10,7 @@ describe DeferrableGratification::Combinators::Bind do
   subject { described_class.new(@first, @second) }
 
 
-  it 'should quack like a Deferrable' do
-    should respond_to(:callback)
-    should respond_to(:errback)
-  end
-
-  it 'should have a #go method to launch it' do
-    should respond_to(:go)
-  end
+  it_should_behave_like 'a Deferrable'
 
   it 'should execute the first Deferrable' do
     @first.should_receive(:go)

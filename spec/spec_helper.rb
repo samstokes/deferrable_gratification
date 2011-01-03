@@ -10,3 +10,13 @@ class MockDeferrable < EventMachine::DefaultDeferrable
     self.stub!(:go) { self.fail(*args) }
   end
 end
+
+
+shared_examples_for 'a Deferrable' do
+  it { should respond_to(:callback) }
+  it { should respond_to(:errback) }
+
+  it 'should have a #go method to launch it' do
+    should respond_to(:go)
+  end
+end
