@@ -59,8 +59,8 @@ describe DeferrableGratification::Combinators::Bind do
   end
 
 
-  describe '(if first Deferrable fails)' do
-    before { @first.stub!(:go) { @first.fail('oops') } }
+  describe '(if the first Deferrable fails)' do
+    before { @first.stub_failure!('oops') }
 
     it 'should not execute the second Deferrable at all' do
       @second.should_not_receive(:go)
