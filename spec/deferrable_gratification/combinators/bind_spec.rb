@@ -1,6 +1,8 @@
 require 'deferrable_gratification'
+require 'eventmachine'
+require 'em/deferrable'
 
-describe EventMachine::Deferrable::Combinators::Bind do
+describe DeferrableGratification::Combinators::Bind do
   class MockDeferrable < EventMachine::DefaultDeferrable
     def stub_success!(*args)
       self.stub!(:go) { self.succeed(*args) }

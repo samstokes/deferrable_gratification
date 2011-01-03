@@ -1,9 +1,11 @@
 require 'deferrable_gratification'
+require 'eventmachine'
+require 'em/deferrable'
 
-describe EventMachine::Deferrable do
+describe DeferrableGratification::CombinatorOperators do
   class DeferrableWithOperators
     include EventMachine::Deferrable
-    include EventMachine::Deferrable::CombinatorOperators
+    include DeferrableGratification::CombinatorOperators
   end
 
   # Example deferrable which immediately succeeds with a constant value

@@ -1,10 +1,10 @@
 require 'eventmachine'
 require 'em/deferrable'
 
-module EventMachine::Deferrable
+module DeferrableGratification
   module Combinators
     class Bind
-      include ::EventMachine::Deferrable
+      include EventMachine::Deferrable
 
       def initialize(first, second)
         @first = first
