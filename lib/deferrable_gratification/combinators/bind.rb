@@ -1,11 +1,8 @@
-require 'eventmachine'
-require 'em/deferrable'
+require File.join(File.dirname(__FILE__), *%w[.. default_deferrable])
 
 module DeferrableGratification
   module Combinators
-    class Bind
-      include EventMachine::Deferrable
-
+    class Bind < DefaultDeferrable
       def initialize(first, second)
         @first = first
         @second = second
