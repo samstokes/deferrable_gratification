@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification combinators])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification combinator_operators])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification default_deferrable])
+require File.join(File.dirname(__FILE__), *%w[deferrable_gratification primitives])
 
 module DeferrableGratification
   # Make sure the combinator implementations themselves support the combinator
