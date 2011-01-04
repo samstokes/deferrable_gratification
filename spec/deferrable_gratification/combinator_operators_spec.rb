@@ -1,5 +1,13 @@
 require 'deferrable_gratification'
 
+# N.B. most of these specs rely on the fact that all the example functions and
+# callbacks used are synchronous, because testing the results of asynchronous
+# code in RSpec is hard.  (Testing that a callback is called with the right
+# value is easy; testing that it is called at all is harder.)
+#
+# However, the combinators should work just fine for asynchronous operations,
+# or for a mixture of synchronous and asynchronous.
+
 describe DeferrableGratification::CombinatorOperators do
   # Example deferrable which immediately succeeds with a constant value
   # e.g. DeferredConstant.new(1).go =~> 1
