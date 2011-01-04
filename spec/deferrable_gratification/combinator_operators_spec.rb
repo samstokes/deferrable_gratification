@@ -139,6 +139,38 @@ describe DeferrableGratification::CombinatorOperators do
   end
 
 
+  describe '.lift' do
+    describe 'DG::DefaultDeferrable.lift {|result| result.class }' do
+      subject { DG::DefaultDeferrable.lift {|result| result.class } }
+
+      describe 'after #go(:i_am_a_symbol)' do
+        before { subject.go(:i_am_a_symbol) }
+
+        it 'should succeed with Symbol' do
+          result = nil
+          subject.callback {|r| result = r }
+          result.should == Symbol
+        end
+      end
+    end
+
+    describe 'DG::DefaultDeferrable.lift { raise "Oops" }' do
+      subject { DG::DefaultDeferrable.lift { raise "Oops" } }
+
+      describe 'after #go(:i_am_a_symbol)' do
+        before { subject.go(:i_am_a_symbol) }
+
+        it 'should fail and pass through the exception' do
+          error = nil
+          subject.errback {|e| error = e }
+          error.should be_a(RuntimeError)
+          error.message.should =~ /Oops/
+        end
+      end
+    end
+  end
+
+
   describe '.chain' do
     describe 'DG::DefaultDeferrable.chain()' do
       subject { DG::DefaultDeferrable.chain() }

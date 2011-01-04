@@ -20,6 +20,10 @@ module DeferrableGratification
     end
 
     module ClassMethods
+      def lift(&block)
+        DeferrableGratification::Combinators::Lift.new(&block)
+      end
+
       def chain(*actions)
         actions.inject(&:>>)
       end
