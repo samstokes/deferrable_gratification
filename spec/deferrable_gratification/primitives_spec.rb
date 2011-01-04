@@ -1,14 +1,9 @@
 require 'deferrable_gratification'
 
 describe DeferrableGratification::Primitives do
-  module Primitives
-    extend DeferrableGratification::Primitives
-  end
-
-
   describe '.const' do
-    describe 'Primitives.const("Hello")' do
-      subject { Primitives.const("Hello") }
+    describe 'DG.const("Hello")' do
+      subject { DG.const("Hello") }
 
       it 'should succeed with "Hello"' do
         result = nil
@@ -21,8 +16,8 @@ describe DeferrableGratification::Primitives do
 
 
   describe '.failure' do
-    describe 'Primitives.failure("does not compute")' do
-      subject { Primitives.failure("does not compute") }
+    describe 'DG.failure("does not compute")' do
+      subject { DG.failure("does not compute") }
       
       it 'should fail with RuntimeError("does not compute")' do
         error = nil
@@ -33,8 +28,8 @@ describe DeferrableGratification::Primitives do
       end
     end
 
-    describe 'Primitives.failure(ArgumentError)' do
-      subject { Primitives.failure(ArgumentError) }
+    describe 'DG.failure(ArgumentError)' do
+      subject { DG.failure(ArgumentError) }
 
       it 'should fail with ArgumentError' do
         error = nil
@@ -44,8 +39,8 @@ describe DeferrableGratification::Primitives do
       end
     end
 
-    describe 'Primitives.failure(ArgumentError, "unacceptable command")' do
-      subject { Primitives.failure(ArgumentError, "unacceptable command") }
+    describe 'DG.failure(ArgumentError, "unacceptable command")' do
+      subject { DG.failure(ArgumentError, "unacceptable command") }
 
       it 'should fail with ArgumentError("unacceptable command")' do
         error = nil

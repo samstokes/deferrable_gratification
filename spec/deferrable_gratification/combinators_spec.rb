@@ -9,19 +9,14 @@ require 'deferrable_gratification'
 # or for a mixture of synchronous and asynchronous.
 
 describe DeferrableGratification::Combinators do
-  module Primitives
-    extend DeferrableGratification::Primitives
-  end
-
-
   def plus_d(n)
-    DG::DefaultDeferrable.lift {|x| x + n }
+    DG.lift {|x| x + n }
   end
 
 
   describe '#>>' do
-    describe 'Primitives.const(1) >> plus_d(2)' do
-      subject { Primitives.const(1) >> plus_d(2) }
+    describe 'DG.const(1) >> plus_d(2)' do
+      subject { DG.const(1) >> plus_d(2) }
 
       it 'should succeed with 1 + 2' do
         result = nil
@@ -31,8 +26,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'Primitives.failure("does not compute") >> plus_d(2)' do
-      subject { Primitives.failure("does not compute") >> plus_d(2) }
+    describe 'DG.failure("does not compute") >> plus_d(2)' do
+      subject { DG.failure("does not compute") >> plus_d(2) }
 
       it 'should fail with "does not compute"' do
         error = nil
@@ -42,8 +37,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'Primitives.const(1) >> Primitives.failure("why disassemble?")' do
-      subject { Primitives.const(1) >> Primitives.failure("why disassemble?") }
+    describe 'DG.const(1) >> DG.failure("why disassemble?")' do
+      subject { DG.const(1) >> DG.failure("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
         error = nil
@@ -56,8 +51,8 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#<<' do
-    describe 'plus_d(2) << Primitives.const(1)' do
-      subject { plus_d(2) << Primitives.const(1) }
+    describe 'plus_d(2) << DG.const(1)' do
+      subject { plus_d(2) << DG.const(1) }
 
       it 'should succeed with 2 + 1' do
         result = nil
@@ -67,8 +62,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'Primitives.failure("does not compute") << Primitives.const(1)' do
-      subject { Primitives.failure("does not compute") << Primitives.const(1) }
+    describe 'DG.failure("does not compute") << DG.const(1)' do
+      subject { DG.failure("does not compute") << DG.const(1) }
 
       it 'should fail with "does not compute"' do
         error = nil
@@ -78,8 +73,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'plus_d(2) << Primitives.failure("why disassemble?")' do
-      subject { plus_d(2) << Primitives.failure("why disassemble?") }
+    describe 'plus_d(2) << DG.failure("why disassemble?")' do
+      subject { plus_d(2) << DG.failure("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
         error = nil
@@ -92,8 +87,8 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#map' do
-    describe 'Primitives.const("Hello").map(&:upcase)' do
-      subject { Primitives.const("Hello").map(&:upcase) }
+    describe 'DG.const("Hello").map(&:upcase)' do
+      subject { DG.const("Hello").map(&:upcase) }
 
       it 'should succeed with "HELLO"' do
         result = nil
@@ -103,8 +98,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'Primitives.failure("oops").map(&:upcase)' do
-      subject { Primitives.failure("oops").map(&:upcase) }
+    describe 'DG.failure("oops").map(&:upcase)' do
+      subject { DG.failure("oops").map(&:upcase) }
 
       it 'should fail with "oops"' do
         error = nil
@@ -114,8 +109,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'Primitives.const("Hello").map { raise "kaboom!" }' do
-      subject { Primitives.const("Hello").map { raise "kaboom!" } }
+    describe 'DG.const("Hello").map { raise "kaboom!" }' do
+      subject { DG.const("Hello").map { raise "kaboom!" } }
 
       it 'should catch the exception' do
         lambda { subject.go }.should_not raise_error
@@ -134,7 +129,7 @@ describe DeferrableGratification::Combinators do
       before { @results = [] }
 
       subject do
-        Primitives.const("Hello").map(&:upcase).map(&@results.method(:<<))
+        DG.const("Hello").map(&:upcase).map(&@results.method(:<<))
       end
 
       it 'should succeed and push the result into the array' do
@@ -146,8 +141,8 @@ describe DeferrableGratification::Combinators do
 
 
   describe '.lift' do
-    describe 'DG::DefaultDeferrable.lift {|result| result.class }' do
-      subject { DG::DefaultDeferrable.lift {|result| result.class } }
+    describe 'DG.lift {|result| result.class }' do
+      subject { DG.lift {|result| result.class } }
 
       describe 'after #go(:i_am_a_symbol)' do
         before { subject.go(:i_am_a_symbol) }
@@ -160,8 +155,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.lift { raise "Oops" }' do
-      subject { DG::DefaultDeferrable.lift { raise "Oops" } }
+    describe 'DG.lift { raise "Oops" }' do
+      subject { DG.lift { raise "Oops" } }
 
       describe 'after #go(:i_am_a_symbol)' do
         before { subject.go(:i_am_a_symbol) }
@@ -178,13 +173,13 @@ describe DeferrableGratification::Combinators do
 
 
   describe '.chain' do
-    describe 'DG::DefaultDeferrable.chain()' do
-      subject { DG::DefaultDeferrable.chain() }
+    describe 'DG.chain()' do
+      subject { DG.chain() }
       it { should be_nil }
     end
 
-    describe 'DG::DefaultDeferrable.chain(Primitives.const(2))' do
-      subject { DG::DefaultDeferrable.chain(Primitives.const(2)) }
+    describe 'DG.chain(DG.const(2))' do
+      subject { DG.chain(DG.const(2)) }
 
       it 'should succeed with 2' do
         result = nil
@@ -194,8 +189,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG.chain(DG.const(1), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG.chain(DG.const(1), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should succeed with 1 + 2 + 3 + 4' do
         result = nil
@@ -205,8 +200,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(Primitives.failure("oops"))' do
-      subject { DG::DefaultDeferrable.chain(Primitives.failure("oops")) }
+    describe 'DG.chain(DG.failure("oops"))' do
+      subject { DG.chain(DG.failure("oops")) }
 
       it 'should fail with "oops"' do
         error = nil
@@ -216,8 +211,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(Primitives.failure("doh"), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG::DefaultDeferrable.chain(Primitives.failure("doh"), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG.chain(DG.failure("doh"), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG.chain(DG.failure("doh"), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should fail with "doh"' do
         error = nil
@@ -227,8 +222,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), Primitives.failure("so close!"))' do
-      subject { DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), Primitives.failure("so close!")) }
+    describe 'DG.chain(DG.const(1), plus_d(2), plus_d(3), DG.failure("so close!"))' do
+      subject { DG.chain(DG.const(1), plus_d(2), plus_d(3), DG.failure("so close!")) }
 
       it 'should fail with "so close!"' do
         error = nil
