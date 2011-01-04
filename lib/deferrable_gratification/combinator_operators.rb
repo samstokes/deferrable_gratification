@@ -11,7 +11,7 @@ module DeferrableGratification
     end
 
     def map(&block)
-      DeferrableGratification::Combinators::Map.new(self, &block)
+      self >> self.class.lift(&block)
     end
 
 
