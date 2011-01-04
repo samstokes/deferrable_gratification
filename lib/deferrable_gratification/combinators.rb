@@ -4,5 +4,31 @@ end
 
 module DeferrableGratification
   module Combinators
+    def >>(subsequent)
+      Bind.new(self, subsequent)
+    end
+
+    def <<(previous)
+      previous >> self
+    end
+
+    def map(&block)
+      self >> self.class.lift(&block)
+    end
+
+
+    def self.included(base)
+      base.send :extend, ClassMethods
+    end
+
+    module ClassMethods
+      def lift(&block)
+        Lift.new(&block)
+      end
+
+      def chain(*actions)
+        actions.inject(&:>>)
+      end
+    end
   end
 end

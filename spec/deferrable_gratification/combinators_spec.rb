@@ -8,7 +8,7 @@ require 'deferrable_gratification'
 # However, the combinators should work just fine for asynchronous operations,
 # or for a mixture of synchronous and asynchronous.
 
-describe DeferrableGratification::CombinatorOperators do
+describe DeferrableGratification::Combinators do
   module Primitives
     extend DeferrableGratification::Primitives
   end
