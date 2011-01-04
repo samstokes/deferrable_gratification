@@ -21,7 +21,7 @@ module DeferrableGratification
 
     module ClassMethods
       def lift(&block)
-        DeferrableGratification::Combinators::Lift.new(&block)
+        Combinators::Lift.new(&block)
       end
 
       def chain(*actions)
