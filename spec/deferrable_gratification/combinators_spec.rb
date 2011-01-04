@@ -9,14 +9,9 @@ require 'deferrable_gratification'
 # or for a mixture of synchronous and asynchronous.
 
 describe DeferrableGratification::Combinators do
-  def plus_d(n)
-    DG.lift {|x| x + n }
-  end
-
-
   describe '#>>' do
-    describe 'DG.const(1) >> plus_d(2)' do
-      subject { DG.const(1) >> plus_d(2) }
+    describe 'DG.const(1) >> DG.lift {|x| x + 2 }' do
+      subject { DG.const(1) >> DG.lift {|x| x + 2 } }
 
       it 'should succeed with 1 + 2' do
         result = nil
@@ -26,8 +21,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG.failure("does not compute") >> plus_d(2)' do
-      subject { DG.failure("does not compute") >> plus_d(2) }
+    describe 'DG.failure("does not compute") >> DG.lift {|x| x + 2 }' do
+      subject { DG.failure("does not compute") >> DG.lift {|x| x + 2 } }
 
       it 'should fail with "does not compute"' do
         error = nil
@@ -51,8 +46,8 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#<<' do
-    describe 'plus_d(2) << DG.const(1)' do
-      subject { plus_d(2) << DG.const(1) }
+    describe 'DG.lift {|x| x + 2 } << DG.const(1)' do
+      subject { DG.lift {|x| x + 2 } << DG.const(1) }
 
       it 'should succeed with 2 + 1' do
         result = nil
@@ -73,8 +68,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'plus_d(2) << DG.failure("why disassemble?")' do
-      subject { plus_d(2) << DG.failure("why disassemble?") }
+    describe 'DG.lift {|x| x + 2 } << DG.failure("why disassemble?")' do
+      subject { DG.lift {|x| x + 2 } << DG.failure("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
         error = nil
@@ -189,8 +184,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG.chain(DG.const(1), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG.chain(DG.const(1), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
+      subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
 
       it 'should succeed with 1 + 2 + 3 + 4' do
         result = nil
@@ -211,8 +206,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG.chain(DG.failure("doh"), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG.chain(DG.failure("doh"), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
+      subject { DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
 
       it 'should fail with "doh"' do
         error = nil
@@ -222,8 +217,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG.chain(DG.const(1), plus_d(2), plus_d(3), DG.failure("so close!"))' do
-      subject { DG.chain(DG.const(1), plus_d(2), plus_d(3), DG.failure("so close!")) }
+    describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!"))' do
+      subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!")) }
 
       it 'should fail with "so close!"' do
         error = nil
