@@ -136,6 +136,19 @@ describe DeferrableGratification::CombinatorOperators do
         error.message.should =~ /kaboom!/
       end
     end
+
+    describe 'passing a bound method to save results in an external array' do
+      before { @results = [] }
+
+      subject do
+        DeferredConstant.new("Hello").map(&:upcase).map(&@results.method(:<<))
+      end
+
+      it 'should succeed and push the result into the array' do
+        subject.go
+        @results.should == ["HELLO"]
+      end
+    end
   end
 
 
