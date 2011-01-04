@@ -9,34 +9,19 @@ require 'deferrable_gratification'
 # or for a mixture of synchronous and asynchronous.
 
 describe DeferrableGratification::CombinatorOperators do
-  # Example deferrable which immediately succeeds with a constant value
-  # e.g. DeferredConstant.new(1).go =~> 1
-  class DeferredConstant < DG::DefaultDeferrable
-    def initialize(value); @value = value; end
-    def go; succeed(@value); end
+  module Primitives
+    extend DeferrableGratification::Primitives
   end
-  def const_d(value); DeferredConstant.new(value); end
 
-  # Example deferrable which immediately succeeds with the sum of the lhs
-  # passed to its constructor and the rhs passed to #go.
-  # e.g. DeferredPlus.new(2).go(1) =~> 3
-  class DeferredPlus < DG::DefaultDeferrable
-    def initialize(lhs); @lhs = lhs; end
-    def go(rhs); succeed(@lhs + rhs); end
-  end
-  def plus_d(lhs); DeferredPlus.new(lhs); end
 
-  # Example deferrable which immediately fails.
-  class DeferredFailure < DG::DefaultDeferrable
-    def initialize(error = 'oops'); @error = error; end
-    def go(*args); fail(@error); end
+  def plus_d(n)
+    DG::DefaultDeferrable.lift {|x| x + n }
   end
-  def fail_d(*args); DeferredFailure.new(*args); end
 
 
   describe '#>>' do
-    describe 'DeferredConstant.new(1) >> DeferredPlus.new(2)' do
-      subject { DeferredConstant.new(1) >> DeferredPlus.new(2) }
+    describe 'Primitives.const(1) >> plus_d(2)' do
+      subject { Primitives.const(1) >> plus_d(2) }
 
       it 'should succeed with 1 + 2' do
         result = nil
@@ -46,33 +31,33 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferredFailure.new("does not compute") >> DeferredPlus.new(2)' do
-      subject { DeferredFailure.new("does not compute") >> DeferredPlus.new(2) }
+    describe 'Primitives.failure("does not compute") >> plus_d(2)' do
+      subject { Primitives.failure("does not compute") >> plus_d(2) }
 
       it 'should fail with "does not compute"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == 'does not compute'
+        error.to_s.should =~ /does not compute/
       end
     end
 
-    describe 'DeferredConstant.new(1) >> DeferredFailure.new("why disassemble?")' do
-      subject { DeferredConstant.new(1) >> DeferredFailure.new("why disassemble?") }
+    describe 'Primitives.const(1) >> Primitives.failure("why disassemble?")' do
+      subject { Primitives.const(1) >> Primitives.failure("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == 'why disassemble?'
+        error.to_s.should =~ /why disassemble\?/
       end
     end
   end
 
 
   describe '#<<' do
-    describe 'DeferredPlus.new(2) << DeferredConstant.new(1)' do
-      subject { DeferredPlus.new(2) << DeferredConstant.new(1) }
+    describe 'plus_d(2) << Primitives.const(1)' do
+      subject { plus_d(2) << Primitives.const(1) }
 
       it 'should succeed with 2 + 1' do
         result = nil
@@ -82,33 +67,33 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferredFailure.new("does not compute") << DeferredConstant.new(1)' do
-      subject { DeferredFailure.new("does not compute") << DeferredConstant.new(1) }
+    describe 'Primitives.failure("does not compute") << Primitives.const(1)' do
+      subject { Primitives.failure("does not compute") << Primitives.const(1) }
 
       it 'should fail with "does not compute"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == 'does not compute'
+        error.to_s.should =~ /does not compute/
       end
     end
 
-    describe 'DeferredPlus.new(2) << DeferredFailure.new("why disassemble?")' do
-      subject { DeferredPlus.new(2) << DeferredFailure.new("why disassemble?") }
+    describe 'plus_d(2) << Primitives.failure("why disassemble?")' do
+      subject { plus_d(2) << Primitives.failure("why disassemble?") }
 
       it 'should fail with "why disassemble?"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == 'why disassemble?'
+        error.to_s.should =~ /why disassemble\?/
       end
     end
   end
 
 
   describe '#map' do
-    describe 'DeferredConstant.new("Hello").map(&:upcase)' do
-      subject { DeferredConstant.new("Hello").map(&:upcase) }
+    describe 'Primitives.const("Hello").map(&:upcase)' do
+      subject { Primitives.const("Hello").map(&:upcase) }
 
       it 'should succeed with "HELLO"' do
         result = nil
@@ -118,19 +103,19 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DeferredFailure.new("oops").map(&:upcase)' do
-      subject { DeferredFailure.new("oops").map(&:upcase) }
+    describe 'Primitives.failure("oops").map(&:upcase)' do
+      subject { Primitives.failure("oops").map(&:upcase) }
 
       it 'should fail with "oops"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == 'oops'
+        error.to_s.should =~ /oops/
       end
     end
 
-    describe 'DeferredConstant.new("Hello").map { raise "kaboom!" }' do
-      subject { DeferredConstant.new("Hello").map { raise "kaboom!" } }
+    describe 'Primitives.const("Hello").map { raise "kaboom!" }' do
+      subject { Primitives.const("Hello").map { raise "kaboom!" } }
 
       it 'should catch the exception' do
         lambda { subject.go }.should_not raise_error
@@ -149,7 +134,7 @@ describe DeferrableGratification::CombinatorOperators do
       before { @results = [] }
 
       subject do
-        DeferredConstant.new("Hello").map(&:upcase).map(&@results.method(:<<))
+        Primitives.const("Hello").map(&:upcase).map(&@results.method(:<<))
       end
 
       it 'should succeed and push the result into the array' do
@@ -198,8 +183,8 @@ describe DeferrableGratification::CombinatorOperators do
       it { should be_nil }
     end
 
-    describe 'DG::DefaultDeferrable.chain(const_d(2))' do
-      subject { DG::DefaultDeferrable.chain(const_d(2)) }
+    describe 'DG::DefaultDeferrable.chain(Primitives.const(2))' do
+      subject { DG::DefaultDeferrable.chain(Primitives.const(2)) }
 
       it 'should succeed with 2' do
         result = nil
@@ -209,8 +194,8 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should succeed with 1 + 2 + 3 + 4' do
         result = nil
@@ -220,36 +205,36 @@ describe DeferrableGratification::CombinatorOperators do
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(fail_d("oops"))' do
-      subject { DG::DefaultDeferrable.chain(fail_d("oops")) }
+    describe 'DG::DefaultDeferrable.chain(Primitives.failure("oops"))' do
+      subject { DG::DefaultDeferrable.chain(Primitives.failure("oops")) }
 
       it 'should fail with "oops"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == "oops"
+        error.to_s.should =~ /oops/
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4))' do
-      subject { DG::DefaultDeferrable.chain(fail_d("doh"), plus_d(2), plus_d(3), plus_d(4)) }
+    describe 'DG::DefaultDeferrable.chain(Primitives.failure("doh"), plus_d(2), plus_d(3), plus_d(4))' do
+      subject { DG::DefaultDeferrable.chain(Primitives.failure("doh"), plus_d(2), plus_d(3), plus_d(4)) }
 
       it 'should fail with "doh"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == "doh"
+        error.to_s.should =~ /doh/
       end
     end
 
-    describe 'DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!"))' do
-      subject { DG::DefaultDeferrable.chain(const_d(1), plus_d(2), plus_d(3), fail_d("so close!")) }
+    describe 'DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), Primitives.failure("so close!"))' do
+      subject { DG::DefaultDeferrable.chain(Primitives.const(1), plus_d(2), plus_d(3), Primitives.failure("so close!")) }
 
       it 'should fail with "so close!"' do
         error = nil
         subject.errback {|e| error = e }
         subject.go
-        error.should == "so close!"
+        error.to_s.should =~ /so close!/
       end
     end
   end
