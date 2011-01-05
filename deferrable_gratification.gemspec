@@ -17,7 +17,7 @@ Currently consists of the following components:
   gem.homepage = 'http://github.com/samstokes/deferrable_gratification'
 
 
-  gem.required_ruby_version = '>= 1.8.7'
+  gem.required_ruby_version = '>= 1.8.6'
 
   gem.add_dependency 'eventmachine'
 

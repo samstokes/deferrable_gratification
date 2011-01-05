@@ -82,8 +82,8 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#map' do
-    describe 'DG.const("Hello").map(&:upcase)' do
-      subject { DG.const("Hello").map(&:upcase) }
+    describe 'DG.const("Hello").map {|x| x.upcase }' do
+      subject { DG.const("Hello").map {|x| x.upcase } }
 
       it 'should succeed with "HELLO"' do
         result = nil
@@ -93,8 +93,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'DG.failure("oops").map(&:upcase)' do
-      subject { DG.failure("oops").map(&:upcase) }
+    describe 'DG.failure("oops").map {|x| x.upcase }' do
+      subject { DG.failure("oops").map {|x| x.upcase } }
 
       it 'should fail with "oops"' do
         error = nil
@@ -124,7 +124,7 @@ describe DeferrableGratification::Combinators do
       before { @results = [] }
 
       subject do
-        DG.const("Hello").map(&:upcase).map(&@results.method(:<<))
+        DG.const("Hello").map {|x| x.upcase }.map(&@results.method(:<<))
       end
 
       it 'should succeed and push the result into the array' do

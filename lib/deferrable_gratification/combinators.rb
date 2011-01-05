@@ -27,7 +27,7 @@ module DeferrableGratification
       end
 
       def chain(*actions)
-        actions.inject(&:>>)
+        actions.inject {|x, y| x >> y }
       end
     end
   end
