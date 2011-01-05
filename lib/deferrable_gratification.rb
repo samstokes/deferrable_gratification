@@ -17,6 +17,8 @@ module DeferrableGratification
   # included that module.
   def self.enhance!(module_or_class)
     module_or_class.send :include, Combinators
+    module_or_class.send :include, Fluent
+    module_or_class.send :include, Bothback
   end
 
   # Enhance EventMachine::Deferrable itself so that any class including it

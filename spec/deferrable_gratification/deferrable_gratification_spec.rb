@@ -9,6 +9,8 @@ describe 'DeferrableGratification.enhance!' do
   end
 
   describe EnhancedDeferrable do
+    it_should_include DeferrableGratification::Fluent
+    it_should_include DeferrableGratification::Bothback
     it_should_include DeferrableGratification::Combinators
   end
 end
