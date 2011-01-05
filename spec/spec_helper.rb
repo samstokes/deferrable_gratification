@@ -23,3 +23,12 @@ shared_examples_for 'a launchable task' do
     should respond_to(:go)
   end
 end
+
+
+class RSpec::Core::ExampleGroup
+  def self.it_should_include(mod)
+    it "should include #{mod}" do
+      described_class.included_modules.should include(mod)
+    end
+  end
+end
