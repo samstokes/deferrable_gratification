@@ -1,15 +1,18 @@
 Gem::Specification.new do |gem|
   gem.name = 'deferrable_gratification'
-  gem.version = '0.0.2'
+  gem.version = '0.0.3'
 
   gem.summary = 'Makes Ruby Deferrables nicer to work with.'
   gem.description = <<-DESC
 Makes Ruby Deferrables nicer to work with.
 
 Currently consists of the following components:
+
+ * fluent (aka chainable) syntax for registering multiple callbacks and errbacks to the same Deferrable.
+
+ * a #bothback method for registering code to run on either success or failure.
  
- * a combinator library for building up complex asynchronous operations out of
-   simpler ones.
+ * a combinator library for building up complex asynchronous operations out of simpler ones.
   DESC
 
   gem.authors = ['Sam Stokes']
