@@ -1,5 +1,7 @@
+require File.join(File.dirname(__FILE__), *%w[deferrable_gratification bothback])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification combinators])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification default_deferrable])
+require File.join(File.dirname(__FILE__), *%w[deferrable_gratification fluent])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification primitives])
 
 module DeferrableGratification
