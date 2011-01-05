@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name = 'deferrable_gratification'
-  gem.version = '0.0.1'
+  gem.version = '0.0.2'
 
   gem.summary = 'Makes Ruby Deferrables nicer to work with.'
   gem.description = <<-DESC
