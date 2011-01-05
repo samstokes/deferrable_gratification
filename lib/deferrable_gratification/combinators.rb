@@ -13,7 +13,7 @@ module DeferrableGratification
     end
 
     def map(&block)
-      self >> self.class.lift(&block)
+      self >> ::DeferrableGratification.lift(&block)
     end
 
 
