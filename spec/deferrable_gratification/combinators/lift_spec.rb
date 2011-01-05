@@ -5,6 +5,7 @@ describe DeferrableGratification::Combinators::Lift do
     subject { described_class.new {|radius| Math::PI * radius * radius } }
 
     it_should_behave_like 'a Deferrable'
+    it_should_behave_like 'a launchable task'
 
     describe 'after #go(arg)' do
       it 'should succeed with the result of passing arg through the block' do

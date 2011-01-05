@@ -11,6 +11,7 @@ describe DeferrableGratification::Combinators::Bind do
 
 
   it_should_behave_like 'a Deferrable'
+  it_should_behave_like 'a launchable task'
 
   it 'should execute the first Deferrable' do
     @first.should_receive(:go)

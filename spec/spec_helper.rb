@@ -15,7 +15,10 @@ end
 shared_examples_for 'a Deferrable' do
   it { should respond_to(:callback) }
   it { should respond_to(:errback) }
+end
 
+
+shared_examples_for 'a launchable task' do
   it 'should have a #go method to launch it' do
     should respond_to(:go)
   end
