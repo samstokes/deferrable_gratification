@@ -13,33 +13,27 @@ describe DeferrableGratification::Combinators do
     describe 'DG.const(1) >> DG.lift {|x| x + 2 }' do
       subject { DG.const(1) >> DG.lift {|x| x + 2 } }
 
-      it 'should succeed with 1 + 2' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == (1 + 2)
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with(1 + 2) }
       end
     end
 
     describe 'DG.failure("does not compute") >> DG.lift {|x| x + 2 }' do
       subject { DG.failure("does not compute") >> DG.lift {|x| x + 2 } }
 
-      it 'should fail with "does not compute"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /does not compute/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/does not compute/) }
       end
     end
 
     describe 'DG.const(1) >> DG.failure("why disassemble?")' do
       subject { DG.const(1) >> DG.failure("why disassemble?") }
 
-      it 'should fail with "why disassemble?"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /why disassemble\?/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/why disassemble?/) }
       end
     end
   end
@@ -49,33 +43,27 @@ describe DeferrableGratification::Combinators do
     describe 'DG.lift {|x| x + 2 } << DG.const(1)' do
       subject { DG.lift {|x| x + 2 } << DG.const(1) }
 
-      it 'should succeed with 2 + 1' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == (2 + 1)
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with(2 + 1) }
       end
     end
 
     describe 'DG.failure("does not compute") << DG.const(1)' do
       subject { DG.failure("does not compute") << DG.const(1) }
 
-      it 'should fail with "does not compute"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /does not compute/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/does not compute/) }
       end
     end
 
     describe 'DG.lift {|x| x + 2 } << DG.failure("why disassemble?")' do
       subject { DG.lift {|x| x + 2 } << DG.failure("why disassemble?") }
 
-      it 'should fail with "why disassemble?"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /why disassemble\?/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/why disassemble?/) }
       end
     end
   end
@@ -85,22 +73,18 @@ describe DeferrableGratification::Combinators do
     describe 'DG.const("Hello").map(&:upcase)' do
       subject { DG.const("Hello").map(&:upcase) }
 
-      it 'should succeed with "HELLO"' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == 'HELLO'
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with('HELLO') }
       end
     end
 
     describe 'DG.failure("oops").map(&:upcase)' do
       subject { DG.failure("oops").map(&:upcase) }
 
-      it 'should fail with "oops"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /oops/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/oops/) }
       end
     end
 
@@ -111,12 +95,11 @@ describe DeferrableGratification::Combinators do
         lambda { subject.go }.should_not raise_error
       end
 
-      it 'should fail and pass through the exception' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.should be_a(RuntimeError)
-        error.message.should =~ /kaboom!/
+      describe 'after #go' do
+        before { subject.go }
+        it 'should fail and pass through the exception' do
+          subject.should fail_with(RuntimeError, /kaboom!/)
+        end
       end
     end
 
@@ -142,11 +125,7 @@ describe DeferrableGratification::Combinators do
       describe 'after #go(:i_am_a_symbol)' do
         before { subject.go(:i_am_a_symbol) }
 
-        it 'should succeed with Symbol' do
-          result = nil
-          subject.callback {|r| result = r }
-          result.should == Symbol
-        end
+        it { should succeed_with(Symbol) }
       end
     end
 
@@ -157,10 +136,7 @@ describe DeferrableGratification::Combinators do
         before { subject.go(:i_am_a_symbol) }
 
         it 'should fail and pass through the exception' do
-          error = nil
-          subject.errback {|e| error = e }
-          error.should be_a(RuntimeError)
-          error.message.should =~ /Oops/
+          subject.should fail_with(RuntimeError, /Oops/)
         end
       end
     end
@@ -176,55 +152,45 @@ describe DeferrableGratification::Combinators do
     describe 'DG.chain(DG.const(2))' do
       subject { DG.chain(DG.const(2)) }
 
-      it 'should succeed with 2' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == 2
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with(2) }
       end
     end
 
     describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
       subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
 
-      it 'should succeed with 1 + 2 + 3 + 4' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == (1 + 2 + 3 + 4)
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with(1 + 2 + 3 + 4) }
       end
     end
 
     describe 'DG.chain(DG.failure("oops"))' do
       subject { DG.chain(DG.failure("oops")) }
 
-      it 'should fail with "oops"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /oops/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/oops/) }
       end
     end
 
     describe 'DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
       subject { DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
 
-      it 'should fail with "doh"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /doh/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/doh/) }
       end
     end
 
     describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!"))' do
       subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!")) }
 
-      it 'should fail with "so close!"' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.to_s.should =~ /so close!/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(/so close!/) }
       end
     end
   end

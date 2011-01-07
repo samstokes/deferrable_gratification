@@ -5,11 +5,9 @@ describe DeferrableGratification::Primitives do
     describe 'DG.const("Hello")' do
       subject { DG.const("Hello") }
 
-      it 'should succeed with "Hello"' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go
-        result.should == "Hello"
+      describe 'after #go' do
+        before { subject.go }
+        it { should succeed_with('Hello') }
       end
     end
   end
@@ -19,35 +17,27 @@ describe DeferrableGratification::Primitives do
     describe 'DG.failure("does not compute")' do
       subject { DG.failure("does not compute") }
       
-      it 'should fail with RuntimeError("does not compute")' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.should be_a(RuntimeError)
-        error.message.should == "does not compute"
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(RuntimeError, 'does not compute') }
       end
     end
 
     describe 'DG.failure(ArgumentError)' do
       subject { DG.failure(ArgumentError) }
 
-      it 'should fail with ArgumentError' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.should be_an(ArgumentError)
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(ArgumentError) }
       end
     end
 
     describe 'DG.failure(ArgumentError, "unacceptable command")' do
       subject { DG.failure(ArgumentError, "unacceptable command") }
 
-      it 'should fail with ArgumentError("unacceptable command")' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.should be_an(ArgumentError)
-        error.message.should =~ /unacceptable command/
+      describe 'after #go' do
+        before { subject.go }
+        it { should fail_with(ArgumentError, 'unacceptable command') }
       end
     end
   end

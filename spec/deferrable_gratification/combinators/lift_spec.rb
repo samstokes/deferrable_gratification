@@ -8,11 +8,10 @@ describe DeferrableGratification::Combinators::Lift do
     it_should_behave_like 'a launchable task'
 
     describe 'after #go(arg)' do
+      before { subject.go(2) }
+
       it 'should succeed with the result of passing arg through the block' do
-        result = nil
-        subject.callback {|r| result = r }
-        subject.go(2)
-        result.should == (Math::PI * 2 * 2)
+        subject.should succeed_with(Math::PI * 2 * 2)
       end
     end
 
@@ -23,12 +22,12 @@ describe DeferrableGratification::Combinators::Lift do
         lambda { subject.go }.should_not raise_error
       end
 
-      it 'should fail and pass through the exception' do
-        error = nil
-        subject.errback {|e| error = e }
-        subject.go
-        error.should be_a(RuntimeError)
-        error.message.should =~ /kaboom!/
+      describe 'after #go' do
+        before { subject.go }
+
+        it 'should fail and pass through the exception' do
+          subject.should fail_with(RuntimeError, /kaboom!/)
+        end
       end
 
       it 'should not catch exceptions thrown by #succeed itself (e.g. buggy callbacks)' do

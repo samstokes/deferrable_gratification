@@ -40,40 +40,43 @@ describe DeferrableGratification::Combinators::Bind do
     describe '(if the second Deferrable succeeds)' do
       before { @second.stub_success!(:second_result) }
 
-      it 'should call its callbacks with the successful result of the second Deferrable' do
-        subject.callback {|result| result.should == :second_result }
-        subject.go
+      describe 'after #go' do
+        before { subject.go }
+
+        it 'should call its callbacks with the successful result of the second Deferrable' do
+          subject.should succeed_with(:second_result)
+        end
       end
     end
 
     describe '(if second Deferrable fails)' do
-      before { @second.stub_failure!('sorry') }
+      before { @second.stub_failure!(RuntimeError.new('sorry')) }
 
-      it 'should call its errbacks' do
-        called = false
-        subject.errback { called = true }
-        subject.go
+      describe 'after #go' do
+        before { subject.go }
 
-        called.should be_true
+        it 'should call its errbacks' do
+          subject.should fail_with(/.*/)
+        end
       end
     end
   end
 
 
   describe '(if the first Deferrable fails)' do
-    before { @first.stub_failure!('oops') }
+    before { @first.stub_failure!(RuntimeError.new('oops')) }
 
     it 'should not execute the second Deferrable at all' do
       @second.should_not_receive(:go)
       subject.go
     end
 
-    it 'should call its errbacks' do
-      called = false
-      subject.errback { called = true }
-      subject.go
+    describe 'after #go' do
+      before { subject.go }
 
-      called.should be_true
+      it 'should call its errbacks' do
+        subject.should fail_with(/.*/)
+      end
     end
   end
 end
