@@ -16,6 +16,14 @@ describe DeferrableGratification::Bothback do
     end.should_not raise_error
   end
 
+  it 'should support fluent syntax to register several "bothbacks"' do
+    lambda do
+      subject.
+        bothback { release_lock }.
+        bothback { fire_missiles }
+    end.should_not raise_error
+  end
+
   describe 'after registering a bothback' do
     before do
       @called = false

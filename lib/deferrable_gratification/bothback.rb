@@ -10,6 +10,7 @@ module DeferrableGratification
     def bothback(&block)
       callback(&block)
       errback(&block)
+      self
     end
   end
 end
