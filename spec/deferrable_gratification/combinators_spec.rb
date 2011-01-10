@@ -10,109 +10,96 @@ require 'deferrable_gratification'
 
 describe DeferrableGratification::Combinators do
   describe '#>>' do
-    describe 'DG.const(1) >> DG.lift {|x| x + 2 }' do
-      subject { DG.const(1) >> DG.lift {|x| x + 2 } }
+    describe 'DummyDB.query(:id, :name => "Sam") >> lambda {|id| DummyDB.query(:age, :id => id) }' do
+      subject { DummyDB.query(:id, :name => "Sam") >> lambda {|id| DummyDB.query(:age, :id => id) } }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should succeed_with(1 + 2) }
+      before do
+        DummyDB.stub_successful_query(:id, :name => "Sam") { 42 }
+        DummyDB.stub_successful_query(:age, :id => 42) { 26 }
       end
+
+      it { should succeed_with 26 }
     end
 
-    describe 'DG.failure("does not compute") >> DG.lift {|x| x + 2 }' do
-      subject { DG.failure("does not compute") >> DG.lift {|x| x + 2 } }
+    describe 'DummyDB.query(:id, :name => :nonexistent) >> lambda {|id| DummyDB.query(:age, :id => id) }' do
+      subject { DummyDB.query(:id, :name => :nonexistent) >> lambda {|id| DummyDB.query(:age, :id => id) } }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/does not compute/) }
-      end
+      before { DummyDB.stub_failing_query(:id, :name => :nonexistent) { 'No such user' } }
+
+      it { should fail_with 'No such user' }
     end
 
-    describe 'DG.const(1) >> DG.failure("why disassemble?")' do
-      subject { DG.const(1) >> DG.failure("why disassemble?") }
+    describe 'DummyDB.query(:name, :id => 42) >> lambda {|name| "Hello #{name}!" }' do
+      subject { DummyDB.query(:name, :id => 42) >> lambda {|name| "Hello #{name}!" } }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/why disassemble?/) }
-      end
-    end
-  end
+      before { DummyDB.stub_successful_query(:name, :id => 42) { 'Sam' } }
 
-
-  describe '#<<' do
-    describe 'DG.lift {|x| x + 2 } << DG.const(1)' do
-      subject { DG.lift {|x| x + 2 } << DG.const(1) }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should succeed_with(2 + 1) }
-      end
+      it { should succeed_with 'Hello Sam!' }
     end
 
-    describe 'DG.failure("does not compute") << DG.const(1)' do
-      subject { DG.failure("does not compute") << DG.const(1) }
+    describe 'DummyDB.query(:id, :name => "Sam") >> lambda {|id| raise "User #{id} not allowed!" }' do
+      subject { DummyDB.query(:id, :name => "Sam") >> lambda {|id| raise "User #{id} not allowed!" } }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/does not compute/) }
-      end
-    end
+      before { DummyDB.stub_successful_query(:id, :name => 'Sam') { 42 } }
 
-    describe 'DG.lift {|x| x + 2 } << DG.failure("why disassemble?")' do
-      subject { DG.lift {|x| x + 2 } << DG.failure("why disassemble?") }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/why disassemble?/) }
-      end
+      it { should fail_with 'User 42 not allowed!' }
     end
   end
 
 
   describe '#map' do
-    describe 'DG.const("Hello").map(&:upcase)' do
-      subject { DG.const("Hello").map(&:upcase) }
+    let(:operation) { DG::DefaultDeferrable.new }
 
-      describe 'after #go' do
-        before { subject.go }
+    describe 'operation.map(&:upcase)' do
+      subject { operation.map(&:upcase) }
+
+      describe 'if the operation succeeds with "Hello"' do
+        before { operation.succeed('Hello') }
         it { should succeed_with('HELLO') }
       end
-    end
 
-    describe 'DG.failure("oops").map(&:upcase)' do
-      subject { DG.failure("oops").map(&:upcase) }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/oops/) }
+      describe 'if the operation fails with "bad robot"' do
+        before { operation.fail(RuntimeError.new('bad robot')) }
+        it { should fail_with('bad robot') }
       end
     end
 
-    describe 'DG.const("Hello").map { raise "kaboom!" }' do
-      subject { DG.const("Hello").map { raise "kaboom!" } }
+    describe 'operation.map { raise "kaboom!" }' do
+      subject { operation.map { raise "kaboom!" } }
 
-      it 'should catch the exception' do
-        lambda { subject.go }.should_not raise_error
-      end
+      describe 'if the operation succeeds' do
+        before { operation.succeed }
 
-      describe 'after #go' do
-        before { subject.go }
+        it 'should catch the exception' do
+          lambda { subject }.should_not raise_error(/kaboom/)
+        end
+
         it 'should fail and pass through the exception' do
           subject.should fail_with(RuntimeError, /kaboom!/)
         end
       end
     end
 
-    describe 'passing a bound method to save results in an external array' do
-      before { @results = [] }
-
-      subject do
-        DG.const("Hello").map(&:upcase).map(&@results.method(:<<))
+    describe '@results = []; operation.map(&@results.method(:<<))' do
+      before do
+        @results = []
+        operation.map(&@results.method(:<<))
       end
 
-      it 'should succeed and push the result into the array' do
-        subject.go
-        @results.should == ["HELLO"]
+      describe 'if operation succeeds with :wahey!' do
+        before { operation.succeed :wahey! }
+
+        it 'should add :wahey! to @results' do
+          @results.should == [:wahey!]
+        end
+      end
+
+      describe 'if operation fails' do
+        before { operation.fail RuntimeError.new('Boom!') }
+
+        it 'should not touch @results' do
+          @results.should be_empty
+        end
       end
     end
   end
@@ -175,6 +162,7 @@ describe DeferrableGratification::Combinators do
           first_query.should succeed_with(42)
         end
       end
+
     end
   end
 
@@ -207,52 +195,61 @@ describe DeferrableGratification::Combinators do
   describe '.chain' do
     describe 'DG.chain()' do
       subject { DG.chain() }
-      it { should be_nil }
+      it { should succeed_with(nil) }
     end
 
-    describe 'DG.chain(DG.const(2))' do
-      subject { DG.chain(DG.const(2)) }
+    describe 'DG.chain(lambda { 2 })' do
+      subject { DG.chain(lambda { 2 }) }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should succeed_with(2) }
-      end
+      it { should succeed_with(2) }
     end
 
-    describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
-      subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should succeed_with(1 + 2 + 3 + 4) }
+    describe <<-CHAIN do
+DG.chain(
+  lambda { DummyDB.query(:person_id, :name => 'Sam') },
+  lambda {|person_id| DummyDB.query(:products, :buyer_id => person_id) },
+  lambda {|products| DummyDB.query(:description, :product_id => products.map(&:id)) },
+  lambda {|descriptions| descriptions.map(&:brief) })
+    CHAIN
+      subject do
+        DG.chain(
+          lambda { DummyDB.query(:person_id, :name => 'Sam') },
+          lambda {|person_id| DummyDB.query(:products, :buyer_id => person_id) },
+          lambda {|products| DummyDB.query(:description, :product_id => products.map(&:id)) },
+          lambda {|descriptions| descriptions.map(&:brief) })
       end
+
+      before do
+        DummyDB.stub_successful_query(:person_id, :name => 'Sam') { 42 }
+        DummyDB.stub_successful_query(:products, :buyer_id => 42) do
+          [1, 2, 3].map {|id| mock('product', :id => id) }
+        end
+        DummyDB.stub_successful_query(:description, :product_id => [1, 2, 3]) do
+          %w(Car Dishwasher Laptop).map {|brief| mock('description', :brief => brief) }
+        end
+      end
+
+      it { should succeed_with ['Car', 'Dishwasher', 'Laptop'] }
     end
 
-    describe 'DG.chain(DG.failure("oops"))' do
-      subject { DG.chain(DG.failure("oops")) }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/oops/) }
+    describe <<-CHAIN do
+DG.chain(
+  lambda { DummyDB.query(:person_id, :name => :nonexistent) },
+  lambda {|person_id| DummyDB.query(:products, :buyer_id => person_id) },
+  lambda {|products| DummyDB.query(:description, :product_id => products.map(&:id)) },
+  lambda {|descriptions| descriptions.map(&:brief) })
+    CHAIN
+      subject do
+        DG.chain(
+          lambda { DummyDB.query(:person_id, :name => :nonexistent) },
+          lambda {|person_id| DummyDB.query(:products, :buyer_id => person_id) },
+          lambda {|products| DummyDB.query(:description, :product_id => products.map(&:id)) },
+          lambda {|descriptions| descriptions.map(&:brief) })
       end
-    end
 
-    describe 'DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 })' do
-      subject { DG.chain(DG.failure("doh"), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.lift {|x| x + 4 }) }
+      before { DummyDB.stub_failing_query(:person_id, :name => :nonexistent) { 'No such person' } }
 
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/doh/) }
-      end
-    end
-
-    describe 'DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!"))' do
-      subject { DG.chain(DG.const(1), DG.lift {|x| x + 2 }, DG.lift {|x| x + 3 }, DG.failure("so close!")) }
-
-      describe 'after #go' do
-        before { subject.go }
-        it { should fail_with(/so close!/) }
-      end
+      it { should fail_with('No such person') }
     end
   end
 end

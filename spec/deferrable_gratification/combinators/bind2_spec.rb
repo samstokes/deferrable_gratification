@@ -54,6 +54,8 @@ describe DeferrableGratification::Combinators::Bind2 do
       subject { bind }
       before { subject.setup! }
 
+      it_should_behave_like 'a Deferrable'
+
       let(:bind) { described_class.new(first_deferrable) {|value| DummyDB.query(:value => value) } }
 
       describe 'if first Deferrable succeeds' do
@@ -136,17 +138,17 @@ describe DeferrableGratification::Combinators::Bind2 do
       subject { bind }
       before { subject.setup! }
 
+      let(:bind) do
+        described_class.new(first_deferrable) {|value| value.upcase }
+      end
+
+      it_should_behave_like 'a Deferrable'
+
       describe 'if first Deferrable succeeds' do
         before { first_deferrable.succeed('hello') }
 
-        describe 'if block returns a value' do
-          let(:bind) do
-            described_class.new(first_deferrable) {|value| value.upcase }
-          end
-
-          it 'should succeed with whatever the block returned' do
-            subject.should succeed_with 'HELLO'
-          end
+        it 'should succeed with whatever the block returned' do
+          subject.should succeed_with 'HELLO'
         end
 
         describe 'if block raises an exception' do

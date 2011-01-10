@@ -4,20 +4,16 @@ end
 
 module DeferrableGratification
   module Combinators
-    def >>(subsequent)
-      Bind.new(self, subsequent)
+    def >>(prok)
+      Bind2.setup!(self, &prok)
     end
 
     def bind!(&block)
       Bind2.setup!(self, &block)
     end
 
-    def <<(previous)
-      previous >> self
-    end
-
     def map(&block)
-      self >> ::DeferrableGratification.lift(&block)
+      bind!(&block)
     end
 
 
@@ -31,7 +27,7 @@ module DeferrableGratification
       end
 
       def chain(*actions)
-        actions.inject(&:>>)
+        actions.inject(DG.const(nil).tap(&:go), &:>>)
       end
     end
   end
