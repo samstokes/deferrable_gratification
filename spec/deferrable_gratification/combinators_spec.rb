@@ -118,6 +118,61 @@ describe DeferrableGratification::Combinators do
   end
 
 
+  describe '#bind!' do
+    let(:first_operation) { DG::DefaultDeferrable.new }
+
+    describe '@results = []; first_operation.bind!(&@results.method(:<<))' do
+      before do
+        @results = []
+        first_operation.bind!(&@results.method(:<<))
+      end
+
+      describe 'if first operation succeeds with :wahey!' do
+        before { first_operation.succeed :wahey! }
+
+        it 'should add :wahey! to @results' do
+          @results.should == [:wahey!]
+        end
+      end
+
+      describe 'if first operation fails' do
+        before { first_operation.fail RuntimeError.new('Boom!') }
+
+        it 'should not touch @results' do
+          @results.should be_empty
+        end
+      end
+    end
+
+    describe 'first_operation.bind! { raise "I am buggy" }' do
+      before { first_operation.bind! { raise "I am buggy" } }
+
+      it 'should not stop the first operation from succeeding' do
+        first_operation.succeed :woohoo
+        first_operation.should succeed_with(:woohoo)
+      end
+    end
+
+    describe 'first_operation.bind! {|name| begin_greeter(name) }' do
+      describe 'returned value' do
+        subject { first_operation.bind! {|name| begin_greeter(name) } }
+
+        def begin_greeter(name)
+          DG.const("Hello #{name}!").tap(&:go)
+        end
+
+        before { pending 'bind result of block to Bind2 status' }
+
+        describe 'if first operation succeeds with "Sam"' do
+          before { first_operation.succeed('Sam') }
+
+          it { should succeed_with('Hello Sam!') }
+        end
+      end
+    end
+  end
+
+
   describe '.lift' do
     describe 'DG.lift {|result| result.class }' do
       subject { DG.lift {|result| result.class } }
