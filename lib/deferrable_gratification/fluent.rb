@@ -13,7 +13,7 @@ module DeferrableGratification
   module Fluent
     # Register +block+ to be called on success.
     #
-    # @return +self+
+    # @return [Deferrable, Fluent] +self+
     #
     # @see EventMachine::Deferrable#callback
     def callback(&block)
@@ -23,7 +23,7 @@ module DeferrableGratification
 
     # Register +block+ to be called on failure.
     #
-    # @return +self+
+    # @return [Deferrable, Fluent] +self+
     #
     # @see EventMachine::Deferrable#errback
     def errback(&block)
