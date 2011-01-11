@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta name="Content-Type" content="text/html; charset=utf8" />
+<title>Documentation by YARD 0.6.4</title>
+<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  relpath = '';
+  if (relpath != '') relpath += '/';
+</script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+    
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html" title="Index">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+  
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  <a id="class_list_link" href="#">Class List</a>
+  <a id="method_list_link" href="#">Method List</a>
+  <a id ="file_list_link" href="#">File List</a>
+</div>
+
+      <div class="clear"></div>
+    </div>
+    
+    <iframe id="search_frame"></iframe>
+    
+    <div id="content"><div id='filecontents'><h1>Deferrable Gratification</h1>
+
+<h2>Purpose</h2>
+
+<p>Deferrable Gratification (DG) makes Ruby Deferrables nicer to work with.</p>
+
+<h2>Components</h2>
+
+<p>It currently consists of the following components:</p>
+
+<ul>
+<li><p><a href="#fluent"><code>DG::Fluent</code></a>: fluent (aka chainable) syntax for registering
+multiple callbacks and errbacks to the same Deferrable.</p></li>
+<li><p><a href="#bothback"><code>DG::Bothback</code></a>: a <code>#bothback</code> method for registering code to
+run on either success or failure.</p></li>
+<li><p><a href="#combinators"><code>DG::Combinators</code></a>: a combinator library for building up
+complex asynchronous operations out of simpler ones.</p></li>
+</ul>
+
+
+<h3 id="fluent"><tt>DG::Fluent</tt></h3>
+
+
+<p>Use JQuery-style fluent syntax for registering several callbacks and
+errbacks on the same Deferrable.  e.g.</p>
+
+<pre class="code"> <span class='DeferrableMonkeyShaver constant id'>DeferrableMonkeyShaver</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='monkey identifier id'>monkey</span><span class='rparen token'>)</span><span class='dot token'>.</span>
+   <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Monkey is shaved&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+   <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='monkey identifier id'>monkey</span><span class='dot token'>.</span><span class='entertain! fid id'>entertain!</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+   <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='e identifier id'>e</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Unable to shave monkey! #{e}&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+   <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='_ identifier id'>_</span><span class='bitor op'>|</span> <span class='monkey identifier id'>monkey</span><span class='dot token'>.</span><span class='terminate! fid id'>terminate!</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+   <span class='shave identifier id'>shave</span>
+</pre>
+
+<h3 id="bothback"><tt>DG::Bothback</tt></h3>
+
+
+<p>Register code to run on either success or failure: shorthand for calling both
+<code>#callback</code> and <code>#errback</code> with the same code block.</p>
+
+<h3 id="combinators"><tt>DG::Combinators</tt></h3>
+
+
+<p>Motivating example:</p>
+
+<pre class="code"><span class='rshft op'>&gt;&gt;</span> <span class='fetcher identifier id'>fetcher</span> <span class='assign token'>=</span> <span class='AsyncPageFetcher constant id'>AsyncPageFetcher</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='string val'>'http://samstokes.co.uk'</span><span class='rparen token'>)</span>
+<span class='rshft op'>&gt;&gt;</span> <span class='cv_grepper identifier id'>cv_grepper</span> <span class='assign token'>=</span> <span class='fetcher identifier id'>fetcher</span><span class='dot token'>.</span><span class='map identifier id'>map</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='symbol val'>:response</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='html identifier id'>html</span><span class='bitor op'>|</span> <span class='html identifier id'>html</span><span class='dot token'>.</span><span class='grep identifier id'>grep</span> <span class='regexp val'>/CV/</span> <span class='rbrace token'>}</span>
+<span class='rshft op'>&gt;&gt;</span> <span class='cv_grepper identifier id'>cv_grepper</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='cv_lines identifier id'>cv_lines</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='cv_lines identifier id'>cv_lines</span> <span class='rbrace token'>}</span>
+<span class='rshft op'>&gt;&gt;</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='lbrace token'>{</span> <span class='cv_grepper identifier id'>cv_grepper</span><span class='dot token'>.</span><span class='go identifier id'>go</span> <span class='rbrace token'>}</span>
+<span class='checking identifier id'>checking</span> <span class='robots identifier id'>robots</span><span class='dot token'>.</span><span class='txt identifier id'>txt</span><span class='dot3 op'>...</span>
+<span class='robots identifier id'>robots</span><span class='dot token'>.</span><span class='txt identifier id'>txt</span> <span class='missing identifier id'>missing</span><span class='div op'>/</span><span class='unavailable identifier id'>unavailable</span> <span class='or or kw'>or</span> <span class='granted identifier id'>granted</span> <span class='us identifier id'>us</span> <span class='access identifier id'>access</span>
+<span class='Fetching constant id'>Fetching</span> <span class='url identifier id'>url</span> <span class='http identifier id'>http</span><span class='symbol val'>:/</span><span class='regexp val'>/samstokes.co.uk ...
+Successful fetch of http:/</span><span class='div op'>/</span><span class='samstokes identifier id'>samstokes</span><span class='dot token'>.</span><span class='co identifier id'>co</span><span class='dot token'>.</span><span class='uk identifier id'>uk</span>
+
+<span class='lt op'>&lt;</span><span class='a identifier id'>a</span> <span class='href identifier id'>href</span><span class='assign token'>=</span><span class='string val'>&quot;CV/&quot;</span><span class='gt op'>&gt;</span><span class='Click constant id'>Click</span> <span class='here identifier id'>here</span><span class='lt op'>&lt;</span><span class='regexp val'>/a&gt; to view my CV, in MS Word format.
+&lt;p&gt;See &lt;a href=&quot;CV/</span><span class='string val'>&quot;&gt;my CV&lt;/a&gt; for a more complete list.&lt;/p&gt;
+</span></pre></div></div>
+    
+    <div id="footer">
+  Generated on Mon Jan 10 16:13:36 2011 by 
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.6.4 (ruby-1.8.7).
+</div>
+
+  </body>
+</html>
