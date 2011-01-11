@@ -32,6 +32,23 @@ namespace :doc do
   desc 'Clear out any cruft and regenerate HTML documentation'
   task :regen => [:clobber, :all]
 
+  desc 'Publish docs to Github Pages'
+  task :publish => :regen do
+    current_branch = `git describe --contains --all HEAD`.strip
+    fail "Couldn't determine current branch" if current_branch.empty?
+
+    begin
+      git :stash
+      git :checkout, '--merge', 'gh-pages'
+      git :add, doc_dir
+      git :commit, '-v', doc_dir
+      git :push, :github, 'gh-pages'
+    ensure
+      git :checkout, current_branch
+      git :stash, :pop
+    end
+  end
+
   desc 'Generate all HTML documentation'
   task :all => [:api, :spec]
 end
