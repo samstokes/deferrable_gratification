@@ -26,7 +26,7 @@ namespace :doc do
 
   desc 'Remove all generated documentation'
   task :clobber do
-    system("git clean -fdx #{doc_dir}") or fail 'failed to clean doc/'
+    git :clean, '-fdx', doc_dir
   end
 
   desc 'Clear out any cruft and regenerate HTML documentation'
@@ -46,3 +46,8 @@ Rake::GemPackageTask.new(gemspec) do |pkg|
 end
 
 task :default => :spec
+
+
+def git(command, *args)
+  system('git', command.to_s, *args.map(&:to_s)) or raise "'git #{command} #{args.join(' ')}' failed!"
+end
