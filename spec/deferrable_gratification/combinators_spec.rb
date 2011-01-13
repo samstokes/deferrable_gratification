@@ -133,7 +133,6 @@ describe DeferrableGratification::Combinators do
         end
 
         describe 'if the second query succeeds with "San Francisco"' do
-          before { pending 'bind result of block to Bind2 status' }
           before { DummyDB.stub_successful_query(:location, :id => 42) { 'San Francisco' } }
 
           describe 'return value' do
@@ -144,7 +143,6 @@ describe DeferrableGratification::Combinators do
         end
 
         describe 'if the second query fails with "no location found"' do
-          before { pending 'bind result of block to Bind2 status' }
           before { DummyDB.stub_failing_query(:location, :id => 42) { 'no location found' } }
 
           describe 'return value' do

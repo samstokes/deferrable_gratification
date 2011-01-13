@@ -43,7 +43,7 @@ module SpecTools
   class DummyDB
     class << self
       # Run a query asynchronously.  Will report result via a Deferrable.
-      def query(query)
+      def query(*query_parts)
         # N.B. default impl never succeeds or fails: call stub_*_query first
         # if you want to test that.
         EM::DefaultDeferrable.new
