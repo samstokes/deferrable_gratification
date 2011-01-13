@@ -35,6 +35,36 @@ end
 
 
 module SpecTools
+  # Simulates an async database API.
+  #
+  # Uses a hypothetical query language: e.g.
+  #   query(:id, :name => "Sam")        # => 42
+  #   query(:age, :location, :id => 42) # => [26, 'San Francisco']
+  class DummyDB
+    class << self
+      # Run a query asynchronously.  Will report result via a Deferrable.
+      def query(query)
+        # N.B. default impl never succeeds or fails: call stub_*_query first
+        # if you want to test that.
+        EM::DefaultDeferrable.new
+      end
+
+      def stub_successful_query(*args)
+        stub(:query).with(*args).and_return do
+          DG.const(yield).
+            tap(&:go)       # TODO
+        end
+      end
+
+      def stub_failing_query(*args)
+        stub(:query).with(*args).and_return do
+          DG.failure(yield).
+              tap(&:go)     # TODO
+          end
+      end
+    end
+  end
+
   class ResultReceiver
     attr_reader :result
 

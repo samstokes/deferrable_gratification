@@ -8,8 +8,8 @@ module DeferrableGratification
       Bind.new(self, subsequent)
     end
 
-    def bind!(&side_effecty_block)
-      Bind2.setup!(self, &side_effecty_block)
+    def bind!(&block)
+      Bind2.setup!(self, &block)
     end
 
     def <<(previous)

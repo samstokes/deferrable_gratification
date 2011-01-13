@@ -119,54 +119,62 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#bind!' do
-    let(:first_operation) { DG::DefaultDeferrable.new }
+    DummyDB = SpecTools::DummyDB
 
-    describe '@results = []; first_operation.bind!(&@results.method(:<<))' do
-      before do
-        @results = []
-        first_operation.bind!(&@results.method(:<<))
-      end
+    describe 'DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) }' do
+      def bind!() DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) } end
 
-      describe 'if first operation succeeds with :wahey!' do
-        before { first_operation.succeed :wahey! }
+      describe 'if first query succeeds with id 42' do
+        before { DummyDB.stub_successful_query(:id, :name => 'Sam') { 42 } }
 
-        it 'should add :wahey! to @results' do
-          @results.should == [:wahey!]
+        it 'should pass id 42 to the second query' do
+          DummyDB.should_receive(:query).with(:location, :id => 42)
+          bind!
+        end
+
+        describe 'if the second query succeeds with "San Francisco"' do
+          before { pending 'bind result of block to Bind2 status' }
+          before { DummyDB.stub_successful_query(:location, :id => 42) { 'San Francisco' } }
+
+          describe 'return value' do
+            subject { bind! }
+
+            it { should succeed_with 'San Francisco' }
+          end
+        end
+
+        describe 'if the second query fails with "no location found"' do
+          before { pending 'bind result of block to Bind2 status' }
+          before { DummyDB.stub_failing_query(:location, :id => 42) { 'no location found' } }
+
+          describe 'return value' do
+            subject { bind! }
+
+            it { should fail_with 'no location found' }
+          end
         end
       end
 
-      describe 'if first operation fails' do
-        before { first_operation.fail RuntimeError.new('Boom!') }
+      describe 'if first query fails' do
+        before { DummyDB.stub_failing_query(:id, :name => 'Sam') { 'user Sam not found' } }
 
-        it 'should not touch @results' do
-          @results.should be_empty
+        it 'should not run the second query' do
+          DummyDB.should_not_receive(:query).with(:location, :id => anything())
+          bind!
         end
       end
     end
 
-    describe 'first_operation.bind! { raise "I am buggy" }' do
-      before { first_operation.bind! { raise "I am buggy" } }
+    describe 'DummyDB.query(:id, :name => "Sam").bind! {|id| raise "id #{id} not authorised" }' do
+      let(:first_query) { DummyDB.query(:id, :name => "Sam") }
+      def bind!() first_query.bind! {|id| raise "id #{id} not authorised" } end
 
-      it 'should not stop the first operation from succeeding' do
-        first_operation.succeed :woohoo
-        first_operation.should succeed_with(:woohoo)
-      end
-    end
+      describe 'if first query succeeds with id 42' do
+        before { DummyDB.stub_successful_query(:id, :name => 'Sam') { 42 } }
 
-    describe 'first_operation.bind! {|name| begin_greeter(name) }' do
-      describe 'returned value' do
-        subject { first_operation.bind! {|name| begin_greeter(name) } }
-
-        def begin_greeter(name)
-          DG.const("Hello #{name}!").tap(&:go)
-        end
-
-        before { pending 'bind result of block to Bind2 status' }
-
-        describe 'if first operation succeeds with "Sam"' do
-          before { first_operation.succeed('Sam') }
-
-          it { should succeed_with('Hello Sam!') }
+        it 'should not stop the first query from succeeding (in case other code subscribed to it)' do
+          bind!
+          first_query.should succeed_with(42)
         end
       end
     end
