@@ -5,11 +5,11 @@ end
 module DeferrableGratification
   module Combinators
     def >>(prok)
-      Bind2.setup!(self, &prok)
+      Bind.setup!(self, &prok)
     end
 
     def bind!(&block)
-      Bind2.setup!(self, &block)
+      Bind.setup!(self, &block)
     end
 
     def map(&block)
