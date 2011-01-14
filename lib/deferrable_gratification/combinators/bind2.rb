@@ -21,17 +21,28 @@ module DeferrableGratification
       end
 
       def setup!
-        @first.callback do |*args|
-          @proc.call(*args).tap do |second|
-            second.callback {|*args2| self.succeed(*args2) }
-            second.errback {|*error| self.fail(*error) }
-          end rescue nil
-        end
+        @first.callback {|*args| run_bound_proc(*args) }
         @first.errback {|*args| self.fail(*args) }
       end
 
       def self.setup!(*args, &block)
         new(*args, &block).tap(&:setup!)
+      end
+
+      private
+      def run_bound_proc(*args)
+        begin
+          second = @proc.call(*args)
+        rescue => error
+          self.fail(error)
+        else
+          if second.respond_to?(:callback) && second.respond_to?(:errback)
+            second.callback {|*args2| self.succeed(*args2) }
+            second.errback {|*error| self.fail(*error) }
+          else
+            self.succeed(second)
+          end
+        end
       end
     end
   end

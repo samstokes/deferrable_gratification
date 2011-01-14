@@ -30,15 +30,6 @@ describe DeferrableGratification::Combinators::Bind2 do
         end
       end
 
-      describe 'if block raises an exception' do
-        let(:bind) { described_class.new(first_deferrable) { raise 'Boom!' } }
-
-        it 'should not prevent the first Deferrable succeeding' do
-          subject.succeed(:woohoo)
-          subject.should succeed_with(:woohoo)
-        end
-      end
-
       describe 'if block calls first_deferrable.fail' do
         # EM::Deferrable callbacks are allowed to re-set the Deferrable's
         # status, triggering errbacks as if it had failed in the first place.
@@ -46,13 +37,16 @@ describe DeferrableGratification::Combinators::Bind2 do
 
         let(:bind) do
           described_class.new(first_deferrable) do
-            first_deferrable.fail(RuntimeError.new('nice try'))
+            # maybe the block does some validation on the result, and then
+            # retries with a more expensive query if the validation fails.
+            first_deferrable.fail(RuntimeError.new('found invalid user'))
+            DummyDB.query(:expensive_id, :name => 'Bob')
           end
         end
 
         before { subject.succeed }
 
-        it { should fail_with(RuntimeError, 'nice try') }
+        it { should fail_with(RuntimeError, 'found invalid user') }
       end
     end
 
@@ -88,13 +82,16 @@ describe DeferrableGratification::Combinators::Bind2 do
 
           let(:bind) do
             described_class.new(first_deferrable) do
-              first_deferrable.fail(RuntimeError.new('nice try'))
+              # maybe the block does some validation on the result, and then
+              # retries with a more expensive query if the validation fails.
+              first_deferrable.fail(RuntimeError.new('found invalid user'))
+              DummyDB.query(:expensive_id, :name => 'Bob')
             end
           end
 
           before { first_deferrable.succeed }
 
-          it { should fail_with(RuntimeError, 'nice try') }
+          it { should fail_with(RuntimeError, 'found invalid user') }
         end
       end
 
@@ -122,11 +119,20 @@ describe DeferrableGratification::Combinators::Bind2 do
           subject.succeed(:wahey)
           results.should == [:wahey]
         end
+
+        describe 'if block raises an exception' do
+          let(:bind) { described_class.new(first_deferrable) { raise 'Boom!' } }
+
+          it 'should not prevent the first Deferrable succeeding' do
+            subject.succeed(:woohoo)
+            subject.should succeed_with(:woohoo)
+          end
+        end
+
       end
     end
 
     describe "the #{described_class} Deferrable itself" do
-      before { pending 'not yet implemented' }
       subject { bind }
       before { subject.setup! }
 
@@ -148,8 +154,8 @@ describe DeferrableGratification::Combinators::Bind2 do
             described_class.new(first_deferrable) { raise 'Kaboom' }
           end
 
-          it 'should still succeed with whatever the first deferrable succeeded with' do
-            subject.should succeed_with 'hello'
+          it 'should fail and pass through the exception' do
+            subject.should fail_with 'Kaboom'
           end
         end
       end
