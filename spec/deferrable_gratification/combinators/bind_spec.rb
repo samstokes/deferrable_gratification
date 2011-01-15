@@ -171,8 +171,8 @@ describe DeferrableGratification::Combinators::Bind do
     # into inner scopes by creating closures).
 
     class << self
-      def good_op(x); DG.const(x).tap(&:go); end
-      def bad_op(*_); DG.failure(RuntimeError, 'Oops').tap(&:go); end
+      def good_op(x); DG.const(x); end
+      def bad_op(*_); DG.failure(RuntimeError, 'Oops'); end
       def transform(x); x.succ; end
       def boom(*_); raise 'Boom!'; end
     end

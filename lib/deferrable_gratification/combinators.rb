@@ -23,7 +23,7 @@ module DeferrableGratification
 
     module ClassMethods
       def chain(*actions)
-        actions.inject(DG.const(nil).tap(&:go), &:>>)
+        actions.inject(DG.const(nil), &:>>)
       end
     end
   end

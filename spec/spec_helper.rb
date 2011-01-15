@@ -33,17 +33,11 @@ module SpecTools
       end
 
       def stub_successful_query(*args)
-        stub(:query).with(*args).and_return do
-          DG.const(yield).
-            tap(&:go)       # TODO
-        end
+        stub(:query).with(*args).and_return { DG.const(yield) }
       end
 
       def stub_failing_query(*args)
-        stub(:query).with(*args).and_return do
-          DG.failure(yield).
-              tap(&:go)     # TODO
-          end
+        stub(:query).with(*args).and_return { DG.failure(yield) }
       end
     end
   end
