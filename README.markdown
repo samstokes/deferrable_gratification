@@ -7,6 +7,10 @@ compose, and thus easier to create higher-level abstractions around.  It also
 enhances the API offered by Ruby Deferrables to make them more pleasant to work
 with.
 
+## Instructions ##
+
+    gem install deferrable_gratification
+
 ## Documentation ##
 
 * [API](http://samstokes.github.com/deferrable_gratification/doc/frames.html)
