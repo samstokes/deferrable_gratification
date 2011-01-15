@@ -7,6 +7,12 @@ compose, and thus easier to create higher-level abstractions around.  It also
 enhances the API offered by Ruby Deferrables to make them more pleasant to work
 with.
 
+## Documentation ##
+
+* [API](http://samstokes.github.com/deferrable_gratification/doc/frames.html)
+* [Behaviour specs](http://samstokes.github.com/deferrable_gratification/doc/spec/index.html)
+  (generated from RSpec code examples)
+
 ## Components ##
 
 It currently consists of the following components:
