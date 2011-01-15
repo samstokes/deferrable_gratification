@@ -22,10 +22,6 @@ module DeferrableGratification
     end
 
     module ClassMethods
-      def lift(&block)
-        Lift.new(&block)
-      end
-
       def chain(*actions)
         actions.inject(DG.const(nil).tap(&:go), &:>>)
       end

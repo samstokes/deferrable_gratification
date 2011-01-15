@@ -165,31 +165,6 @@ describe DeferrableGratification::Combinators do
   end
 
 
-  describe '.lift' do
-    describe 'DG.lift {|result| result.class }' do
-      subject { DG.lift {|result| result.class } }
-
-      describe 'after #go(:i_am_a_symbol)' do
-        before { subject.go(:i_am_a_symbol) }
-
-        it { should succeed_with(Symbol) }
-      end
-    end
-
-    describe 'DG.lift { raise "Oops" }' do
-      subject { DG.lift { raise "Oops" } }
-
-      describe 'after #go(:i_am_a_symbol)' do
-        before { subject.go(:i_am_a_symbol) }
-
-        it 'should fail and pass through the exception' do
-          subject.should fail_with(RuntimeError, /Oops/)
-        end
-      end
-    end
-  end
-
-
   describe '.chain' do
     describe 'DG.chain()' do
       subject { DG.chain() }

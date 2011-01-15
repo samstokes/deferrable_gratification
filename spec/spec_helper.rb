@@ -8,13 +8,6 @@ shared_examples_for 'a Deferrable' do
 end
 
 
-shared_examples_for 'a launchable task' do
-  it 'should have a #go method to launch it' do
-    should respond_to(:go)
-  end
-end
-
-
 class RSpec::Core::ExampleGroup
   def self.it_should_include(mod)
     it "should include #{mod}" do
