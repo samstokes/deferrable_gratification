@@ -19,6 +19,7 @@ Currently consists of the following components:
   gem.email = %w(sam@rapportive.com)
   gem.homepage = 'http://github.com/samstokes/deferrable_gratification'
 
+  gem.license = 'MIT'
 
   gem.required_ruby_version = '>= 1.8.7'
 
@@ -32,5 +33,6 @@ Currently consists of the following components:
 
   gem.files = Dir[*%w(
       lib/**/*
+      LICENSE*
       README*)] & %x{git ls-files -z}.split("\0")
 end
