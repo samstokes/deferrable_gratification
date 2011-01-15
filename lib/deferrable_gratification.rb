@@ -4,6 +4,14 @@ require File.join(File.dirname(__FILE__), *%w[deferrable_gratification default_d
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification fluent])
 require File.join(File.dirname(__FILE__), *%w[deferrable_gratification primitives])
 
+# Deferrable Gratification ({DG}) makes evented code less error-prone and
+# easier to compose, and thus easier to create higher-level abstractions
+# around.  It also enhances the API offered by Ruby Deferrables to make them
+# more pleasant to work with.
+#
+# @see Fluent
+# @see Bothback
+# @see Combinators
 module DeferrableGratification
   # Allow DG.lift, DG.chain etc
   extend Combinators::ClassMethods

@@ -33,6 +33,16 @@ module DeferrableGratification
     # therefore also supports (reasonably) arbitrary blocks.  However, it's
     # probably clearer (though equivalent) to use {#map} for this case.
     class Bind < DefaultDeferrable
+      # Prepare to bind +block+ to +first+, and create the Deferrable that
+      # will represent the bind.
+      #
+      # Does not actually set up any callbacks or errbacks: call {#setup!} for
+      # that.
+      #
+      # @param [Deferrable] first  operation to bind to.
+      # @param &block  block to run on success; should return a Deferrable.
+      #
+      # @raise [ArgumentError] if called without a block.
       def initialize(first, &block)
         @first = first
 
@@ -40,13 +50,22 @@ module DeferrableGratification
         @proc = block
       end
 
+      # Register a callback on the first Deferrable to run the bound block on
+      # success, and an errback to fail this {Bind} on failure.
       def setup!
         @first.callback {|*args| run_bound_proc(*args) }
         @first.errback {|*args| self.fail(*args) }
       end
 
-      def self.setup!(*args, &block)
-        new(*args, &block).tap(&:setup!)
+      # Create a {Bind} and register the callbacks.
+      #
+      # @param (see #initialize)
+      #
+      # @return [Bind] Deferrable representing the compound operation.
+      #
+      # @raise (see #initialize)
+      def self.setup!(first, &block)
+        new(first, &block).tap(&:setup!)
       end
 
       private

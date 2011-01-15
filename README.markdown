@@ -2,7 +2,10 @@
 
 ## Purpose ##
 
-Deferrable Gratification (DG) makes Ruby Deferrables nicer to work with.
+Deferrable Gratification (DG) makes evented code less error-prone and easier to
+compose, and thus easier to create higher-level abstractions around.  It also
+enhances the API offered by Ruby Deferrables to make them more pleasant to work
+with.
 
 ## Components ##
 
@@ -37,16 +40,19 @@ Register code to run on either success or failure: shorthand for calling both
 
 <h3 id="combinators"><tt>DG::Combinators</tt></h3>
 
-Motivating example:
+Allows building up higher-level asynchronous abstractions by composing simpler
+asynchronous operations, without having to manually wire callbacks together
+and remember to propagate errors correctly.
 
-    >> fetcher = AsyncPageFetcher.new('http://samstokes.co.uk')
-    >> cv_grepper = fetcher.map(&:response).map {|html| html.grep /CV/ }
-    >> cv_grepper.callback {|cv_lines| puts cv_lines }
-    >> EM.run { cv_grepper.go }
-    checking robots.txt...
-    robots.txt missing/unavailable or granted us access
-    Fetching url http://samstokes.co.uk ...
-    Successful fetch of http://samstokes.co.uk
+Motivating example: assume we have an asynchronous database API `DB.query`
+which returns a Deferrable to communicate when the query finishes.  (See
+the [API docs for `DG::Combinators`](DeferrableGratification/Combinators.html)
+for more detail.)
 
-    <a href="CV/">Click here</a> to view my CV, in MS Word format.
-    <p>See <a href="CV/">my CV</a> for a more complete list.</p>
+    def product_names_for_username(username)
+      DB.query('SELECT id FROM users WHERE username = ?', username).bind! do |user_id|
+        DB.query('SELECT name FROM products WHERE user_id = ?', user_id)
+      end.map do |product_names|
+        product_names.join(', ')
+      end
+    end

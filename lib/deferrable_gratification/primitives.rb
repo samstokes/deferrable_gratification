@@ -3,6 +3,14 @@ Dir.glob(File.join(File.dirname(__FILE__), *%w[primitives *.rb])) do |file|
 end
 
 module DeferrableGratification
+  # Trivial operations which return Deferrables.
+  #
+  # Used internally by the library, and may be useful in cases where you need
+  # to return a Deferrable to keep API compatibility but the result is already
+  # available.
+  #
+  # {DeferrableGratification} extends this module, and thus the methods here
+  # are accessible via the {DG} alias.
   module Primitives
     # Return a Deferrable which immediately succeeds with a constant value.
     def const(value)
