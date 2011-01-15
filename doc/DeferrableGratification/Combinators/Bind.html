@@ -81,7 +81,54 @@
 </dl>
 <div class="clear"></div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>
+Combinator that passes the result of one deferred operation to a block that
+uses that result to begin another deferred operation.  The compound
+operation itself succeeds if the second operation does.
+</p>
+<p>
+You probably want to call <span class='object_link'><a href="../Combinators.html#bind%21-instance_method" title="DeferrableGratification::Combinators#bind! (method)">#bind!</a></span> rather than using this class directly.
+</p>
+<p>
+If we define <tt>Deferrable err (IO a)</tt> to be the type of a Deferrable that
+may perform a side effect and then either succeed with a value of type a or
+fail with an error of type err, then we expect the block to have type
+</p>
+<pre class="code">
+    <span class='a identifier id'>a</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='lparen token'>(</span><span class='IO constant id'>IO</span> <span class='b identifier id'>b</span><span class='rparen token'>)</span>
+</pre>
+<p>
+and if so this combinator (actually <span class='object_link'><a href="#setup%21-class_method" title="DeferrableGratification::Combinators::Bind.setup! (method)">setup!</a></span>) is a specialisation of
+the monadic bind operator <tt>&gt;&gt;=</tt>:
+</p>
+<pre class="code">
+    <span class='comment val'># example: database query that depends on the result of another</span>
+    <span class='Bind constant id'>Bind</span><span class='dot token'>.</span><span class='setup! fid id'>setup!</span><span class='lparen token'>(</span><span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'select foo from bar'</span><span class='rparen token'>)</span><span class='rparen token'>)</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='result identifier id'>result</span><span class='bitor op'>|</span>
+      <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='dstring node'>&quot;select baz from quuz where name = '#{result}'&quot;</span><span class='rparen token'>)</span>
+    <span class='end end kw'>end</span>
 
+    <span class='comment val'># type signatures, in pseudo-Haskell</span>
+    <span class='lparen token'>(</span><span class='opasgn op'>&gt;&gt;=</span><span class='rparen token'>)</span> <span class='colon2 op'>::</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='a identifier id'>a</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span>
+                 <span class='lparen token'>(</span><span class='a identifier id'>a</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='b identifier id'>b</span><span class='rparen token'>)</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='b identifier id'>b</span>
+    <span class='Bind constant id'>Bind</span> <span class='colon3 op'>::</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='a identifier id'>a</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span>
+                 <span class='lparen token'>(</span><span class='a identifier id'>a</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='lparen token'>(</span><span class='IO constant id'>IO</span> <span class='b identifier id'>b</span><span class='rparen token'>)</span><span class='rparen token'>)</span> <span class='minus op'>-</span><span class='gt op'>&gt;</span> <span class='Deferrable constant id'>Deferrable</span> <span class='err identifier id'>err</span> <span class='lparen token'>(</span><span class='IO constant id'>IO</span> <span class='b identifier id'>b</span><span class='rparen token'>)</span>
+</pre>
+<p>
+However, because Ruby doesn&#8217;t actually type-check blocks, we
+can&#8217;t enforce that the block really does return a second Deferrable. 
+This therefore also supports (reasonably) arbitrary blocks.  However,
+it&#8217;s probably clearer (though equivalent) to use <span class='object_link'><a href="../Combinators.html#map-instance_method" title="DeferrableGratification::Combinators#map (method)">#map</a></span> for this
+case.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
 
   
   
@@ -91,7 +138,7 @@
 
   
     <h2>
-      Instance Method Summary
+      Class Method Summary
       <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
     </h2>
 
@@ -100,7 +147,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#go-instance_method" title="#go (instance method)">- (Object) <strong>go</strong>(*args) </a>
+      <a href="#setup%21-class_method" title="setup! (class method)">+ (Bind) <strong>setup!</strong>(first, &amp;block) </a>
     
 
     
@@ -113,15 +160,27 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>
+Create a <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span> and register the callbacks.
+</p>
+</div></span>
   
 </li>
 
       
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Bind) <strong>initialize</strong>(first, second) </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Bind) <strong>initialize</strong>(first, &amp;block) </a>
     
 
     
@@ -137,7 +196,33 @@
 
   
     <span class="summary_desc"><div class='inline'><p>
-A new instance of Bind.
+Prepare to bind <tt>block</tt> to <tt>first</tt>, and create the Deferrable
+that will represent the bind.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup%21-instance_method" title="#setup! (instance method)">- (Object) <strong>setup!</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Register a callback on the first Deferrable to run the bound block on
+success, and an errback to fail this <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span> on failure.
 </p>
 </div></span>
   
@@ -159,14 +244,252 @@ A new instance of Bind.
     <div class="method_details first">
   <p class="signature first" id="initialize-instance_method">
   
-    - (<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span></tt>) <strong>initialize</strong>(first, second) 
+    - (<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span></tt>) <strong>initialize</strong>(first, &amp;block) 
   
 
   
 </p><div class="docstring">
   <div class="discussion">
     <p>
-A new instance of Bind
+Prepare to bind <tt>block</tt> to <tt>first</tt>, and create the Deferrable
+that will represent the bind.
+</p>
+<p>
+Does not actually set up any callbacks or errbacks: call <span class='object_link'><a href="#setup%21-instance_method" title="DeferrableGratification::Combinators::Bind#setup! (method)">#setup!</a></span> for
+that.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+        <span class='name'>first</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+operation to bind to.
+</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>&amp;block</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+block to run on success; should return a Deferrable.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Raises:</h3>
+<ul class="raise">
+  
+    <li>
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+if called without a block.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/bind.rb', line 46</span>
+
+<span class='def def kw'>def</span> <span class='initialize identifier id'>initialize</span><span class='lparen token'>(</span><span class='first identifier id'>first</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='@first ivar id'>@first</span> <span class='assign token'>=</span> <span class='first identifier id'>first</span>
+
+  <span class='raise identifier id'>raise</span> <span class='ArgumentError constant id'>ArgumentError</span><span class='comma token'>,</span> <span class='string val'>'must pass a block'</span> <span class='unless unless_mod kw'>unless</span> <span class='block identifier id'>block</span>
+  <span class='@proc ivar id'>@proc</span> <span class='assign token'>=</span> <span class='block identifier id'>block</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="setup!-class_method">
+  
+    + (<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span></tt>) <strong>setup!</strong>(first, &amp;block) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Create a <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">DeferrableGratification::Combinators::Bind</a></span> and register the callbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+        <span class='name'>first</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+operation to bind to.
+</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>&amp;block</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+block to run on success; should return a Deferrable.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span></tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Deferrable representing the compound operation.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Raises:</h3>
+<ul class="raise">
+  
+    <li>
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+if called without a block.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/bind.rb', line 67</span>
+
+<span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='setup! fid id'>setup!</span><span class='lparen token'>(</span><span class='first identifier id'>first</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='first identifier id'>first</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='tap identifier id'>tap</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='symbol val'>:setup!</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="setup!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>setup!</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Register a callback on the first Deferrable to run the bound block on
+success, and an errback to fail this <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Bind (class)">DeferrableGratification::Combinators::Bind</a></span> on failure.
 </p>
 
 
@@ -180,69 +503,17 @@ A new instance of Bind
       <pre class="lines">
 
 
-6
-7
-8
-9</pre>
+55
+56
+57
+58</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/bind.rb', line 6</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/bind.rb', line 55</span>
 
-<span class='def def kw'>def</span> <span class='initialize identifier id'>initialize</span><span class='lparen token'>(</span><span class='first identifier id'>first</span><span class='comma token'>,</span> <span class='second identifier id'>second</span><span class='rparen token'>)</span>
-  <span class='@first ivar id'>@first</span> <span class='assign token'>=</span> <span class='first identifier id'>first</span>
-  <span class='@second ivar id'>@second</span> <span class='assign token'>=</span> <span class='second identifier id'>second</span>
-<span class='end end kw'>end</span>
-</pre>
-    </td>
-  </tr>
-</table>
-</div>
-  
-</div>
-
-
-  <div id="instance_method_details" class="method_details_list">
-    <h2>Instance Method Details</h2>
-    
-    
-      <div class="method_details first">
-  <p class="signature first" id="go-instance_method">
-  
-    - (<tt>Object</tt>) <strong>go</strong>(*args) 
-  
-
-  
-</p><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/bind.rb', line 11</span>
-
-<span class='def def kw'>def</span> <span class='go identifier id'>go</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span>
-  <span class='@first ivar id'>@first</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='bitor op'>|</span> <span class='@second ivar id'>@second</span><span class='dot token'>.</span><span class='go identifier id'>go</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
-  <span class='@second ivar id'>@second</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='bitor op'>|</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='succeed identifier id'>succeed</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
-
+<span class='def def kw'>def</span> <span class='setup! fid id'>setup!</span>
+  <span class='@first ivar id'>@first</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='bitor op'>|</span> <span class='run_bound_proc identifier id'>run_bound_proc</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
   <span class='@first ivar id'>@first</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='bitor op'>|</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
-  <span class='@second ivar id'>@second</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='bitor op'>|</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
-
-  <span class='@first ivar id'>@first</span><span class='dot token'>.</span><span class='go identifier id'>go</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span>
-
-  <span class='self self kw'>self</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -255,7 +526,7 @@ A new instance of Bind
 </div>
     
     <div id="footer">
-  Generated on Mon Jan 10 16:13:36 2011 by 
+  Generated on Sat Jan 15 15:41:33 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

@@ -45,7 +45,19 @@
 
 <h2>Purpose</h2>
 
-<p>Deferrable Gratification (DG) makes Ruby Deferrables nicer to work with.</p>
+<p>Deferrable Gratification (DG) makes evented code less error-prone and easier to
+compose, and thus easier to create higher-level abstractions around.  It also
+enhances the API offered by Ruby Deferrables to make them more pleasant to work
+with.</p>
+
+<h2>Documentation</h2>
+
+<ul>
+<li><a href="http://samstokes.github.com/deferrable_gratification/doc/frames.html">API</a></li>
+<li><a href="http://samstokes.github.com/deferrable_gratification/doc/spec/index.html">Behaviour specs</a>
+(generated from RSpec code examples)</li>
+</ul>
+
 
 <h2>Components</h2>
 
@@ -84,23 +96,26 @@ errbacks on the same Deferrable.  e.g.</p>
 <h3 id="combinators"><tt>DG::Combinators</tt></h3>
 
 
-<p>Motivating example:</p>
+<p>Allows building up higher-level asynchronous abstractions by composing simpler
+asynchronous operations, without having to manually wire callbacks together
+and remember to propagate errors correctly.</p>
 
-<pre class="code"><span class='rshft op'>&gt;&gt;</span> <span class='fetcher identifier id'>fetcher</span> <span class='assign token'>=</span> <span class='AsyncPageFetcher constant id'>AsyncPageFetcher</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='string val'>'http://samstokes.co.uk'</span><span class='rparen token'>)</span>
-<span class='rshft op'>&gt;&gt;</span> <span class='cv_grepper identifier id'>cv_grepper</span> <span class='assign token'>=</span> <span class='fetcher identifier id'>fetcher</span><span class='dot token'>.</span><span class='map identifier id'>map</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='symbol val'>:response</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='html identifier id'>html</span><span class='bitor op'>|</span> <span class='html identifier id'>html</span><span class='dot token'>.</span><span class='grep identifier id'>grep</span> <span class='regexp val'>/CV/</span> <span class='rbrace token'>}</span>
-<span class='rshft op'>&gt;&gt;</span> <span class='cv_grepper identifier id'>cv_grepper</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='cv_lines identifier id'>cv_lines</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='cv_lines identifier id'>cv_lines</span> <span class='rbrace token'>}</span>
-<span class='rshft op'>&gt;&gt;</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='lbrace token'>{</span> <span class='cv_grepper identifier id'>cv_grepper</span><span class='dot token'>.</span><span class='go identifier id'>go</span> <span class='rbrace token'>}</span>
-<span class='checking identifier id'>checking</span> <span class='robots identifier id'>robots</span><span class='dot token'>.</span><span class='txt identifier id'>txt</span><span class='dot3 op'>...</span>
-<span class='robots identifier id'>robots</span><span class='dot token'>.</span><span class='txt identifier id'>txt</span> <span class='missing identifier id'>missing</span><span class='div op'>/</span><span class='unavailable identifier id'>unavailable</span> <span class='or or kw'>or</span> <span class='granted identifier id'>granted</span> <span class='us identifier id'>us</span> <span class='access identifier id'>access</span>
-<span class='Fetching constant id'>Fetching</span> <span class='url identifier id'>url</span> <span class='http identifier id'>http</span><span class='symbol val'>:/</span><span class='regexp val'>/samstokes.co.uk ...
-Successful fetch of http:/</span><span class='div op'>/</span><span class='samstokes identifier id'>samstokes</span><span class='dot token'>.</span><span class='co identifier id'>co</span><span class='dot token'>.</span><span class='uk identifier id'>uk</span>
+<p>Motivating example: assume we have an asynchronous database API <code>DB.query</code>
+which returns a Deferrable to communicate when the query finishes.  (See
+the <a href="DeferrableGratification/Combinators.html">API docs for <code>DG::Combinators</code></a>
+for more detail.)</p>
 
-<span class='lt op'>&lt;</span><span class='a identifier id'>a</span> <span class='href identifier id'>href</span><span class='assign token'>=</span><span class='string val'>&quot;CV/&quot;</span><span class='gt op'>&gt;</span><span class='Click constant id'>Click</span> <span class='here identifier id'>here</span><span class='lt op'>&lt;</span><span class='regexp val'>/a&gt; to view my CV, in MS Word format.
-&lt;p&gt;See &lt;a href=&quot;CV/</span><span class='string val'>&quot;&gt;my CV&lt;/a&gt; for a more complete list.&lt;/p&gt;
-</span></pre></div></div>
+<pre class="code"><span class='def def kw'>def</span> <span class='product_names_for_username identifier id'>product_names_for_username</span><span class='lparen token'>(</span><span class='username identifier id'>username</span><span class='rparen token'>)</span>
+  <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT id FROM users WHERE username = ?'</span><span class='comma token'>,</span> <span class='username identifier id'>username</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='bind! fid id'>bind!</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='user_id identifier id'>user_id</span><span class='bitor op'>|</span>
+    <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT name FROM products WHERE user_id = ?'</span><span class='comma token'>,</span> <span class='user_id identifier id'>user_id</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='product_names identifier id'>product_names</span><span class='bitor op'>|</span>
+    <span class='product_names identifier id'>product_names</span><span class='dot token'>.</span><span class='join identifier id'>join</span><span class='lparen token'>(</span><span class='string val'>', '</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+</pre></div></div>
     
     <div id="footer">
-  Generated on Mon Jan 10 16:13:36 2011 by 
+  Generated on Sat Jan 15 15:41:33 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

@@ -68,7 +68,22 @@
 </dl>
 <div class="clear"></div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>
+Combinators which don&#8217;t make sense as methods on <tt>Deferrable</tt>.
+</p>
+<p>
+<span class='object_link'><a href="../../DeferrableGratification.html" title="DeferrableGratification (module)">DeferrableGratification</a></span> extends this module, and thus the methods here
+are accessible via the <span class='object_link'><a href="../../top-level-namespace.html#DG-constant" title="DG (constant)">DG</a></span> alias.
+</p>
 
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
 
 
   
@@ -82,7 +97,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#chain-instance_method" title="#chain (instance method)">- (Object) <strong>chain</strong>(*actions) </a>
+      <a href="#chain-instance_method" title="#chain (instance method)">- (Deferrable) <strong>chain</strong>(*actions) </a>
     
 
     
@@ -95,28 +110,11 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#lift-instance_method" title="#lift (instance method)">- (Object) <strong>lift</strong>(&amp;block) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>
+Execute a sequence of asynchronous operations that may each depend on the
+result of the previous operation.
+</p>
+</div></span>
   
 </li>
 
@@ -133,54 +131,85 @@
       <div class="method_details first">
   <p class="signature first" id="chain-instance_method">
   
-    - (<tt>Object</tt>) <strong>chain</strong>(*actions) 
+    - (<tt>Deferrable</tt>) <strong>chain</strong>(*actions) 
   
 
   
-</p><table class="source_code">
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Execute a sequence of asynchronous operations that may each depend on the
+result of the previous operation.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>*Proc</tt>)</span>
+      
+      
+        <span class='name'>*actions</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+procs that will perform an operation and return a Deferrable.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Deferrable that will succeed if all of the chained operations succeeded,
+and callback with the result of the last operation.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <h3>See Also:</h3>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../Combinators.html#bind%21-instance_method" title="DeferrableGratification::Combinators#bind! (method)">more detail on the semantics.</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-29
-30
-31</pre>
+167
+168
+169</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 29</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 167</span>
 
 <span class='def def kw'>def</span> <span class='chain identifier id'>chain</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='actions identifier id'>actions</span><span class='rparen token'>)</span>
-  <span class='actions identifier id'>actions</span><span class='dot token'>.</span><span class='inject identifier id'>inject</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='symbol val'>:&gt;&gt;</span><span class='rparen token'>)</span>
-<span class='end end kw'>end</span>
-</pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <p class="signature " id="lift-instance_method">
-  
-    - (<tt>Object</tt>) <strong>lift</strong>(&amp;block) 
-  
-
-  
-</p><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-25
-26
-27</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 25</span>
-
-<span class='def def kw'>def</span> <span class='lift identifier id'>lift</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
-  <span class='Lift constant id'>Lift</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='actions identifier id'>actions</span><span class='dot token'>.</span><span class='inject identifier id'>inject</span><span class='lparen token'>(</span><span class='DG constant id'>DG</span><span class='dot token'>.</span><span class='const identifier id'>const</span><span class='lparen token'>(</span><span class='nil nil kw'>nil</span><span class='rparen token'>)</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='symbol val'>:&gt;&gt;</span><span class='rparen token'>)</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -193,7 +222,7 @@
 </div>
     
     <div id="footer">
-  Generated on Mon Jan 10 16:13:36 2011 by 
+  Generated on Sat Jan 15 15:41:33 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

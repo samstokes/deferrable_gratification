@@ -64,13 +64,38 @@
   
     <dt class="r2 last">Defined in:</dt>
     <dd class="r2 last">lib/deferrable_gratification.rb<span class="defines">,<br />
-  lib/deferrable_gratification/fluent.rb,<br /> lib/deferrable_gratification/bothback.rb,<br /> lib/deferrable_gratification/primitives.rb,<br /> lib/deferrable_gratification/combinators.rb,<br /> lib/deferrable_gratification/combinators/lift.rb,<br /> lib/deferrable_gratification/combinators/bind.rb,<br /> lib/deferrable_gratification/primitives/const.rb,<br /> lib/deferrable_gratification/primitives/failure.rb,<br /> lib/deferrable_gratification/default_deferrable.rb</span>
+  lib/deferrable_gratification/fluent.rb,<br /> lib/deferrable_gratification/bothback.rb,<br /> lib/deferrable_gratification/primitives.rb,<br /> lib/deferrable_gratification/combinators.rb,<br /> lib/deferrable_gratification/combinators/bind.rb,<br /> lib/deferrable_gratification/default_deferrable.rb</span>
 </dd>
   
 </dl>
 <div class="clear"></div>
 
-<h2>Defined Under Namespace</h2>
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>
+Deferrable Gratification (<span class='object_link'><a href="top-level-namespace.html#DG-constant" title="DG (constant)">DG</a></span>) makes evented code less error-prone and
+easier to compose, and thus easier to create higher-level abstractions
+around.  It also enhances the API offered by Ruby Deferrables to make them
+more pleasant to work with.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <h3>See Also:</h3>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="DeferrableGratification/Fluent.html" title="DeferrableGratification::Fluent (module)">Fluent</a></span></li>
+    
+      <li><span class='object_link'><a href="DeferrableGratification/Bothback.html" title="DeferrableGratification::Bothback (module)">Bothback</a></span></li>
+    
+      <li><span class='object_link'><a href="DeferrableGratification/Combinators.html" title="DeferrableGratification::Combinators (module)">Combinators</a></span></li>
+    
+  </ul>
+
+</div><h2>Defined Under Namespace</h2>
 <p class="children">
    
     
@@ -162,7 +187,7 @@ DG goodness.
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="DeferrableGratification/Primitives.html" title="DeferrableGratification::Primitives (module)">Primitives</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Primitives.html#const-instance_method" title="DeferrableGratification::Primitives#const (method)">const</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#failure-instance_method" title="DeferrableGratification::Primitives#failure (method)">failure</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Primitives.html#blank-instance_method" title="DeferrableGratification::Primitives#blank (method)">blank</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#const-instance_method" title="DeferrableGratification::Primitives#const (method)">const</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#failure-instance_method" title="DeferrableGratification::Primitives#failure (method)">failure</a></span></p>
 
   
   
@@ -172,7 +197,7 @@ DG goodness.
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="DeferrableGratification/Combinators/ClassMethods.html" title="DeferrableGratification::Combinators::ClassMethods (module)">Combinators::ClassMethods</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Combinators/ClassMethods.html#chain-instance_method" title="DeferrableGratification::Combinators::ClassMethods#chain (method)">chain</a></span>, <span class='object_link'><a href="DeferrableGratification/Combinators/ClassMethods.html#lift-instance_method" title="DeferrableGratification::Combinators::ClassMethods#lift (method)">lift</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Combinators/ClassMethods.html#chain-instance_method" title="DeferrableGratification::Combinators::ClassMethods#chain (method)">chain</a></span></p>
 
 
   <div id="class_method_details" class="method_details_list">
@@ -207,14 +232,14 @@ already included that module.
       <pre class="lines">
 
 
-18
-19
-20
-21
-22</pre>
+26
+27
+28
+29
+30</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 26</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enhance! fid id'>enhance!</span><span class='lparen token'>(</span><span class='module_or_class identifier id'>module_or_class</span><span class='rparen token'>)</span>
   <span class='module_or_class identifier id'>module_or_class</span><span class='dot token'>.</span><span class='send identifier id'>send</span> <span class='symbol val'>:include</span><span class='comma token'>,</span> <span class='Combinators constant id'>Combinators</span>
@@ -260,19 +285,19 @@ Deferrable classes.  (If that isn&#8217;t possible, you can always call
       <pre class="lines">
 
 
-33
-34
-35
-36
-37
-38
-39
-40
 41
-42</pre>
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 41</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enhance_all_deferrables! fid id'>enhance_all_deferrables!</span>
   <span class='require identifier id'>require</span> <span class='string val'>'eventmachine'</span>
@@ -295,7 +320,7 @@ Deferrable classes.  (If that isn&#8217;t possible, you can always call
 </div>
     
     <div id="footer">
-  Generated on Mon Jan 10 16:13:36 2011 by 
+  Generated on Sat Jan 15 15:41:33 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>
