@@ -106,8 +106,6 @@ describe DeferrableGratification::Combinators do
 
 
   describe '#bind!' do
-    DummyDB = SpecTools::DummyDB
-
     describe 'DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) }' do
       def bind!() DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) } end
 

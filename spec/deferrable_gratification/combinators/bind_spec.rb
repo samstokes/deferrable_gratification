@@ -3,8 +3,6 @@ require 'deferrable_gratification'
 describe DeferrableGratification::Combinators::Bind do
   let(:first_deferrable) { EventMachine::DefaultDeferrable.new }
 
-  DummyDB = SpecTools::DummyDB
-
   describe 'constructed with a block returning a deferrable' do
     describe 'side effects on first deferrable' do
       subject { first_deferrable }

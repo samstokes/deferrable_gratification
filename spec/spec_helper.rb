@@ -80,6 +80,9 @@ module SpecTools
 end
 
 
+DummyDB = SpecTools::DummyDB
+
+
 RSpec::Matchers.define :succeed_with do |value|
   match do |deferrable|
     @callback = SpecTools::ResultReceiver.new
