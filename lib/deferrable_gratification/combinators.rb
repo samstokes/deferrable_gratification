@@ -131,7 +131,7 @@ module DeferrableGratification
     # Deferrable will also fail.
     #
     # @param &block block that transforms the expected result of this
-    # operation in some way.
+    #   operation in some way.
     #
     # @return [Deferrable] Deferrable that will succeed if this operation did,
     #   after transforming its result.
