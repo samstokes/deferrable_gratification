@@ -13,7 +13,7 @@ with.
 
 ## Documentation ##
 
-* [API](http://samstokes.github.com/deferrable_gratification/doc/frames.html)
+* [API](http://samstokes.github.com/deferrable_gratification/doc/api/frames.html)
 * [Behaviour specs](http://samstokes.github.com/deferrable_gratification/doc/spec/index.html)
   (generated from RSpec code examples)
 
@@ -56,7 +56,7 @@ and remember to propagate errors correctly.
 
 Motivating example: assume we have an asynchronous database API `DB.query`
 which returns a Deferrable to communicate when the query finishes.  (See
-the [API docs for `DG::Combinators`](DeferrableGratification/Combinators.html)
+the [API docs for `DG::Combinators`](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Combinators.html)
 for more detail.)
 
     def product_names_for_username(username)
