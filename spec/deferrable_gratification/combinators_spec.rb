@@ -105,6 +105,70 @@ describe DeferrableGratification::Combinators do
   end
 
 
+  describe '#transform_error' do
+    let(:operation) { DG::DefaultDeferrable.new }
+
+    describe 'operation.transform_error {|msg| RuntimeError.new(msg) }' do
+      subject { operation.transform_error {|msg| RuntimeError.new(msg) } }
+
+      describe 'if the operation succeeds with "Hello"' do
+        before { operation.succeed('Hello') }
+        it { should succeed_with('Hello') }
+      end
+
+      describe 'if the operation fails with the string "bad robot"' do
+        before { operation.fail('bad robot') }
+        it { should fail_with(RuntimeError, 'bad robot') }
+      end
+    end
+
+    describe 'operation.transform_error { raise "kaboom!" }' do
+      subject { operation.transform_error { raise "kaboom!" } }
+
+      describe 'if the operation succeeds' do
+        before { operation.succeed 'Hello' }
+        it { should succeed_with 'Hello' }
+      end
+
+      describe 'if the operation fails' do
+        before { operation.fail 'bad robot' }
+
+        it 'should catch the exception' do
+          lambda { subject }.should_not raise_error(/kaboom/)
+        end
+
+        it 'should fail and pass through the exception' do
+          subject.should fail_with(RuntimeError, /kaboom!/)
+        end
+      end
+    end
+
+    describe '@errors = []; operation.transform_error(&@errors.method(:<<))' do
+      before do
+        @errors = []
+        operation.transform_error(&@errors.method(:<<))
+      end
+
+      describe 'if operation succeeds with :wahey!' do
+        before { operation.succeed :wahey! }
+
+        it 'should not touch @errors' do
+          @errors.should be_empty
+        end
+      end
+
+      describe 'if operation fails' do
+        before { operation.fail RuntimeError.new('Boom!') }
+
+        it 'should add RuntimeError("Boom!") to @errors' do
+          @errors.first.should be_a RuntimeError
+          @errors.first.message.should == 'Boom!'
+        end
+      end
+    end
+  end
+
+
   describe '#bind!' do
     describe 'DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) }' do
       def bind!() DummyDB.query(:id, :name => "Sam").bind! {|id| DummyDB.query(:location, :id => id) } end

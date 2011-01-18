@@ -142,6 +142,28 @@ module DeferrableGratification
       bind!(&block)
     end
 
+    # Transform the value passed to the errback of this Deferrable by invoking
+    # +block+.  If this operation succeeds, the returned Deferrable will
+    # succeed with the same value.  If this operation fails, the returned
+    # Deferrable will fail with the transformed error value.
+    #
+    # @param &block block that transforms the expected error value of this
+    #   operation in some way.
+    #
+    # @return [Deferrable] Deferrable that will succeed if this operation did,
+    #   otherwise fail after transforming the error value with which this
+    #   operation failed.
+    def transform_error(&block)
+      errback do |*err|
+        self.fail(
+          begin
+            yield(*err)
+          rescue => e
+            e
+          end)
+      end
+    end
+
 
     # Boilerplate hook to extend {ClassMethods}.
     def self.included(base)
