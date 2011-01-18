@@ -289,4 +289,64 @@ DG.chain(
       it { should fail_with('No such person') }
     end
   end
+
+
+  describe '.join_successes' do
+    describe 'DG.join_successes()' do
+      subject { DG.join_successes() }
+      it { should succeed_with [] }
+    end
+
+    describe 'DG.join_successes(first, second)' do
+      let(:first) { EM::DefaultDeferrable.new }
+      let(:second) { EM::DefaultDeferrable.new }
+      subject { DG.join_successes(first, second) }
+
+      it 'should not succeed or fail' do
+        subject.should_not succeed_with(/./)
+        subject.should_not fail_with(/./)
+      end
+
+      describe 'after first succeeds with :one' do
+        before { first.succeed :one }
+
+        it 'should not succeed or fail' do
+          subject.should_not succeed_with(/./)
+          subject.should_not fail_with(/./)
+        end
+
+        describe 'after second succeeds with :two' do
+          before { second.succeed :two }
+
+          it { should succeed_with [:one, :two] }
+        end
+
+        describe 'after second fails' do
+          before { second.fail 'oops' }
+
+          it { should succeed_with [:one] }
+        end
+      end
+
+      describe 'after both fail' do
+        before { first.fail 'oops'; second.fail 'oops' }
+
+        it { should succeed_with [] }
+      end
+
+      describe 'preserving order of operations' do
+        describe 'if second succeeds before first does' do
+          subject do
+            DG.join_successes(first, second).tap do |successes|
+              second.succeed :two
+              first.succeed :one
+            end
+          end
+          it 'should still succeed with [:one, :two]' do
+            subject.should succeed_with [:one, :two]
+          end
+        end
+      end
+    end
+  end
 end

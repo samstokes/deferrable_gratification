@@ -189,6 +189,28 @@ module DeferrableGratification
       def chain(*actions)
         actions.inject(DG.const(nil), &:>>)
       end
+
+      # Combinator that waits for all of the supplied asynchronous operations
+      # to succeed or fail, then succeeds with the results of all those
+      # operations that were successful.
+      #
+      # This Deferrable will never fail.  It may also never succeed, if _any_
+      # of the supplied operations does not either succeed or fail.
+      #
+      # The successful results are guaranteed to be in the same order as the
+      # operations were passed in (which may _not_ be the same as the
+      # chronological order in which they succeeded).
+      #
+      # @param [*Deferrable] *operations deferred statuses of asynchronous
+      #   operations to wait for.
+      #
+      # @return [Deferrable] a deferred status that will succeed after all the
+      #   +operations+ have either succeeded or failed; its callbacks will be
+      #   passed an +Enumerable+ containing the results of those operations
+      #   that succeeded.
+      def join_successes(*operations)
+        Successes.setup!(*operations)
+      end
     end
   end
 end
