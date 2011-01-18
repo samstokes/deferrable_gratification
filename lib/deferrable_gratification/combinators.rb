@@ -12,7 +12,7 @@ module DeferrableGratification
   #   def product_names_for_username(username)
   #     DB.query('SELECT id FROM users WHERE username = ?', username).bind! do |user_id|
   #       DB.query('SELECT name FROM products WHERE user_id = ?', user_id)
-  #     end.map do |product_names|
+  #     end.transform do |product_names|
   #       product_names.join(', ')
   #     end
   #   end
@@ -137,8 +137,8 @@ module DeferrableGratification
     #   after transforming its result.
     #
     # @example Retrieve a web page and call back with its title.
-    #   HTTP.request(url).map {|page| Hpricot(page).at(:title).inner_html }
-    def map(&block)
+    #   HTTP.request(url).transform {|page| Hpricot(page).at(:title).inner_html }
+    def transform(&block)
       bind!(&block)
     end
 

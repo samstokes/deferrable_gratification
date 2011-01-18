@@ -47,11 +47,11 @@ describe DeferrableGratification::Combinators do
   end
 
 
-  describe '#map' do
+  describe '#transform' do
     let(:operation) { DG::DefaultDeferrable.new }
 
-    describe 'operation.map(&:upcase)' do
-      subject { operation.map(&:upcase) }
+    describe 'operation.transform(&:upcase)' do
+      subject { operation.transform(&:upcase) }
 
       describe 'if the operation succeeds with "Hello"' do
         before { operation.succeed('Hello') }
@@ -64,8 +64,8 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe 'operation.map { raise "kaboom!" }' do
-      subject { operation.map { raise "kaboom!" } }
+    describe 'operation.transform { raise "kaboom!" }' do
+      subject { operation.transform { raise "kaboom!" } }
 
       describe 'if the operation succeeds' do
         before { operation.succeed }
@@ -80,10 +80,10 @@ describe DeferrableGratification::Combinators do
       end
     end
 
-    describe '@results = []; operation.map(&@results.method(:<<))' do
+    describe '@results = []; operation.transform(&@results.method(:<<))' do
       before do
         @results = []
-        operation.map(&@results.method(:<<))
+        operation.transform(&@results.method(:<<))
       end
 
       describe 'if operation succeeds with :wahey!' do

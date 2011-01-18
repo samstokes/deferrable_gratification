@@ -31,7 +31,7 @@ module DeferrableGratification
     # However, because Ruby doesn't actually type-check blocks, we can't
     # enforce that the block really does return a second Deferrable.  This
     # therefore also supports (reasonably) arbitrary blocks.  However, it's
-    # probably clearer (though equivalent) to use {#map} for this case.
+    # probably clearer (though equivalent) to use {#transform} for this case.
     class Bind < DefaultDeferrable
       # Prepare to bind +block+ to +first+, and create the Deferrable that
       # will represent the bind.
@@ -84,7 +84,7 @@ module DeferrableGratification
             second.errback {|*error| self.fail(*error) }
           else
             # Not a Deferrable, so we need to "behave sensibly" as alluded to
-            # above.  Just behaving like #map is sensible enough.
+            # above.  Just behaving like #transform is sensible enough.
             self.succeed(second)
           end
         end
