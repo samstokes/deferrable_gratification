@@ -16,7 +16,17 @@ task :spec => 'spec:default'
 namespace :doc do
   doc_dir = File.join(File.dirname(__FILE__), 'doc')
 
-  YARD::Rake::YardocTask.new(:api)
+  namespace :api do
+    desc 'Generate HTML documentation for the public API'
+    YARD::Rake::YardocTask.new(:public) do |t|
+      t.options = ['--no-private']
+    end
+
+    desc 'Generate HTML documentation for implementers, including privates'
+    YARD::Rake::YardocTask.new(:private)
+  end
+  desc 'Generate HTML API documentation'
+  task :api => 'api:public'
 
   desc 'Generate HTML behaviour documentation from the specs'
   RSpec::Core::RakeTask.new(:spec) do |t|
