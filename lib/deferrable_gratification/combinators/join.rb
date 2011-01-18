@@ -74,6 +74,27 @@ module DeferrableGratification
       end
 
 
+      # Combinator that waits for any of the supplied asynchronous operations
+      # to succeed, and succeeds with the result of the first (chronologically)
+      # to do so.
+      #
+      # This Deferrable will fail if all the operations fail.  It may never
+      # succeed or fail, if one of the operations also does not.
+      #
+      # You probably want to call {ClassMethods#join_first_success} rather than
+      # using this class directly.
+      class FirstSuccess < Join
+        private
+        def done?
+          successes.length > 0
+        end
+
+        def finish
+          succeed(successes.first)
+        end
+      end
+
+
       private
       def successes
         without_sentinels(@successes)

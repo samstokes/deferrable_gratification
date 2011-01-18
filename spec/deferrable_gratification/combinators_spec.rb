@@ -349,4 +349,75 @@ DG.chain(
       end
     end
   end
+
+
+  describe '.join_first_success' do
+    describe 'DG.join_first_success()' do
+      subject { DG.join_first_success() }
+      it { should_not succeed_with /./ }
+    end
+
+    describe 'DG.join_first_success(first, second)' do
+      let(:first) { EM::DefaultDeferrable.new }
+      let(:second) { EM::DefaultDeferrable.new }
+      subject { DG.join_first_success(first, second) }
+
+      it 'should not succeed or fail' do
+        subject.should_not succeed_with(/./)
+        subject.should_not fail_with(/./)
+      end
+
+      describe 'after first succeeds with :one' do
+        before { first.succeed :one }
+
+        it { should succeed_with :one }
+
+        describe 'after second succeeds with :two' do
+          before { second.succeed :two }
+
+          it 'should still succeed with :one' do
+            subject.should succeed_with :one
+          end
+        end
+
+        describe 'after second fails' do
+          before { second.fail 'oops' }
+
+          it 'should still succeed with :one' do
+            subject.should succeed_with :one
+          end
+        end
+      end
+
+      describe 'after second succeeds with :two' do
+        before { second.succeed :two }
+
+        it { should succeed_with :two }
+      end
+
+      describe 'after first fails' do
+        before { first.fail 'oops' }
+
+        it 'should not succeed or fail' do
+          subject.should_not succeed_with(/./)
+          subject.should_not fail_with(/./)
+        end
+
+        describe 'after second succeeds with :two' do
+          before { second.succeed :two }
+
+          it { should succeed_with :two }
+        end
+
+        describe 'after second also fails' do
+          before { second.fail 'oops' }
+
+          it 'should not succeed or fail' do
+            subject.should_not succeed_with(/./)
+            subject.should_not fail_with(/./)
+          end
+        end
+      end
+    end
+  end
 end

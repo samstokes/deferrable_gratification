@@ -211,6 +211,22 @@ module DeferrableGratification
       def join_successes(*operations)
         Join::Successes.setup!(*operations)
       end
+
+      # Combinator that waits for any of the supplied asynchronous operations
+      # to succeed, and succeeds with the result of the first (chronologically)
+      # to do so.
+      #
+      # This Deferrable will fail if all the operations fail.  It may never
+      # succeed or fail, if one of the operations also does not.
+      #
+      # @param (see #join_successes)
+      #
+      # @return [Deferrable] a deferred status that will succeed as soon as any
+      #   of the +operations+ succeeds; its callbacks will be passed the result
+      #   of that operation.
+      def join_first_success(*operations)
+        Join::FirstSuccess.setup!(*operations)
+      end
     end
   end
 end
