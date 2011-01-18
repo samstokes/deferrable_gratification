@@ -61,7 +61,12 @@ module SpecTools
     end
 
     def to_proc
-      proc &method(:result=)
+      # Want to just say lambda &method(:result=), but that seems to have a
+      # weird bug: if the resulting proc gets called with an empty array [],
+      # it destructures the array and complains of being called with 0 args.
+      # It doesn't do the same for a nonempty array (i.e. called with [1] it
+      # receives [1] not 1).
+      lambda {|value| self.result = value }
     end
   end
 end
