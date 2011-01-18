@@ -209,7 +209,7 @@ module DeferrableGratification
       #   passed an +Enumerable+ containing the results of those operations
       #   that succeeded.
       def join_successes(*operations)
-        Successes.setup!(*operations)
+        Join::Successes.setup!(*operations)
       end
     end
   end
