@@ -462,6 +462,17 @@ DG.chain(
             end
           end
 
+          describe 'if ui.wait_for_click throws an exception' do
+            before { ui.stub!(:wait_for_click).and_raise('User eaten by weasel') }
+
+            it { should fail_with('User eaten by weasel') }
+
+            it 'should not call ui.wait_for_click again' do
+              ui.should_receive(:wait_for_click).at_most(1)
+              do_loop.call(ui)
+            end
+          end
+
           describe 'if the user takes 4 seconds to click' do
             before do
               @attempts = 0

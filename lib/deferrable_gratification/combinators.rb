@@ -231,8 +231,8 @@ module DeferrableGratification
       # Combinator that repeatedly executes the supplied block until it
       # succeeds, then succeeds itself with the eventual result.
       #
-      # This Deferrable will never fail.  It may never succeed, if the
-      # operation never succeeds.
+      # This Deferrable may never succeed, if the operation never succeeds.
+      # It will fail if an iteration raises an exception.
       #
       # @note this combinator is intended for use inside EventMachine.  It will
       #   still work outside of EventMachine, _provided_ that the operation is
@@ -251,9 +251,14 @@ module DeferrableGratification
       def loop_until_success(loop_deferrable = DefaultDeferrable.new, &block)
         if EM.reactor_running?
           EM.next_tick do
-            attempt = yield
-            attempt.callback(&loop_deferrable.method(:succeed))
-            attempt.errback { loop_until_success(loop_deferrable, &block) }
+            begin
+              attempt = yield
+            rescue => e
+              loop_deferrable.fail(e)
+            else
+              attempt.callback(&loop_deferrable.method(:succeed))
+              attempt.errback { loop_until_success(loop_deferrable, &block) }
+            end
           end
         else
           # In the synchronous case, we could simply use the same
@@ -261,8 +266,13 @@ module DeferrableGratification
           # that means direct recursion, so risks stack overflow.  Instead we
           # just reimplement as a loop.
           results = []
-          yield.callback {|*values| results << values } while results.empty?
-          loop_deferrable.succeed(*results[0])
+          begin
+            yield.callback {|*values| results << values } while results.empty?
+          rescue => e
+            loop_deferrable.fail(e)
+          else
+            loop_deferrable.succeed(*results[0])
+          end
         end
         loop_deferrable
       end
