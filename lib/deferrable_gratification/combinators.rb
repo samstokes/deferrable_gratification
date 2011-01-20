@@ -227,6 +227,39 @@ module DeferrableGratification
       def join_first_success(*operations)
         Join::FirstSuccess.setup!(*operations)
       end
+
+      # Combinator that repeatedly executes the supplied block until it
+      # succeeds, then succeeds itself with the eventual result.
+      #
+      # This Deferrable will never fail.  It may never succeed, if the
+      # operation never succeeds.
+      #
+      # @note this combinator is intended for use inside EventMachine.  It will
+      #   still work outside of EventMachine, but it may cause a stack overflow
+      #   if the operation never succeeds.
+      #
+      # @param loop_deferrable for internal use only, always omit this.
+      # @param &block operation to execute until it succeeds.
+      #
+      # @yieldreturn [Deferrable] deferred status of the operation.  If it
+      #   fails, the operation will be retried.  If it succeeds, the combinator
+      #   will succeed with the result.
+      #
+      # @return [Deferrable] a deferred status that will succeed once the
+      #   supplied operation eventually succeeds.
+      def loop_until_success(loop_deferrable = DefaultDeferrable.new, &block)
+        iterate_once = lambda do
+          attempt = yield
+          attempt.callback(&loop_deferrable.method(:succeed))
+          attempt.errback { loop_until_success(loop_deferrable, &block) }
+        end
+        if EM.reactor_running?
+          EM.next_tick(&iterate_once)
+        else
+          iterate_once.call
+        end
+        loop_deferrable
+      end
     end
   end
 end
