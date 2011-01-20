@@ -7,9 +7,22 @@ compose, and thus easier to create higher-level abstractions around.  It also
 enhances the API offered by Ruby Deferrables to make them more pleasant to work
 with.
 
-## Instructions ##
+## Getting started ##
+
+Install the gem:
 
     gem install deferrable_gratification
+
+In your code:
+
+    require 'eventmachine'
+    require 'deferrable_gratification'
+    DG.enhance_all_deferrables!
+
+Make sure that the call to
+[DG.enhance_all_deferrables!](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance_all_deferrables%21-class_method)
+comes *before* you require any library that uses `Deferrable` (e.g.
+[em-http-request](https://github.com/igrigorik/em-http-request)).
 
 ## Documentation ##
 
