@@ -82,7 +82,13 @@ RSpec::Matchers.define :succeed_with do |value|
     @errback = SpecTools::ResultReceiver.new
     deferrable.errback(&@errback)
 
-    !@errback.has_result? && @callback.result_is?(value)
+    !@errback.has_result? && @callback.result_satisfies? do |result|
+      if value.respond_to? :match
+        value.match(result)
+      else
+        value == result
+      end
+    end
   end
 
   failure_message_for_should do |deferrable|
@@ -94,6 +100,10 @@ RSpec::Matchers.define :succeed_with do |value|
                 "did not succeed"
               end
     "expected #{deferrable.inspect} to succeed with #{value.inspect}, but #{failure}"
+  end
+
+  failure_message_for_should_not do |deferrable|
+    "expected #{deferrable.inspect} not to succeed with #{value.inspect}, but did succeed with #{@callback.result.inspect}"
   end
 end
 
@@ -125,6 +135,10 @@ RSpec::Matchers.define :fail_with do |class_or_message, *message_or_empty|
     end
   end
 
+  def error_expectation_description
+    [@expected_class, @expected_message].compact.map(&:inspect).join(': ')
+  end
+
   failure_message_for_should do |deferrable|
     if @errback.has_result?
       "#{deferrable.inspect} failed in the wrong way: #{[@class_failure, @message_failure].compact.join(', ')}"
@@ -134,7 +148,11 @@ RSpec::Matchers.define :fail_with do |class_or_message, *message_or_empty|
                 else
                   "did not fail"
                 end
-      "expected #{deferrable.inspect} to fail with #{[@expected_class, @expected_message].compact.map(&:inspect).join(': ')}, but #{failure}"
+      "expected #{deferrable.inspect} to fail with #{error_expectation_description}, but #{failure}"
     end
+  end
+
+  failure_message_for_should_not do |deferrable|
+    "expected #{deferrable.inspect} not to fail with #{error_expectation_description}, but did fail with #{@errback.result.inspect}"
   end
 end
