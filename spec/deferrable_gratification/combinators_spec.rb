@@ -442,7 +442,7 @@ DG.chain(
           subject { do_loop.call(ui) }
           let(:ui) do
             double().tap do |ui|
-              ui.stub!(:wait_for_click) { EM::DefaultDeferrable.new }
+              ui.stub!(:wait_for_click) { EM::DefaultDeferrable.new.tap(&:succeed) }
             end
           end
 
