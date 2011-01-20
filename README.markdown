@@ -13,7 +13,7 @@ with.
 
 ## Documentation ##
 
-* [API](http://samstokes.github.com/deferrable_gratification/doc/api/frames.html)
+* [API](http://samstokes.github.com/deferrable_gratification/doc/frames.html)
 * [Behaviour specs](http://samstokes.github.com/deferrable_gratification/doc/spec/index.html)
   (generated from RSpec code examples)
 
