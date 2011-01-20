@@ -235,8 +235,9 @@ module DeferrableGratification
       # operation never succeeds.
       #
       # @note this combinator is intended for use inside EventMachine.  It will
-      #   still work outside of EventMachine, but it may cause a stack overflow
-      #   if the operation never succeeds.
+      #   still work outside of EventMachine, _provided_ that the operation is
+      #   synchronous (although a simple +while+ loop might be preferable in
+      #   this case!).
       #
       # @param loop_deferrable for internal use only, always omit this.
       # @param &block operation to execute until it succeeds.
@@ -248,15 +249,20 @@ module DeferrableGratification
       # @return [Deferrable] a deferred status that will succeed once the
       #   supplied operation eventually succeeds.
       def loop_until_success(loop_deferrable = DefaultDeferrable.new, &block)
-        iterate_once = lambda do
-          attempt = yield
-          attempt.callback(&loop_deferrable.method(:succeed))
-          attempt.errback { loop_until_success(loop_deferrable, &block) }
-        end
         if EM.reactor_running?
-          EM.next_tick(&iterate_once)
+          EM.next_tick do
+            attempt = yield
+            attempt.callback(&loop_deferrable.method(:succeed))
+            attempt.errback { loop_until_success(loop_deferrable, &block) }
+          end
         else
-          iterate_once.call
+          # In the synchronous case, we could simply use the same
+          # implementation as in EM, but without the next_tick; unfortunately
+          # that means direct recursion, so risks stack overflow.  Instead we
+          # just reimplement as a loop.
+          results = []
+          yield.callback {|*values| results << values } while results.empty?
+          loop_deferrable.succeed(*results[0])
         end
         loop_deferrable
       end
