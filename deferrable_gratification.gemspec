@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.description = <<-DESC
 Deferrable Gratification (DG) makes evented code less error-prone and easier to compose, and thus easier to create higher-level abstractions around.  It also enhances the API offered by Ruby Deferrables to make them more pleasant to work with.
 
-Currently consists of the following components:
+Features include:
 
  * fluent (aka chainable) syntax for registering multiple callbacks and errbacks to the same Deferrable.
 

@@ -30,9 +30,9 @@ comes *before* you require any library that uses `Deferrable` (e.g.
 * [Behaviour specs](http://samstokes.github.com/deferrable_gratification/doc/spec/index.html)
   (generated from RSpec code examples)
 
-## Components ##
+## Structure ##
 
-It currently consists of the following components:
+It currently consists of the following modules:
 
  * [`DG::Fluent`](#fluent): fluent (aka chainable) syntax for registering
    multiple callbacks and errbacks to the same Deferrable.
