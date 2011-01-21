@@ -43,12 +43,376 @@
     
     <div id="content"><div id='filecontents'><h1>Deferrable Gratification</h1>
 
-<h2>Purpose</h2>
+<p>Deferrable Gratification (DG) facilitates asynchronous programming in Ruby, by
+helping create abstractions around complex operations built up from simpler
+ones.  It helps make asynchronous code less error-prone and easier to compose.
+It also provides some enhancements to the
+<a href="http://eventmachine.rubyforge.org/EventMachine/Deferrable.html"><code>Deferrable</code></a>
+API.</p>
 
-<p>Deferrable Gratification (DG) makes evented code less error-prone and easier to
-compose, and thus easier to create higher-level abstractions around.  It also
-enhances the API offered by Ruby Deferrables to make them more pleasant to work
-with.</p>
+<h2>Motivation</h2>
+
+<p>Asynchronous programming, as supported in Ruby by
+<a href="http://rubyeventmachine.com/">EventMachine</a>, offers the benefits of (limited)
+concurrency without the complexity of threads.  However, it requires a style of
+code that fits awkwardly into Ruby's synchronous semantics.</p>
+
+<p>A method that performs an asynchronous operation cannot simply return a result:
+instead it must take a callback, which it calls with the eventual result of the
+operation.  That method's caller must also now take a callback, and so on up
+the call chain.  This means replacing a synchronous library such as
+<a href="http://ruby-doc.org/stdlib-1.8.7/libdoc/net/http/rdoc/index.html">Net::HTTP</a>
+with an asynchronous library such as
+<a href="https://github.com/igrigorik/em-http-request">em-http-request</a> can require
+rewriting a surprisingly large part of a codebase.</p>
+
+<p>Ruby's block syntax initially seems to support this callback-passing style
+well.</p>
+
+<pre class="code"><span class='asynchronously_fetch_page identifier id'>asynchronously_fetch_page</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='page identifier id'>page</span><span class='bitor op'>|</span>
+  <span class='comment val'># do something with 'page'...</span>
+<span class='end end kw'>end</span>
+</pre>
+
+<p>The first problem is that, unlike regular method parameters, Ruby doesn't check
+that the caller remembered to provide a block, making it easy to create bugs by
+forgetting a callback.</p>
+
+<pre class="code"><span class='page identifier id'>page</span> <span class='assign token'>=</span> <span class='asynchronously_fetch_page identifier id'>asynchronously_fetch_page</span>
+<span class='comment val'># returns immediately with no error.  'page' is probably nil.</span>
+</pre>
+
+<p>Similarly the method implementer may forget to pass the callback down to nested
+calls, which can render the whole chain of asynchronous methods unable to
+return a result.  (The asynchronous operation might itself check that a
+callback was given, but asynchronous libraries will often not require a
+callback, in case they were invoked only for their side-effects.)</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='first_thing identifier id'>first_thing</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='callback identifier id'>callback</span><span class='rparen token'>)</span>
+  <span class='second_thing identifier id'>second_thing</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='callback identifier id'>callback</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+<span class='def def kw'>def</span> <span class='second_thing identifier id'>second_thing</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='callback identifier id'>callback</span><span class='rparen token'>)</span>
+  <span class='third_thing identifier id'>third_thing</span>    <span class='comment val'># oops! no error though.</span>
+<span class='end end kw'>end</span>
+<span class='def def kw'>def</span> <span class='third_thing identifier id'>third_thing</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='callback identifier id'>callback</span><span class='rparen token'>)</span>
+  <span class='compute_answer identifier id'>compute_answer</span>
+  <span class='yield yield kw'>yield</span> <span class='integer val'>42</span> <span class='if if_mod kw'>if</span> <span class='block_given? fid id'>block_given?</span>
+<span class='end end kw'>end</span>
+
+<span class='first_thing identifier id'>first_thing</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='answer identifier id'>answer</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='answer identifier id'>answer</span> <span class='rbrace token'>}</span>     <span class='comment val'># never runs</span>
+</pre>
+
+<p>This is a symptom of a more general problem: only the outermost caller really
+cares about the callback being run, yet every method in the chain must be aware
+of it, which is poor encapsulation.</p>
+
+<p>This style also breaks down when the asynchronous operation needs to
+communicate failure: we want to pass in some code to be called on error, but
+Ruby's syntax only allows passing a single block to a method, so callers now
+need to pass in <code>lambda</code>s or hashes of <code>Proc</code>s, the syntax becomes inconsistent
+and noisy, and readability and maintainability suffer:</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='first_thing identifier id'>first_thing</span><span class='lparen token'>(</span><span class='errback identifier id'>errback</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='callback identifier id'>callback</span><span class='rparen token'>)</span>
+  <span class='do_something identifier id'>do_something</span>
+  <span class='yield yield kw'>yield</span> <span class='if if_mod kw'>if</span> <span class='block_given? fid id'>block_given?</span> <span class='comment val'># as declared, callback is implicitly optional</span>
+<span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='e identifier id'>e</span>
+  <span class='errback identifier id'>errback</span><span class='dot token'>.</span><span class='call identifier id'>call</span><span class='lparen token'>(</span><span class='e identifier id'>e</span><span class='rparen token'>)</span>       <span class='comment val'># as declared, errback is mandatory</span>
+<span class='end end kw'>end</span>
+
+<span class='comment val'># Excessive punctuation alert!</span>
+<span class='first_thing identifier id'>first_thing</span><span class='lparen token'>(</span><span class='lambda identifier id'>lambda</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span> <span class='handle_error identifier id'>handle_error</span> <span class='rbrace token'>}</span><span class='rparen token'>)</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='result identifier id'>result</span><span class='bitor op'>|</span> <span class='use_result identifier id'>use_result</span><span class='lparen token'>(</span><span class='result identifier id'>result</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
+</pre>
+
+<p>EventMachine offers the
+<a href="http://eventmachine.rubyforge.org/EventMachine/Deferrable.html">Deferrable</a>
+pattern to communicate results of asynchronous operations in an object-oriented
+style more natural to Ruby.  Rather than taking a callback which it must
+remember to call, the method simply returns a <code>Deferrable</code> object which
+encapsulates the status of the operation, and promises to update that object at
+a later date.  Callers can register callbacks and errbacks on the Deferrable,
+which takes care of calling them when the operation succeeds or fails.
+Intermediate methods in the chain can simply pass the Deferrable on, and only
+code which cares about callbacks need know about them.</p>
+
+<p>However, asynchronous programming with Deferrables still suffers from two key
+problems: it is difficult to compose multiple operations, and to build up
+complex operations from simpler ones.  Below is a method which performs three
+synchronous operations in sequence, each depending on the result of the
+previous, and returns the result of the last operation to the caller:</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='complex_operation identifier id'>complex_operation</span>
+  <span class='first_result identifier id'>first_result</span> <span class='assign token'>=</span> <span class='do_first_thing identifier id'>do_first_thing</span>
+  <span class='second_result identifier id'>second_result</span> <span class='assign token'>=</span> <span class='do_second_thing identifier id'>do_second_thing</span><span class='lparen token'>(</span><span class='first_result identifier id'>first_result</span><span class='rparen token'>)</span>
+  <span class='third_result identifier id'>third_result</span> <span class='assign token'>=</span> <span class='do_third_thing identifier id'>do_third_thing</span><span class='lparen token'>(</span><span class='second_result identifier id'>second_result</span><span class='rparen token'>)</span>
+  <span class='third_result identifier id'>third_result</span>
+<span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='e identifier id'>e</span>
+  <span class='comment val'># ...</span>
+<span class='end end kw'>end</span>
+</pre>
+
+<p>When the operations are asynchronous, the same sequence is typically
+implemented using nested callbacks:</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='complex_operation identifier id'>complex_operation</span>
+  <span class='result identifier id'>result</span> <span class='assign token'>=</span> <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='DefaultDeferrable constant id'>DefaultDeferrable</span><span class='dot token'>.</span><span class='new identifier id'>new</span>
+  <span class='first_deferrable identifier id'>first_deferrable</span> <span class='assign token'>=</span> <span class='do_first_thing identifier id'>do_first_thing</span>
+  <span class='first_deferrable identifier id'>first_deferrable</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='first_result identifier id'>first_result</span><span class='bitor op'>|</span>
+    <span class='second_deferrable identifier id'>second_deferrable</span> <span class='assign token'>=</span> <span class='do_second_thing identifier id'>do_second_thing</span><span class='lparen token'>(</span><span class='first_result identifier id'>first_result</span><span class='rparen token'>)</span>
+    <span class='second_deferrable identifier id'>second_deferrable</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='second_result identifier id'>second_result</span><span class='bitor op'>|</span>
+      <span class='third_deferrable identifier id'>third_deferrable</span> <span class='assign token'>=</span> <span class='do_third_thing identifier id'>do_third_thing</span><span class='lparen token'>(</span><span class='second_result identifier id'>second_result</span><span class='rparen token'>)</span>
+      <span class='third_deferrable identifier id'>third_deferrable</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='third_result identifier id'>third_result</span><span class='bitor op'>|</span>
+        <span class='result identifier id'>result</span><span class='dot token'>.</span><span class='succeed identifier id'>succeed</span><span class='lparen token'>(</span><span class='third_result identifier id'>third_result</span><span class='rparen token'>)</span>
+      <span class='end end kw'>end</span>
+      <span class='third_deferrable identifier id'>third_deferrable</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='third_error identifier id'>third_error</span><span class='bitor op'>|</span>
+        <span class='result identifier id'>result</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='third_error identifier id'>third_error</span><span class='rparen token'>)</span>
+      <span class='end end kw'>end</span>
+    <span class='end end kw'>end</span>
+    <span class='second_deferrable identifier id'>second_deferrable</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='second_error identifier id'>second_error</span><span class='bitor op'>|</span>
+      <span class='result identifier id'>result</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='second_error identifier id'>second_error</span><span class='rparen token'>)</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+  <span class='first_deferrable identifier id'>first_deferrable</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='first_error identifier id'>first_error</span><span class='bitor op'>|</span>
+    <span class='result identifier id'>result</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='first_error identifier id'>first_error</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span>
+  <span class='result identifier id'>result</span>
+<span class='end end kw'>end</span>
+</pre>
+
+<p>Like the synchronous version, this method abstracts the multiple operations
+away from the caller and presents only the result the caller was interested in
+(or details of what went wrong).  However, the line count has tripled.  Worse,
+the program flow is confusing: the logic of 'do these operations in sequence'
+is obscured; the errbacks read in reverse order; and the way the final result
+makes its way back to the caller is almost invisible.  There are also a lot of
+opportunities to create bugs: all of the callbacks must be manually and
+repetitively "wired together", or the method will not work.</p>
+
+<p>Deferrable Gratification aims to solve these problems by providing a library of
+composition operators - combinators - which abstract away the boilerplate
+callback wiring and reveal the logic of the code.</p>
+
+<h2>Examples</h2>
+
+<h3><a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Fluent.html">Fluent callback syntax</a>: because it feels right</h3>
+
+<p>The return value of
+<a href="http://eventmachine.rubyforge.org/EventMachine/Deferrable.html#M000264"><code>Deferrable#callback</code></a>
+isn't useful, which means if you want to set a callback on a Deferrable and
+then return it, you have to name the Deferrable first, so you can return it
+explicitly.  You also have to mention the name again to set another callback,
+which leads to a lot of noisy repetition:</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='google_homepage identifier id'>google_homepage</span>
+  <span class='request identifier id'>request</span> <span class='assign token'>=</span> <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='HttpRequest constant id'>HttpRequest</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='string val'>'http://google.com'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='get identifier id'>get</span><span class='lparen token'>(</span><span class='symbol val'>:redirects</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='integer val'>1</span><span class='rparen token'>)</span>
+  <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response identifier id'>response</span> <span class='rbrace token'>}</span>
+  <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='$call_count gvar id'>$call_count</span> <span class='assign token'>=</span> <span class='lparen token'>(</span><span class='$call_count gvar id'>$call_count</span> <span class='orop op'>||</span> <span class='integer val'>0</span><span class='rparen token'>)</span> <span class='plus op'>+</span> <span class='integer val'>1</span> <span class='rbrace token'>}</span>
+  <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Oh noes!&quot;</span> <span class='rbrace token'>}</span>
+  <span class='request identifier id'>request</span>
+<span class='end end kw'>end</span>
+<span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='lbrace token'>{</span> <span class='r identifier id'>r</span> <span class='assign token'>=</span> <span class='google_homepage identifier id'>google_homepage</span><span class='semicolon token'>;</span> <span class='r identifier id'>r</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span><span class='semicolon token'>;</span> <span class='r identifier id'>r</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span> <span class='rbrace token'>}</span>
+<span class='comment val'># prints a lot of HTML</span>
+</pre>
+
+<p>DG lets you chain callbacks and errbacks using "fluent syntax" familiar from
+JQuery:</p>
+
+<pre class="code"><span class='DG constant id'>DG</span><span class='dot token'>.</span><span class='enhance! fid id'>enhance!</span> <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='HttpClient constant id'>HttpClient</span>
+
+<span class='def def kw'>def</span> <span class='google_homepage identifier id'>google_homepage</span>
+  <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='HttpRequest constant id'>HttpRequest</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='string val'>'http://google.com'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='get identifier id'>get</span><span class='lparen token'>(</span><span class='symbol val'>:redirects</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='integer val'>1</span><span class='rparen token'>)</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response identifier id'>response</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='$call_count gvar id'>$call_count</span> <span class='assign token'>=</span> <span class='lparen token'>(</span><span class='$call_count gvar id'>$call_count</span> <span class='orop op'>||</span> <span class='integer val'>0</span><span class='rparen token'>)</span> <span class='plus op'>+</span> <span class='integer val'>1</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Oh noes!&quot;</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='lbrace token'>{</span> <span class='google_homepage identifier id'>google_homepage</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span> <span class='rbrace token'>}</span>
+<span class='comment val'># prints a lot of HTML</span>
+</pre>
+
+<h3><a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Bothback.html#bothback-instance_method"><code>bothback</code></a>: when you absolutely, positively got to...</h3>
+
+<p>Sometimes you need to do something after an asynchronous action completes,
+whether it succeeded or failed: e.g. release a lock, or as in the example
+above, call <code>EM.stop</code> to break out of the <code>EM.run</code> block.  It's annoying to
+have to write that code twice, to make sure it's called both on success and
+failure.</p>
+
+<p><code>bothback</code> to the rescue:</p>
+
+<pre class="code"><span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='lbrace token'>{</span> <span class='google_homepage identifier id'>google_homepage</span><span class='dot token'>.</span><span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span> <span class='rbrace token'>}</span>
+<span class='comment val'># prints a lot of HTML</span>
+</pre>
+
+<h3><a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Combinators.html#transform-instance_method"><code>transform</code></a>: receive the callbacks that make sense for you</h3>
+
+<p>The <a href="https://github.com/igrigorik/em-http-request">em-http-request</a> library is
+great, but it's a bit fiddly to use, because it passes the whole
+<a href="http://rdoc.info/github/igrigorik/em-http-request/master/EventMachine/HttpClient"><code>EM::HttpClient</code></a>
+instance to its callbacks and errbacks.  That means your callbacks can check
+the response code and headers, but it also makes it harder if you just want
+quick access to the response body.</p>
+
+<pre class="code"><span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='request identifier id'>request</span> <span class='assign token'>=</span> <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='HttpRequest constant id'>HttpRequest</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='string val'>'http://google.com'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='get identifier id'>get</span><span class='lparen token'>(</span><span class='symbol val'>:redirects</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='integer val'>1</span><span class='rparen token'>)</span>
+  <span class='request identifier id'>request</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span>
+      <span class='comment val'># Have to write this code once for each different request</span>
+      <span class='if if kw'>if</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response_header identifier id'>response_header</span><span class='dot token'>.</span><span class='status identifier id'>status</span> <span class='eq op'>==</span> <span class='integer val'>200</span>
+        <span class='puts identifier id'>puts</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response identifier id'>response</span>
+      <span class='else else kw'>else</span>
+        <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='http identifier id'>http</span><span class='rparen token'>)</span>   <span class='comment val'># triggers the errback as if the request had failed</span>
+      <span class='end end kw'>end</span>
+    <span class='end end kw'>end</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span> <span class='handle_error identifier id'>handle_error</span><span class='lparen token'>(</span><span class='http identifier id'>http</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints lots of HTML</span>
+</pre>
+
+<p>Wouldn't it be great if we could encapsulate the logic of "just give me the
+response if the request was successful", and have callbacks that just act on
+the response body?</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='fetch_page identifier id'>fetch_page</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span>
+  <span class='request identifier id'>request</span> <span class='assign token'>=</span> <span class='EM constant id'>EM</span><span class='colon2 op'>::</span><span class='HttpRequest constant id'>HttpRequest</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='get identifier id'>get</span><span class='lparen token'>(</span><span class='symbol val'>:redirects</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='integer val'>1</span><span class='rparen token'>)</span>
+  <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='transform identifier id'>transform</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span>
+    <span class='if if kw'>if</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response_header identifier id'>response_header</span><span class='dot token'>.</span><span class='status identifier id'>status</span> <span class='eq op'>==</span> <span class='integer val'>200</span>
+      <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response identifier id'>response</span>
+    <span class='else else kw'>else</span>
+      <span class='request identifier id'>request</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='http identifier id'>http</span><span class='rparen token'>)</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+
+<span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='fetch_page identifier id'>fetch_page</span><span class='lparen token'>(</span><span class='string val'>'http://google.com'</span><span class='rparen token'>)</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='html identifier id'>html</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='html identifier id'>html</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Oh dear!&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints lots of HTML</span>
+</pre>
+
+<p>That looks a lot cleaner.  It would be even cooler if instead of passing the
+raw HTML to callbacks, we could parse the HTML using
+<a href="http://hpricot.com">Hpricot</a> and pass the parsed document instead.  No
+problem:</p>
+
+<pre class="code"><span class='require identifier id'>require</span> <span class='string val'>'hpricot'</span>
+
+<span class='def def kw'>def</span> <span class='fetchpricot identifier id'>fetchpricot</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span>
+  <span class='fetch_page identifier id'>fetch_page</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='transform identifier id'>transform</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='html identifier id'>html</span><span class='bitor op'>|</span> <span class='Hpricot constant id'>Hpricot</span><span class='lparen token'>(</span><span class='html identifier id'>html</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+
+<span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='fetchpricot identifier id'>fetchpricot</span><span class='lparen token'>(</span><span class='string val'>'http://google.com'</span><span class='rparen token'>)</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='doc identifier id'>doc</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='doc identifier id'>doc</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Oh dear!&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints &lt;title&gt;Google&lt;/title&gt;</span>
+</pre>
+
+<h3><a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Combinators.html#transform_error-instance_method"><code>transform_error</code></a>: receive the errbacks that make sense to you</h3>
+
+<p>That's cool, but it's a bit annoying that those errbacks receive a <code>HttpClient</code>
+object - we have to turn that into a useful error message every time.  Let's
+encapsulate that too:</p>
+
+<pre class="code"><span class='def def kw'>def</span> <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span>
+  <span class='fetchpricot identifier id'>fetchpricot</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='transform_error identifier id'>transform_error</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='http identifier id'>http</span><span class='bitor op'>|</span>
+    <span class='if if kw'>if</span> <span class='http identifier id'>http</span><span class='dot token'>.</span><span class='response_header identifier id'>response_header</span><span class='dot token'>.</span><span class='status identifier id'>status</span> <span class='gt op'>&gt;</span> <span class='integer val'>0</span>
+      <span class='dstring node'>&quot;Unexpected response code: #{http.response_header.status}&quot;</span>
+    <span class='else else kw'>else</span>
+      <span class='string val'>&quot;Unknown error!&quot;</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+
+<span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='string val'>'http://google.com/page_that_probably_does_not_exist'</span><span class='rparen token'>)</span><span class='dot token'>.</span>
+    <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='doc identifier id'>doc</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='doc identifier id'>doc</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Error: #{error}&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
+    <span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints &quot;Error: Unexpected response code: 404&quot;</span>
+</pre>
+
+<h3><a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Combinators.html#bind!-instance_method"><code>bind!</code></a>: for when one thing leads to another</h3>
+
+<p>Say we want to do a simple web crawling task: find the first search result for
+'deferrable_gratification', follow that link (which should be its Github page),
+and pull down the project website listed on that page.  Normally this would
+require some messy nesting of callbacks and errbacks:</p>
+
+<pre class="code"><span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='string val'>'http://google.com/search?q=deferrable_gratification'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc1 identifier id'>doc1</span><span class='bitor op'>|</span>
+    <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='lparen token'>(</span><span class='doc1 identifier id'>doc1</span> <span class='div op'>/</span> <span class='string val'>'ol'</span> <span class='div op'>/</span> <span class='string val'>'li'</span> <span class='div op'>/</span> <span class='string val'>'a'</span><span class='rparen token'>)</span><span class='lbrack token'>[</span><span class='integer val'>0</span><span class='rbrack token'>]</span><span class='lbrack token'>[</span><span class='symbol val'>:href</span><span class='rbrack token'>]</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc2 identifier id'>doc2</span><span class='bitor op'>|</span>
+      <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='lparen token'>(</span><span class='doc2 identifier id'>doc2</span> <span class='div op'>/</span> <span class='string val'>'#repository_homepage'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:a</span><span class='rparen token'>)</span><span class='lbrack token'>[</span><span class='symbol val'>:href</span><span class='rbrack token'>]</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc3 identifier id'>doc3</span><span class='bitor op'>|</span>
+        <span class='puts identifier id'>puts</span> <span class='doc3 identifier id'>doc3</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='inner_text identifier id'>inner_text</span>
+        <span class='comment val'># I could also have mistyped 'doc3' as 'doc2' and got the wrong</span>
+        <span class='comment val'># behaviour, but no exception to flag it</span>
+      <span class='end end kw'>end</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span>
+        <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Error finding homepage link: #{error}&quot;</span>
+      <span class='end end kw'>end</span><span class='dot token'>.</span><span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+    <span class='end end kw'>end</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span>
+      <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Error loading first search result: #{error}&quot;</span>
+      <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span>
+    <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Error retrieving search results: #{error}&quot;</span>
+    <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span>
+  <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints &quot;Deferrable Gratification&quot;</span>
+</pre>
+
+<p>With <code>Deferrable#bind!</code> we can remove the nesting and write something that
+looks more like the straight-line sequential flow:</p>
+
+<pre class="code"><span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='run identifier id'>run</span> <span class='do do kw'>do</span>
+  <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='string val'>'http://google.com/search?q=deferrable_gratification'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='bind! fid id'>bind!</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc identifier id'>doc</span><span class='bitor op'>|</span>
+    <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='lparen token'>(</span><span class='doc identifier id'>doc</span> <span class='div op'>/</span> <span class='string val'>'ol'</span> <span class='div op'>/</span> <span class='string val'>'li'</span> <span class='div op'>/</span> <span class='string val'>'a'</span><span class='rparen token'>)</span><span class='lbrack token'>[</span><span class='integer val'>0</span><span class='rbrack token'>]</span><span class='lbrack token'>[</span><span class='symbol val'>:href</span><span class='rbrack token'>]</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='bind! fid id'>bind!</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc identifier id'>doc</span><span class='bitor op'>|</span>
+    <span class='fetchpricot2 identifier id'>fetchpricot2</span><span class='lparen token'>(</span><span class='lparen token'>(</span><span class='doc identifier id'>doc</span> <span class='div op'>/</span> <span class='string val'>'#repository_homepage'</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:a</span><span class='rparen token'>)</span><span class='lbrack token'>[</span><span class='symbol val'>:href</span><span class='rbrack token'>]</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='doc identifier id'>doc</span><span class='bitor op'>|</span>
+    <span class='puts identifier id'>puts</span> <span class='doc identifier id'>doc</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='inner_text identifier id'>inner_text</span>
+    <span class='comment val'># now the previous 'doc's aren't in scope, so I can't accidentally</span>
+    <span class='comment val'># refer to them</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span>
+    <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Error: #{error}&quot;</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='bothback identifier id'>bothback</span> <span class='lbrace token'>{</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='stop identifier id'>stop</span> <span class='rbrace token'>}</span>
+<span class='end end kw'>end</span>
+<span class='comment val'># prints &quot;Deferrable Gratification&quot;</span>
+</pre>
+
+<p><code>bind!</code> also wires up the errbacks so we can just write a single errback that
+will fire if any step in the sequence fails; similarly we don't have to write
+<code>EM.stop</code> three times.</p>
+
+<h2>Getting started</h2>
+
+<p>Install the gem:</p>
+
+<pre class="code"><span class='gem identifier id'>gem</span> <span class='install identifier id'>install</span> <span class='deferrable_gratification identifier id'>deferrable_gratification</span>
+</pre>
+
+<p>In your code:</p>
+
+<pre class="code"><span class='require identifier id'>require</span> <span class='string val'>'eventmachine'</span>
+<span class='require identifier id'>require</span> <span class='string val'>'deferrable_gratification'</span>
+<span class='DG constant id'>DG</span><span class='dot token'>.</span><span class='enhance_all_deferrables! fid id'>enhance_all_deferrables!</span>
+</pre>
+
+<p>Make sure that the call to
+<a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance_all_deferrables%21-class_method"><code>DG.enhance_all_deferrables!</code></a>
+comes <em>before</em> you require any library that uses <code>Deferrable</code> (e.g.
+<a href="https://github.com/igrigorik/em-http-request">em-http-request</a>).</p>
+
+<h3>Temporary workaround because <code>enhance_all_deferrables!</code> is broken</h3>
+
+<p>You actually need to call
+<a href="http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance%21-class_method"><code>DG.enhance!</code></a>
+on each Deferrable class you'll be dealing with. This call needs to come
+<em>after</em> that class is defined.</p>
 
 <h2>Documentation</h2>
 
@@ -57,65 +421,10 @@ with.</p>
 <li><a href="http://samstokes.github.com/deferrable_gratification/doc/spec/index.html">Behaviour specs</a>
 (generated from RSpec code examples)</li>
 </ul>
-
-
-<h2>Components</h2>
-
-<p>It currently consists of the following components:</p>
-
-<ul>
-<li><p><a href="#fluent"><code>DG::Fluent</code></a>: fluent (aka chainable) syntax for registering
-multiple callbacks and errbacks to the same Deferrable.</p></li>
-<li><p><a href="#bothback"><code>DG::Bothback</code></a>: a <code>#bothback</code> method for registering code to
-run on either success or failure.</p></li>
-<li><p><a href="#combinators"><code>DG::Combinators</code></a>: a combinator library for building up
-complex asynchronous operations out of simpler ones.</p></li>
-</ul>
-
-
-<h3 id="fluent"><tt>DG::Fluent</tt></h3>
-
-
-<p>Use JQuery-style fluent syntax for registering several callbacks and
-errbacks on the same Deferrable.  e.g.</p>
-
-<pre class="code"> <span class='DeferrableMonkeyShaver constant id'>DeferrableMonkeyShaver</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='monkey identifier id'>monkey</span><span class='rparen token'>)</span><span class='dot token'>.</span>
-   <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='puts identifier id'>puts</span> <span class='string val'>&quot;Monkey is shaved&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
-   <span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span> <span class='monkey identifier id'>monkey</span><span class='dot token'>.</span><span class='entertain! fid id'>entertain!</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
-   <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='e identifier id'>e</span><span class='bitor op'>|</span> <span class='puts identifier id'>puts</span> <span class='dstring node'>&quot;Unable to shave monkey! #{e}&quot;</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
-   <span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='_ identifier id'>_</span><span class='bitor op'>|</span> <span class='monkey identifier id'>monkey</span><span class='dot token'>.</span><span class='terminate! fid id'>terminate!</span> <span class='rbrace token'>}</span><span class='dot token'>.</span>
-   <span class='shave identifier id'>shave</span>
-</pre>
-
-<h3 id="bothback"><tt>DG::Bothback</tt></h3>
-
-
-<p>Register code to run on either success or failure: shorthand for calling both
-<code>#callback</code> and <code>#errback</code> with the same code block.</p>
-
-<h3 id="combinators"><tt>DG::Combinators</tt></h3>
-
-
-<p>Allows building up higher-level asynchronous abstractions by composing simpler
-asynchronous operations, without having to manually wire callbacks together
-and remember to propagate errors correctly.</p>
-
-<p>Motivating example: assume we have an asynchronous database API <code>DB.query</code>
-which returns a Deferrable to communicate when the query finishes.  (See
-the <a href="DeferrableGratification/Combinators.html">API docs for <code>DG::Combinators</code></a>
-for more detail.)</p>
-
-<pre class="code"><span class='def def kw'>def</span> <span class='product_names_for_username identifier id'>product_names_for_username</span><span class='lparen token'>(</span><span class='username identifier id'>username</span><span class='rparen token'>)</span>
-  <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT id FROM users WHERE username = ?'</span><span class='comma token'>,</span> <span class='username identifier id'>username</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='bind! fid id'>bind!</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='user_id identifier id'>user_id</span><span class='bitor op'>|</span>
-    <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT name FROM products WHERE user_id = ?'</span><span class='comma token'>,</span> <span class='user_id identifier id'>user_id</span><span class='rparen token'>)</span>
-  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='product_names identifier id'>product_names</span><span class='bitor op'>|</span>
-    <span class='product_names identifier id'>product_names</span><span class='dot token'>.</span><span class='join identifier id'>join</span><span class='lparen token'>(</span><span class='string val'>', '</span><span class='rparen token'>)</span>
-  <span class='end end kw'>end</span>
-<span class='end end kw'>end</span>
-</pre></div></div>
+</div></div>
     
     <div id="footer">
-  Generated on Sat Jan 15 15:41:33 2011 by 
+  Generated on Fri Jan 21 14:00:17 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

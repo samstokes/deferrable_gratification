@@ -119,6 +119,83 @@ result of the previous operation.
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#join_first_success-instance_method" title="#join_first_success (instance method)">- (Deferrable) <strong>join_first_success</strong>(*operations) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Combinator that waits for any of the supplied asynchronous operations to
+succeed, and succeeds with the result of the first (chronologically) to do
+so.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#join_successes-instance_method" title="#join_successes (instance method)">- (Deferrable) <strong>join_successes</strong>(*operations) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Combinator that waits for all of the supplied asynchronous operations to
+succeed or fail, then succeeds with the results of all those operations
+that were successful.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loop_until_success-instance_method" title="#loop_until_success (instance method)">- (Deferrable) <strong>loop_until_success</strong>(loop_deferrable = DefaultDeferrable.new, &amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Combinator that repeatedly executes the supplied block until it succeeds,
+then succeeds itself with the eventual result.
+</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
   
 
@@ -201,15 +278,384 @@ and callback with the result of the last operation.
       <pre class="lines">
 
 
-167
-168
-169</pre>
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 167</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 189</span>
 
 <span class='def def kw'>def</span> <span class='chain identifier id'>chain</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='actions identifier id'>actions</span><span class='rparen token'>)</span>
   <span class='actions identifier id'>actions</span><span class='dot token'>.</span><span class='inject identifier id'>inject</span><span class='lparen token'>(</span><span class='DG constant id'>DG</span><span class='dot token'>.</span><span class='const identifier id'>const</span><span class='lparen token'>(</span><span class='nil nil kw'>nil</span><span class='rparen token'>)</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='symbol val'>:&gt;&gt;</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="join_first_success-instance_method">
+  
+    - (<tt>Deferrable</tt>) <strong>join_first_success</strong>(*operations) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Combinator that waits for any of the supplied asynchronous operations to
+succeed, and succeeds with the result of the first (chronologically) to do
+so.
+</p>
+<p>
+This Deferrable will fail if all the operations fail.  It may never succeed
+or fail, if one of the operations also does not.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>*Deferrable</tt>)</span>
+      
+      
+        <span class='name'>*operations</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+deferred statuses of asynchronous operations to wait for.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+a deferred status that will succeed as soon as any of the
+<tt>operations</tt> succeeds; its callbacks will be passed the result of
+that operation.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 227</span>
+
+<span class='def def kw'>def</span> <span class='join_first_success identifier id'>join_first_success</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+  <span class='Join constant id'>Join</span><span class='colon2 op'>::</span><span class='FirstSuccess constant id'>FirstSuccess</span><span class='dot token'>.</span><span class='setup! fid id'>setup!</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="join_successes-instance_method">
+  
+    - (<tt>Deferrable</tt>) <strong>join_successes</strong>(*operations) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Combinator that waits for all of the supplied asynchronous operations to
+succeed or fail, then succeeds with the results of all those operations
+that were successful.
+</p>
+<p>
+This Deferrable will never fail.  It may also never succeed, if
+<em>any</em> of the supplied operations does not either succeed or fail.
+</p>
+<p>
+The successful results are guaranteed to be in the same order as the
+operations were passed in (which may <em>not</em> be the same as the
+chronological order in which they succeeded).
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>*Deferrable</tt>)</span>
+      
+      
+        <span class='name'>*operations</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+deferred statuses of asynchronous operations to wait for.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+a deferred status that will succeed after all the <tt>operations</tt> have
+either succeeded or failed; its callbacks will be passed an
+<tt>Enumerable</tt> containing the results of those operations that
+succeeded.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 211</span>
+
+<span class='def def kw'>def</span> <span class='join_successes identifier id'>join_successes</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+  <span class='Join constant id'>Join</span><span class='colon2 op'>::</span><span class='Successes constant id'>Successes</span><span class='dot token'>.</span><span class='setup! fid id'>setup!</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="loop_until_success-instance_method">
+  
+    - (<tt>Deferrable</tt>) <strong>loop_until_success</strong>(loop_deferrable = DefaultDeferrable.new, &amp;block) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong> 
+    <div class='inline'><p>
+this combinator is intended for use inside EventMachine.  It will still
+work outside of EventMachine, <em>provided</em> that the operation is
+synchronous (although a simple <tt>while</tt> loop might be preferable in
+this case!).
+</p>
+</div>
+  </div>
+
+<p>
+Combinator that repeatedly executes the supplied block until it succeeds,
+then succeeds itself with the eventual result.
+</p>
+<p>
+This Deferrable may never succeed, if the operation never succeeds. It will
+fail if an iteration raises an exception.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>loop_deferrable</span>
+      
+      
+        <em class="default">(defaults to: <tt>DefaultDeferrable.new</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>
+for internal use only, always omit this.
+</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>&amp;block</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+operation to execute until it succeeds.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Yield Returns:</h3>
+<ul class="yieldreturn">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+deferred status of the operation.  If it fails, the operation will be
+retried.  If it succeeds, the combinator will succeed with the result.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+a deferred status that will succeed once the supplied operation eventually
+succeeds.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 251</span>
+
+<span class='def def kw'>def</span> <span class='loop_until_success identifier id'>loop_until_success</span><span class='lparen token'>(</span><span class='loop_deferrable identifier id'>loop_deferrable</span> <span class='assign token'>=</span> <span class='DefaultDeferrable constant id'>DefaultDeferrable</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='if if kw'>if</span> <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='reactor_running? fid id'>reactor_running?</span>
+    <span class='EM constant id'>EM</span><span class='dot token'>.</span><span class='next_tick identifier id'>next_tick</span> <span class='do do kw'>do</span>
+      <span class='begin begin kw'>begin</span>
+        <span class='attempt identifier id'>attempt</span> <span class='assign token'>=</span> <span class='yield yield kw'>yield</span>
+      <span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='e identifier id'>e</span>
+        <span class='loop_deferrable identifier id'>loop_deferrable</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='e identifier id'>e</span><span class='rparen token'>)</span>
+      <span class='else else kw'>else</span>
+        <span class='attempt identifier id'>attempt</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='loop_deferrable identifier id'>loop_deferrable</span><span class='dot token'>.</span><span class='method identifier id'>method</span><span class='lparen token'>(</span><span class='symbol val'>:succeed</span><span class='rparen token'>)</span><span class='rparen token'>)</span>
+        <span class='attempt identifier id'>attempt</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='lbrace token'>{</span> <span class='loop_until_success identifier id'>loop_until_success</span><span class='lparen token'>(</span><span class='loop_deferrable identifier id'>loop_deferrable</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
+      <span class='end end kw'>end</span>
+    <span class='end end kw'>end</span>
+  <span class='else else kw'>else</span>
+    <span class='comment val'># In the synchronous case, we could simply use the same</span>
+    <span class='comment val'># implementation as in EM, but without the next_tick; unfortunately</span>
+    <span class='comment val'># that means direct recursion, so risks stack overflow.  Instead we</span>
+    <span class='comment val'># just reimplement as a loop.</span>
+    <span class='results identifier id'>results</span> <span class='assign token'>=</span> <span class='lbrack token'>[</span><span class='rbrack token'>]</span>
+    <span class='begin begin kw'>begin</span>
+      <span class='yield yield kw'>yield</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='mult op'>*</span><span class='values identifier id'>values</span><span class='bitor op'>|</span> <span class='results identifier id'>results</span> <span class='lshft op'>&lt;&lt;</span> <span class='values identifier id'>values</span> <span class='rbrace token'>}</span> <span class='while while_mod kw'>while</span> <span class='results identifier id'>results</span><span class='dot token'>.</span><span class='empty? fid id'>empty?</span>
+    <span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='e identifier id'>e</span>
+      <span class='loop_deferrable identifier id'>loop_deferrable</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='e identifier id'>e</span><span class='rparen token'>)</span>
+    <span class='else else kw'>else</span>
+      <span class='loop_deferrable identifier id'>loop_deferrable</span><span class='dot token'>.</span><span class='succeed identifier id'>succeed</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='results identifier id'>results</span><span class='lbrack token'>[</span><span class='integer val'>0</span><span class='rbrack token'>]</span><span class='rparen token'>)</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+  <span class='loop_deferrable identifier id'>loop_deferrable</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -222,7 +668,7 @@ and callback with the result of the last operation.
 </div>
     
     <div id="footer">
-  Generated on Sat Jan 15 15:41:33 2011 by 
+  Generated on Fri Jan 21 14:00:18 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

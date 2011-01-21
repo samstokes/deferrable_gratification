@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta name="Content-Type" content="text/html; charset=utf8" />
+<title>Class: DeferrableGratification::Combinators::Join</title>
+<link rel="stylesheet" href="../../css/style.css" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="../../css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  relpath = '../..';
+  if (relpath != '') relpath += '/';
+</script>
+<script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+    
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (J)</a> &raquo; 
+    <span class='title'><span class='object_link'><a href="../../DeferrableGratification.html" title="DeferrableGratification (module)">DeferrableGratification</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Combinators.html" title="DeferrableGratification::Combinators (module)">Combinators</a></span></span>
+     &raquo; 
+    <span class="title">Join</span>
+  
+  
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  <a id="class_list_link" href="#">Class List</a>
+  <a id="method_list_link" href="#">Method List</a>
+  <a id ="file_list_link" href="#">File List</a>
+</div>
+
+      <div class="clear"></div>
+    </div>
+    
+    <iframe id="search_frame"></iframe>
+    
+    <div id="content"><h1>Class: DeferrableGratification::Combinators::Join
+  <span class="abstract note title">Abstract</span>
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../DefaultDeferrable.html" title="DeferrableGratification::DefaultDeferrable (class)">DefaultDeferrable</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../DefaultDeferrable.html" title="DeferrableGratification::DefaultDeferrable (class)">DefaultDeferrable</a></span></li>
+          
+            <li class="next">DeferrableGratification::Combinators::Join</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/deferrable_gratification/combinators/join.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This class is abstract.</strong> 
+  <div class='inline'><p>
+Subclasses should override <span class='object_link'><a href="#done%3F-instance_method" title="DeferrableGratification::Combinators::Join#done? (method)">#done?</a></span> to define whether they wait for some or
+all of the operations to complete, and <span class='object_link'><a href="#finish-instance_method" title="DeferrableGratification::Combinators::Join#finish (method)">#finish</a></span> to define what they do
+when <span class='object_link'><a href="#done%3F-instance_method" title="DeferrableGratification::Combinators::Join#done? (method)">#done?</a></span> returns true.
+</p>
+</div>
+</div>
+<p>
+Abstract base class for combinators that depend on a number of asynchronous
+operations (potentially executing in parallel).
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Join/FirstSuccess.html" title="DeferrableGratification::Combinators::Join::FirstSuccess (class)">FirstSuccess</a></span>, <span class='object_link'><a href="Join/Successes.html" title="DeferrableGratification::Combinators::Join::Successes (class)">Successes</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+   
+    
+   
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Join/FirstSuccess.html" title="DeferrableGratification::Combinators::Join::FirstSuccess (class)">FirstSuccess</a></span>, <span class='object_link'><a href="Join/Successes.html" title="DeferrableGratification::Combinators::Join::Successes (class)">Successes</a></span>
+    
+  
+</p>
+
+
+  
+  
+  
+  
+  
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup%21-class_method" title="setup! (class method)">+ (Join) <strong>setup!</strong>(*operations) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Create a <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">Join</a></span> and register the callbacks.
+</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Join) <strong>initialize</strong>(*operations) </a>
+    
+
+    
+  </span>
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Prepare to wait for the completion of <tt>operations</tt>.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup%21-instance_method" title="#setup! (instance method)">- (Object) <strong>setup!</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Register callbacks and errbacks on the supplied operations to notify this
+<span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">Join</a></span> of completion.
+</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <p class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">Join</a></span></tt>) <strong>initialize</strong>(*operations) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Prepare to wait for the completion of <tt>operations</tt>.
+</p>
+<p>
+Does not actually set up any callbacks or errbacks: call <span class='object_link'><a href="#setup%21-instance_method" title="DeferrableGratification::Combinators::Join#setup! (method)">#setup!</a></span> for
+that.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>*Deferrable</tt>)</span>
+      
+      
+        <span class='name'>*operations</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+deferred statuses of asynchronous operations to wait for.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/join.rb', line 19</span>
+
+<span class='def def kw'>def</span> <span class='initialize identifier id'>initialize</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+  <span class='@operations ivar id'>@operations</span> <span class='assign token'>=</span> <span class='operations identifier id'>operations</span>
+  <span class='@successes ivar id'>@successes</span> <span class='assign token'>=</span> <span class='Array constant id'>Array</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='@operations ivar id'>@operations</span><span class='dot token'>.</span><span class='size identifier id'>size</span><span class='comma token'>,</span> <span class='Sentinel constant id'>Sentinel</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='rparen token'>)</span>
+  <span class='@failures ivar id'>@failures</span> <span class='assign token'>=</span> <span class='Array constant id'>Array</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='@operations ivar id'>@operations</span><span class='dot token'>.</span><span class='size identifier id'>size</span><span class='comma token'>,</span> <span class='Sentinel constant id'>Sentinel</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="setup!-class_method">
+  
+    + (<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">Join</a></span></tt>) <strong>setup!</strong>(*operations) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Create a <span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">DeferrableGratification::Combinators::Join</a></span> and register the callbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>*Deferrable</tt>)</span>
+      
+      
+        <span class='name'>*operations</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+deferred statuses of asynchronous operations to wait for.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">Join</a></span></tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Deferrable representing the join operation.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/join.rb', line 47</span>
+
+<span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='setup! fid id'>setup!</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span>
+  <span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='operations identifier id'>operations</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='tap identifier id'>tap</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='symbol val'>:setup!</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="setup!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>setup!</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Register callbacks and errbacks on the supplied operations to notify this
+<span class='object_link'><a href="" title="DeferrableGratification::Combinators::Join (class)">DeferrableGratification::Combinators::Join</a></span> of completion.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators/join.rb', line 27</span>
+
+<span class='def def kw'>def</span> <span class='setup! fid id'>setup!</span>
+  <span class='finish identifier id'>finish</span> <span class='if if_mod kw'>if</span> <span class='done? fid id'>done?</span>
+
+  <span class='@operations ivar id'>@operations</span><span class='dot token'>.</span><span class='each_with_index identifier id'>each_with_index</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='op identifier id'>op</span><span class='comma token'>,</span> <span class='index identifier id'>index</span><span class='bitor op'>|</span>
+    <span class='op identifier id'>op</span><span class='dot token'>.</span><span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='result identifier id'>result</span><span class='bitor op'>|</span>
+      <span class='@successes ivar id'>@successes</span><span class='lbrack token'>[</span><span class='index identifier id'>index</span><span class='rbrack token'>]</span> <span class='assign token'>=</span> <span class='result identifier id'>result</span>
+      <span class='finish identifier id'>finish</span> <span class='if if_mod kw'>if</span> <span class='done? fid id'>done?</span>
+    <span class='end end kw'>end</span>
+    <span class='op identifier id'>op</span><span class='dot token'>.</span><span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='error identifier id'>error</span><span class='bitor op'>|</span>
+      <span class='@failures ivar id'>@failures</span><span class='lbrack token'>[</span><span class='index identifier id'>index</span><span class='rbrack token'>]</span> <span class='assign token'>=</span> <span class='error identifier id'>error</span>
+      <span class='finish identifier id'>finish</span> <span class='if if_mod kw'>if</span> <span class='done? fid id'>done?</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+    
+    <div id="footer">
+  Generated on Fri Jan 21 14:00:18 2011 by 
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.6.4 (ruby-1.8.7).
+</div>
+
+  </body>
+</html>

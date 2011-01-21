@@ -60,7 +60,7 @@
   
     <dt class="r1 last">Defined in:</dt>
     <dd class="r1 last">lib/deferrable_gratification/combinators.rb<span class="defines">,<br />
-  lib/deferrable_gratification/combinators/bind.rb</span>
+  lib/deferrable_gratification/combinators/bind.rb,<br /> lib/deferrable_gratification/combinators/join.rb</span>
 </dd>
   
 </dl>
@@ -90,7 +90,7 @@ Perform a sequence of database queries and transform the result.
 <span class='def def kw'>def</span> <span class='product_names_for_username identifier id'>product_names_for_username</span><span class='lparen token'>(</span><span class='username identifier id'>username</span><span class='rparen token'>)</span>
   <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT id FROM users WHERE username = ?'</span><span class='comma token'>,</span> <span class='username identifier id'>username</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='bind! fid id'>bind!</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='user_id identifier id'>user_id</span><span class='bitor op'>|</span>
     <span class='DB constant id'>DB</span><span class='dot token'>.</span><span class='query identifier id'>query</span><span class='lparen token'>(</span><span class='string val'>'SELECT name FROM products WHERE user_id = ?'</span><span class='comma token'>,</span> <span class='user_id identifier id'>user_id</span><span class='rparen token'>)</span>
-  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='product_names identifier id'>product_names</span><span class='bitor op'>|</span>
+  <span class='end end kw'>end</span><span class='dot token'>.</span><span class='transform identifier id'>transform</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='product_names identifier id'>product_names</span><span class='bitor op'>|</span>
     <span class='product_names identifier id'>product_names</span><span class='dot token'>.</span><span class='join identifier id'>join</span><span class='lparen token'>(</span><span class='string val'>', '</span><span class='rparen token'>)</span>
   <span class='end end kw'>end</span>
 <span class='end end kw'>end</span>
@@ -141,7 +141,7 @@ Perform a sequence of database queries and transform the result.
     
    
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Combinators/Bind.html" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Combinators/Bind.html" title="DeferrableGratification::Combinators::Bind (class)">Bind</a></span>, <span class='object_link'><a href="Combinators/Join.html" title="DeferrableGratification::Combinators::Join (class)">Join</a></span>
     
   
 </p>
@@ -242,7 +242,7 @@ representing the status of a second operation.
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#map-instance_method" title="#map (instance method)">- (Deferrable) <strong>map</strong>(&amp;block) </a>
+      <a href="#transform-instance_method" title="#transform (instance method)">- (Deferrable) <strong>transform</strong>(&amp;block) </a>
     
 
     
@@ -258,6 +258,31 @@ representing the status of a second operation.
     <span class="summary_desc"><div class='inline'><p>
 Transform the result of this Deferrable by invoking <tt>block</tt>,
 returning a Deferrable which succeeds with the transformed result.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transform_error-instance_method" title="#transform_error (instance method)">- (Deferrable) <strong>transform_error</strong>(&amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Transform the value passed to the errback of this Deferrable by invoking
+<tt>block</tt>.
 </p>
 </div></span>
   
@@ -297,12 +322,12 @@ Boilerplate hook to extend <span class='object_link'><a href="Combinators/ClassM
       <pre class="lines">
 
 
-147
-148
-149</pre>
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 147</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 169</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='included identifier id'>included</span><span class='lparen token'>(</span><span class='base identifier id'>base</span><span class='rparen token'>)</span>
   <span class='base identifier id'>base</span><span class='dot token'>.</span><span class='send identifier id'>send</span> <span class='symbol val'>:extend</span><span class='comma token'>,</span> <span class='ClassMethods constant id'>ClassMethods</span>
@@ -558,9 +583,9 @@ into the block.
 </div>
     
       <div class="method_details ">
-  <p class="signature " id="map-instance_method">
+  <p class="signature " id="transform-instance_method">
   
-    - (<tt>Deferrable</tt>) <strong>map</strong>(&amp;block) 
+    - (<tt>Deferrable</tt>) <strong>transform</strong>(&amp;block) 
   
 
   
@@ -573,9 +598,6 @@ returning a Deferrable which succeeds with the transformed result.
 <p>
 If this operation fails, the operation will not be run, and the returned
 Deferrable will also fail.
-</p>
-<p>
-operation in some way.
 </p>
 
 
@@ -590,7 +612,7 @@ operation in some way.
 Retrieve a web page and call back with its title.
 </p>
 </div></h4>
-      <pre class="example code"><span class='HTTP constant id'>HTTP</span><span class='dot token'>.</span><span class='request identifier id'>request</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='map identifier id'>map</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='page identifier id'>page</span><span class='bitor op'>|</span> <span class='Hpricot constant id'>Hpricot</span><span class='lparen token'>(</span><span class='page identifier id'>page</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='inner_html identifier id'>inner_html</span> <span class='rbrace token'>}</span>
+      <pre class="example code"><span class='HTTP constant id'>HTTP</span><span class='dot token'>.</span><span class='request identifier id'>request</span><span class='lparen token'>(</span><span class='url identifier id'>url</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='transform identifier id'>transform</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='page identifier id'>page</span><span class='bitor op'>|</span> <span class='Hpricot constant id'>Hpricot</span><span class='lparen token'>(</span><span class='page identifier id'>page</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='at identifier id'>at</span><span class='lparen token'>(</span><span class='symbol val'>:title</span><span class='rparen token'>)</span><span class='dot token'>.</span><span class='inner_html identifier id'>inner_html</span> <span class='rbrace token'>}</span>
 </pre>
     
   </div>
@@ -608,7 +630,7 @@ Retrieve a web page and call back with its title.
       
         &mdash;
         <div class='inline'><p>
-block that transforms the expected result of this
+block that transforms the expected result of this operation in some way.
 </p>
 </div>
       
@@ -649,8 +671,107 @@ result.
     <td>
       <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 141</span>
 
-<span class='def def kw'>def</span> <span class='map identifier id'>map</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+<span class='def def kw'>def</span> <span class='transform identifier id'>transform</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
   <span class='bind! fid id'>bind!</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="transform_error-instance_method">
+  
+    - (<tt>Deferrable</tt>) <strong>transform_error</strong>(&amp;block) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Transform the value passed to the errback of this Deferrable by invoking
+<tt>block</tt>.  If this operation succeeds, the returned Deferrable will
+succeed with the same value.  If this operation fails, the returned
+Deferrable will fail with the transformed error value.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>&amp;block</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+block that transforms the expected error value of this operation in some
+way.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Deferrable that will succeed if this operation did, otherwise fail after
+transforming the error value with which this operation failed.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 156</span>
+
+<span class='def def kw'>def</span> <span class='transform_error identifier id'>transform_error</span><span class='lparen token'>(</span><span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='errback identifier id'>errback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='mult op'>*</span><span class='err identifier id'>err</span><span class='bitor op'>|</span>
+    <span class='self self kw'>self</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span>
+      <span class='begin begin kw'>begin</span>
+        <span class='yield yield kw'>yield</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='err identifier id'>err</span><span class='rparen token'>)</span>
+      <span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='e identifier id'>e</span>
+        <span class='e identifier id'>e</span>
+      <span class='end end kw'>end</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -663,7 +784,7 @@ result.
 </div>
     
     <div id="footer">
-  Generated on Sat Jan 15 15:41:33 2011 by 
+  Generated on Fri Jan 21 14:00:19 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>
