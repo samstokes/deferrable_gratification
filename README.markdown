@@ -142,6 +142,194 @@ Deferrable Gratification aims to solve these problems by providing a library of
 composition operators - combinators - which abstract away the boilerplate
 callback wiring and reveal the logic of the code.
 
+## Examples ##
+
+### [Fluent callback syntax](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Fluent.html): because it feels right ###
+
+The return value of
+[`Deferrable#callback`](http://eventmachine.rubyforge.org/EventMachine/Deferrable.html#M000264)
+isn't useful, which means if you want to set a callback on a Deferrable and
+then return it, you have to name the Deferrable first, so you can return it
+explicitly.  You also have to mention the name again to set another callback,
+which leads to a lot of noisy repetition:
+
+    def google_homepage
+      request = EM::HttpRequest.new('http://google.com').get(:redirects => 1)
+      request.callback {|http| puts http.response }
+      request.callback { $call_count = ($call_count || 0) + 1 }
+      request.errback { puts "Oh noes!" }
+      request
+    end
+    EM.run { r = google_homepage; r.callback { EM.stop }; r.errback { EM.stop } }
+    # prints a lot of HTML
+
+DG lets you chain callbacks and errbacks using "fluent syntax" familiar from
+JQuery:
+
+    DG.enhance! EM::HttpClient
+
+    def google_homepage
+      EM::HttpRequest.new('http://google.com').get(:redirects => 1).
+        callback {|http| puts http.response }.
+        callback { $call_count = ($call_count || 0) + 1 }.
+        errback { puts "Oh noes!" }
+    end
+    EM.run { google_homepage.callback { EM.stop }.errback { EM.stop } }
+    # prints a lot of HTML
+
+### [`bothback`](http://samstokes.github.com/deferrable\_gratification/doc/DeferrableGratification/Bothback.html#bothback-instance\_method): when you absolutely, positively got to... ###
+
+Sometimes you need to do something after an asynchronous action completes,
+whether it succeeded or failed: e.g. release a lock, or as in the example
+above, call `EM.stop` to break out of the `EM.run` block.  It's annoying to
+have to write that code twice, to make sure it's called both on success and
+failure.
+
+`bothback` to the rescue:
+
+    EM.run { google_homepage.bothback { EM.stop } }
+    # prints a lot of HTML
+
+### [`transform`](http://samstokes.github.com/deferrable\_gratification/doc/DeferrableGratification/Combinators.html#transform-instance\_method): receive the callbacks that make sense for you ###
+
+The [em-http-request](https://github.com/igrigorik/em-http-request) library is
+great, but it's a bit fiddly to use, because it passes the whole
+[`EM::HttpClient`](http://rdoc.info/github/igrigorik/em-http-request/master/EventMachine/HttpClient)
+instance to its callbacks and errbacks.  That means your callbacks can check
+the response code and headers, but it also makes it harder if you just want
+quick access to the response body.
+
+    EM.run do
+      request = EM::HttpRequest.new('http://google.com').get(:redirects => 1)
+      request.
+        callback do |http|
+          # Have to write this code once for each different request
+          if http.response_header.status == 200
+            puts http.response
+          else
+            request.fail(http)   # triggers the errback as if the request had failed
+          end
+        end.errback {|http| handle_error(http) }.
+        bothback { EM.stop }
+    end
+    # prints lots of HTML
+
+Wouldn't it be great if we could encapsulate the logic of "just give me the
+response if the request was successful", and have callbacks that just act on
+the response body?
+
+    def fetch_page(url)
+      request = EM::HttpRequest.new(url).get(:redirects => 1)
+      request.transform do |http|
+        if http.response_header.status == 200
+          http.response
+        else
+          request.fail(http)
+        end
+      end
+    end
+
+    EM.run do
+      fetch_page('http://google.com').
+        callback {|html| puts html }.
+        errback {|http| puts "Oh dear!" }.
+        bothback { EM.stop }
+    end
+    # prints lots of HTML
+
+That looks a lot cleaner.  It would be even cooler if instead of passing the
+raw HTML to callbacks, we could parse the HTML using
+[Hpricot](http://hpricot.com) and pass the parsed document instead.  No
+problem:
+
+    require 'hpricot'
+
+    def fetchpricot(url)
+      fetch_page(url).transform {|html| Hpricot(html) }
+    end
+
+    EM.run do
+      fetchpricot('http://google.com').
+        callback {|doc| puts doc.at(:title) }.
+        errback {|http| puts "Oh dear!" }.
+        bothback { EM.stop }
+    end
+    # prints <title>Google</title>
+
+### [`transform_error`](http://samstokes.github.com/deferrable\_gratification/doc/DeferrableGratification/Combinators.html#transform_error-instance\_method): receive the errbacks that make sense to you ###
+
+That's cool, but it's a bit annoying that those errbacks receive a `HttpClient`
+object - we have to turn that into a useful error message every time.  Let's
+encapsulate that too:
+
+    def fetchpricot2(url)
+      fetchpricot(url).transform_error do |http|
+        if http.response_header.status > 0
+          "Unexpected response code: #{http.response_header.status}"
+        else
+          "Unknown error!"
+        end
+      end
+    end
+
+    EM.run do
+      fetchpricot2('http://google.com/page_that_probably_does_not_exist').
+        callback {|doc| puts doc.at(:title) }.
+        errback {|error| puts "Error: #{error}" }.
+        bothback { EM.stop }
+    end
+    # prints "Error: Unexpected response code: 404"
+
+### [`bind!`](http://samstokes.github.com/deferrable\_gratification/doc/DeferrableGratification/Combinators.html#bind!-instance\_method): for when one thing leads to another ###
+
+Say we want to do a simple web crawling task: find the first search result for
+'deferrable_gratification', follow that link (which should be its Github page),
+and pull down the project website listed on that page.  Normally this would
+require some messy nesting of callbacks and errbacks:
+
+    EM.run do
+      fetchpricot2('http://google.com/search?q=deferrable_gratification').callback do |doc1|
+        fetchpricot2((doc1 / 'ol' / 'li' / 'a')[0][:href]).callback do |doc2|
+          fetchpricot2((doc2 / '#repository_homepage').at(:a)[:href]).callback do |doc3|
+            puts doc3.at(:title).inner_text
+            # I could also have mistyped 'doc3' as 'doc2' and got the wrong
+            # behaviour, but no exception to flag it
+          end.errback do |error|
+            puts "Error finding homepage link: #{error}"
+          end.bothback { EM.stop }
+        end.errback do |error|
+          puts "Error loading first search result: #{error}"
+          EM.stop
+        end
+      end.errback do |error|
+        puts "Error retrieving search results: #{error}"
+        EM.stop
+      end
+    end
+    # prints "Deferrable Gratification"
+
+With `Deferrable#bind!` we can remove the nesting and write something that
+looks more like the straight-line sequential flow:
+
+    EM.run do
+      fetchpricot2('http://google.com/search?q=deferrable_gratification').bind! do |doc|
+        fetchpricot2((doc / 'ol' / 'li' / 'a')[0][:href])
+      end.bind! do |doc|
+        fetchpricot2((doc / '#repository_homepage').at(:a)[:href])
+      end.callback do |doc|
+        puts doc.at(:title).inner_text
+        # now the previous 'doc's aren't in scope, so I can't accidentally
+        # refer to them
+      end.errback do |error|
+        puts "Error: #{error}"
+      end.bothback { EM.stop }
+    end
+    # prints "Deferrable Gratification"
+
+`bind!` also wires up the errbacks so we can just write a single errback that
+will fire if any step in the sequence fails; similarly we don't have to write
+`EM.stop` three times.
+
 ## Getting started ##
 
 Install the gem:
@@ -155,62 +343,19 @@ In your code:
     DG.enhance_all_deferrables!
 
 Make sure that the call to
-[DG.enhance_all_deferrables!](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance_all_deferrables%21-class_method)
+[`DG.enhance_all_deferrables!`](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance_all_deferrables%21-class_method)
 comes *before* you require any library that uses `Deferrable` (e.g.
 [em-http-request](https://github.com/igrigorik/em-http-request)).
+
+### Temporary workaround because `enhance_all_deferrables!` is broken ###
+
+You actually need to call
+[`DG.enhance!`](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification.html#enhance%21-class_method)
+on each Deferrable class you'll be dealing with. This call needs to come
+*after* that class is defined.
 
 ## Documentation ##
 
 * [API](http://samstokes.github.com/deferrable_gratification/doc/frames.html)
 * [Behaviour specs](http://samstokes.github.com/deferrable_gratification/doc/spec/index.html)
   (generated from RSpec code examples)
-
-## Structure ##
-
-It currently consists of the following modules:
-
- * [`DG::Fluent`](#fluent): fluent (aka chainable) syntax for registering
-   multiple callbacks and errbacks to the same Deferrable.
-
- * [`DG::Bothback`](#bothback): a `#bothback` method for registering code to
-   run on either success or failure.
-
- * [`DG::Combinators`](#combinators): a combinator library for building up
-   complex asynchronous operations out of simpler ones.
-
-
-<h3 id="fluent"><tt>DG::Fluent</tt></h3>
-
-Use JQuery-style fluent syntax for registering several callbacks and
-errbacks on the same Deferrable.  e.g.
-
-     DeferrableMonkeyShaver.new(monkey).
-       callback { puts "Monkey is shaved" }.
-       callback { monkey.entertain! }.
-       errback {|e| puts "Unable to shave monkey! #{e}" }.
-       errback {|_| monkey.terminate! }.
-       shave
-
-<h3 id="bothback"><tt>DG::Bothback</tt></h3>
-
-Register code to run on either success or failure: shorthand for calling both
-`#callback` and `#errback` with the same code block.
-
-<h3 id="combinators"><tt>DG::Combinators</tt></h3>
-
-Allows building up higher-level asynchronous abstractions by composing simpler
-asynchronous operations, without having to manually wire callbacks together
-and remember to propagate errors correctly.
-
-Motivating example: assume we have an asynchronous database API `DB.query`
-which returns a Deferrable to communicate when the query finishes.  (See
-the [API docs for `DG::Combinators`](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Combinators.html)
-for more detail.)
-
-    def product_names_for_username(username)
-      DB.query('SELECT id FROM users WHERE username = ?', username).bind! do |user_id|
-        DB.query('SELECT name FROM products WHERE user_id = ?', user_id)
-      end.transform do |product_names|
-        product_names.join(', ')
-      end
-    end
