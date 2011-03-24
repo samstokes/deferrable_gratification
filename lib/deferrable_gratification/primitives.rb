@@ -12,9 +12,16 @@ module DeferrableGratification
   # {DeferrableGratification} extends this module, and thus the methods here
   # are accessible via the {DG} alias.
   module Primitives
-    # Return a Deferrable which immediately succeeds with a constant value.
+    # Return a Deferrable which immediately succeeds, passing 0 or more values
+    # to callbacks.
+    def success(*values)
+      blank.tap {|d| d.succeed(*values) }
+    end
+
+    # Return a Deferrable which immediately succeeds, passing a constant value
+    # to callbacks.
     def const(value)
-      blank.tap {|d| d.succeed(value) }
+      success(value)
     end
 
     # Return a Deferrable which immediately fails with an exception.
