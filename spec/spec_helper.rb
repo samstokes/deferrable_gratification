@@ -43,35 +43,6 @@ module SpecTools
   end
 
 
-  class ResultReceiver
-    attr_reader :result
-
-    def has_result?; @has_result; end
-
-    def result_is?(value)
-      result_satisfies? {|result| result == value }
-    end
-
-    def result_satisfies?(&block)
-      has_result? && yield(result)
-    end
-
-    def result=(result)
-      @result = result
-      @has_result = true
-    end
-
-    def to_proc
-      # Want to just say lambda &method(:result=), but that seems to have a
-      # weird bug: if the resulting proc gets called with an empty array [],
-      # it destructures the array and complains of being called with 0 args.
-      # It doesn't do the same for a nonempty array (i.e. called with [1] it
-      # receives [1] not 1).
-      lambda {|value| self.result = value }
-    end
-  end
-
-
   class Callback
     def called?() @called end
     attr_reader :result

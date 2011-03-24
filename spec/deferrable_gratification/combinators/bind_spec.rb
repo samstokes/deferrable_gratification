@@ -220,8 +220,8 @@ describe DeferrableGratification::Combinators::Bind do
                     #{third.name}(y)
                   end
                 end- do
-          success = SpecTools::ResultReceiver.new
-          failure = SpecTools::ResultReceiver.new
+          callback = SpecTools::Callback.new
+          errback = SpecTools::Callback.new
 
           nested = first[0].bind! do |x|
                      second[x].bind! do |y|
@@ -229,14 +229,14 @@ describe DeferrableGratification::Combinators::Bind do
                      end
                    end
 
-          nested.callback {|result| success.result = result }
-          nested.errback {|error| failure.result = error }
+          nested.callback(&callback)
+          nested.errback(&errback)
 
-          behave_the_same = if success.has_result?
-            succeed_with(success.result)
-          else
-            fail_with(failure.result.class, failure.result.message)
-          end
+          behave_the_same = if callback.called?
+                              succeed_with(callback.result)
+                            elsif errback.called?
+                              fail_with(errback.result.class, errback.result.message)
+                            end
 
           if should_be_equivalent
             subject.should behave_the_same
