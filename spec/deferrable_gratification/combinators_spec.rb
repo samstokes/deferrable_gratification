@@ -232,7 +232,7 @@ describe DeferrableGratification::Combinators do
   describe '.chain' do
     describe 'DG.chain()' do
       subject { DG.chain() }
-      it { should succeed_with(nil) }
+      it { should succeed_with_anything }
     end
 
     describe 'DG.chain(lambda { 2 })' do
@@ -303,16 +303,16 @@ DG.chain(
       subject { DG.join_successes(first, second) }
 
       it 'should not succeed or fail' do
-        subject.should_not succeed_with(/./)
-        subject.should_not fail_with(/./)
+        subject.should_not succeed_with_anything
+        subject.should_not fail_with_anything
       end
 
       describe 'after first succeeds with :one' do
         before { first.succeed :one }
 
         it 'should not succeed or fail' do
-          subject.should_not succeed_with(/./)
-          subject.should_not fail_with(/./)
+          subject.should_not succeed_with_anything
+          subject.should_not fail_with_anything
         end
 
         describe 'after second succeeds with :two' do
@@ -354,7 +354,7 @@ DG.chain(
   describe '.join_first_success' do
     describe 'DG.join_first_success()' do
       subject { DG.join_first_success() }
-      it { should_not succeed_with /./ }
+      it { should_not succeed_with_anything }
     end
 
     describe 'DG.join_first_success(first, second)' do
@@ -363,8 +363,8 @@ DG.chain(
       subject { DG.join_first_success(first, second) }
 
       it 'should not succeed or fail' do
-        subject.should_not succeed_with(/./)
-        subject.should_not fail_with(/./)
+        subject.should_not succeed_with_anything
+        subject.should_not fail_with_anything
       end
 
       describe 'after first succeeds with :one' do
@@ -399,8 +399,8 @@ DG.chain(
         before { first.fail 'oops' }
 
         it 'should not succeed or fail' do
-          subject.should_not succeed_with(/./)
-          subject.should_not fail_with(/./)
+          subject.should_not succeed_with_anything
+          subject.should_not fail_with_anything
         end
 
         describe 'after second succeeds with :two' do
@@ -413,8 +413,8 @@ DG.chain(
           before { second.fail 'oops' }
 
           it 'should not succeed or fail' do
-            subject.should_not succeed_with(/./)
-            subject.should_not fail_with(/./)
+            subject.should_not succeed_with_anything
+            subject.should_not fail_with_anything
           end
         end
       end
