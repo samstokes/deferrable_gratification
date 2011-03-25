@@ -21,7 +21,16 @@ module DeferrableGratification
 
   # Exception passed to errbacks by {Combinators#guard} if the arguments to
   # +Deferrable#succeed+ fail the supplied predicate.
-  class GuardFailed < RuntimeError; end
+  class GuardFailed < RuntimeError
+    attr_reader :reason
+    attr_reader :args
+
+    def initialize(reason, args)
+      @reason = reason
+      @args = args
+      super("#{args.inspect}: #{reason}")
+    end
+  end
 
   # Bestow DG goodness upon an existing module or class.
   #

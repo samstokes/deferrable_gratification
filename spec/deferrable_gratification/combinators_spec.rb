@@ -242,7 +242,8 @@ describe DeferrableGratification::Combinators do
 
       describe 'if the operation succeeds with 317' do
         before { operation.succeed(317) }
-        it { should fail_with(DG::GuardFailed, 'must be even') }
+        it { should fail_with(DG::GuardFailed, /must be even/) }
+        it { should fail_with(DG::GuardFailed, /317/) }
       end
 
       describe 'if the operation fails with "bad robot"' do

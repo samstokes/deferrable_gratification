@@ -207,7 +207,7 @@ module DeferrableGratification
       callback do |*callback_args|
         begin
           unless block.call(*callback_args)
-            raise ::DeferrableGratification::GuardFailed, reason
+            raise ::DeferrableGratification::GuardFailed.new(reason, callback_args)
           end
         rescue => exception
           fail(exception)
