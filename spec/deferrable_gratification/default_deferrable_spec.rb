@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 require 'deferrable_gratification'
 
 describe DeferrableGratification::DefaultDeferrable do
