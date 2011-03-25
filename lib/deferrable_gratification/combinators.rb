@@ -202,19 +202,16 @@ module DeferrableGratification
     #                        should fire.
     #
     # @raise [ArgumentError] if called without a predicate
-    def guard(reason = nil)
+    def guard(reason = nil, &block)
       raise ArgumentError, 'must be called with a block' unless block_given?
       callback do |*callback_args|
-        exception = begin
-                      if yield(*callback_args)
-                        nil
-                      else
-                        ::DeferrableGratification::GuardFailed.new(reason)
-                      end
-                    rescue => e
-                      e
-                    end
-        fail(exception) if exception
+        begin
+          unless block.call(*callback_args)
+            raise ::DeferrableGratification::GuardFailed, reason
+          end
+        rescue => exception
+          fail(exception)
+        end
       end
       self
     end
