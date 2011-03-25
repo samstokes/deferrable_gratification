@@ -27,6 +27,18 @@ describe DeferrableGratification::Fluent do
     end.should_not raise_error
   end
 
+  it 'should allow fluently setting a timeout' do
+    lambda do
+      EM.run do # timeout requires EventMachine
+        subject.
+          callback { EM.stop }.
+          timeout(1).
+          errback { EM.stop }
+        EM.next_tick { subject.succeed } # so the test actually completes!
+      end
+    end.should_not raise_error
+  end
+
   it 'should allow fluently mixing callbacks and errbacks' do
     lambda do
       subject.

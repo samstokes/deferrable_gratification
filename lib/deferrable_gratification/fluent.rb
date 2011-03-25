@@ -30,5 +30,16 @@ module DeferrableGratification
       super(&block)
       self
     end
+
+    # Ensure that if this Deferrable doesn't either succeed or fail within the
+    # timeout, it will call its errback with no parameters.
+    #
+    # @return [Deferrable, Fluent] +self+
+    #
+    # @see EventMachine::Deferrable#timeout
+    def timeout(seconds)
+      super(seconds)
+      self
+    end
   end
 end
