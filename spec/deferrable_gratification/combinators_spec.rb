@@ -229,6 +229,63 @@ describe DeferrableGratification::Combinators do
   end
 
 
+  describe '#guard' do
+    let(:operation) { DG::DefaultDeferrable.new }
+
+    describe 'operation.guard("must be even", &:even?)' do
+      subject { operation.guard("must be even", &:even?) }
+
+      describe 'if the operation succeeds with 300' do
+        before { operation.succeed(300) }
+        it { should succeed_with(300) }
+      end
+
+      describe 'if the operation succeeds with 317' do
+        before { operation.succeed(317) }
+        it { should fail_with(DG::GuardFailed, 'must be even') }
+      end
+
+      describe 'if the operation fails with "bad robot"' do
+        before { operation.fail(RuntimeError.new('bad robot')) }
+        it { should fail_with('bad robot') }
+      end
+    end
+
+    describe 'operation.callback {|value| @results << value }.guard(&:even?).callback {|value| @even_results << value }' do
+      before do
+        @results = []
+        @even_results = []
+
+        operation.
+          callback {|value| @results << value }.
+          guard(&:even?).
+          callback {|value| @even_results << value }
+      end
+
+      describe 'if the value passes the guard' do
+        before { operation.succeed(300) }
+
+        specify 'both callbacks should fire' do
+          @results.should == [300]
+          @even_results.should == [300]
+        end
+      end
+
+      describe 'if the value fails the guard' do
+        before { operation.succeed(301) }
+
+        specify 'the first callback should fire' do
+          @results.should == [301]
+        end
+
+        specify 'the second callback should not fire' do
+          @even_results.should be_empty
+        end
+      end
+    end
+  end
+
+
   describe '.chain' do
     describe 'DG.chain()' do
       subject { DG.chain() }

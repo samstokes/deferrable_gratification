@@ -165,6 +165,45 @@ module DeferrableGratification
     end
 
 
+    # If this Deferrable succeeds, ensure that the arguments passed to
+    # +Deferrable#succeed+ meet certain criteria (specified by passing a
+    # predicate as a block).  If they do, subsequently defined callbacks will
+    # fire as normal, receiving the same arguments; if they do not, this
+    # Deferrable will fail instead, calling its errbacks with a {GuardFailed}
+    # exception.
+    #
+    # This follows the usual Deferrable semantics of calling +Deferrable#fail+
+    # inside a callback: any callbacks defined *before* the call to {#guard}
+    # will still execute as normal, but those defined *after* the call to
+    # {#guard} will only execute if the predicate returns truthy.
+    #
+    # Multiple successive calls to {#guard} will work as expected: the
+    # predicates will be evaluated in order, stopping as soon as any of them
+    # returns falsy, and subsequent callbacks will fire only if all the
+    # predicates pass.
+    #
+    # @param [String] message optional description of the reason for the guard:
+    #                         specifying this will both serve as code
+    #                         documentation, and be included in the
+    #                         {GuardFailed} exception for error handling
+    #                         purposes.
+    #
+    # @yieldparam *args the arguments passed to callbacks if this Deferrable
+    #                   succeeds.
+    # @yieldreturn [Boolean] +true+ if subsequent callbacks should fire (with
+    #                        the same arguments); +false+ if instead errbacks
+    #                        should fire.
+    #
+    # @raise [ArgumentError] if called without a predicate
+    def guard(message = nil)
+      raise ArgumentError, 'must be called with a block' unless block_given?
+      callback do |*callback_args|
+        fail(::DeferrableGratification::GuardFailed.new(message)) unless yield(*callback_args)
+      end
+      self
+    end
+
+
     # Boilerplate hook to extend {ClassMethods}.
     def self.included(base)
       base.send :extend, ClassMethods

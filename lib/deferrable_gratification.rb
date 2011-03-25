@@ -19,6 +19,10 @@ module DeferrableGratification
   # Allow DG.const, DG.failure etc
   extend Primitives
 
+  # Exception passed to errbacks by {Combinators#guard} if the arguments to
+  # +Deferrable#succeed+ fail the supplied predicate.
+  class GuardFailed < RuntimeError; end
+
   # Bestow DG goodness upon an existing module or class.
   #
   # N.B. calling this on a module won't enhance any classes that have already
