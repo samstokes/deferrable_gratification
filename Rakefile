@@ -12,7 +12,7 @@ namespace :spec do
 
   # support for continuous integration
   begin
-    gem 'ci_reporter', :version => '>= 1.6.4.1'
+    gem 'ci_reporter', :version => '>= 1.6.4'
     require 'ci/reporter/rake/rspec'
 
     task :setup_ci_report_dir do
