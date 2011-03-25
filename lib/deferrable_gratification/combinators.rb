@@ -182,11 +182,11 @@ module DeferrableGratification
     # returns falsy, and subsequent callbacks will fire only if all the
     # predicates pass.
     #
-    # @param [String] message optional description of the reason for the guard:
-    #                         specifying this will both serve as code
-    #                         documentation, and be included in the
-    #                         {GuardFailed} exception for error handling
-    #                         purposes.
+    # @param [String] reason optional description of the reason for the guard:
+    #                        specifying this will both serve as code
+    #                        documentation, and be included in the
+    #                        {GuardFailed} exception for error handling
+    #                        purposes.
     #
     # @yieldparam *args the arguments passed to callbacks if this Deferrable
     #                   succeeds.
@@ -195,10 +195,10 @@ module DeferrableGratification
     #                        should fire.
     #
     # @raise [ArgumentError] if called without a predicate
-    def guard(message = nil)
+    def guard(reason = nil)
       raise ArgumentError, 'must be called with a block' unless block_given?
       callback do |*callback_args|
-        fail(::DeferrableGratification::GuardFailed.new(message)) unless yield(*callback_args)
+        fail(::DeferrableGratification::GuardFailed.new(reason)) unless yield(*callback_args)
       end
       self
     end
