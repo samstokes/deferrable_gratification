@@ -182,6 +182,13 @@ module DeferrableGratification
     # returns falsy, and subsequent callbacks will fire only if all the
     # predicates pass.
     #
+    # If instead of returning a boolean, the predicate raises an exception,
+    # the Deferrable will fail, but errbacks will receive the exception raised
+    # instead of {GuardFailed}.  You could use this to indicate the reason for
+    # failure in a complex guard expression; however the same intent might be
+    # more clearly expressed by multiple guard expressions with appropriate
+    # reason messages.
+    #
     # @param [String] reason optional description of the reason for the guard:
     #                        specifying this will both serve as code
     #                        documentation, and be included in the
@@ -198,7 +205,16 @@ module DeferrableGratification
     def guard(reason = nil)
       raise ArgumentError, 'must be called with a block' unless block_given?
       callback do |*callback_args|
-        fail(::DeferrableGratification::GuardFailed.new(reason)) unless yield(*callback_args)
+        exception = begin
+                      if yield(*callback_args)
+                        nil
+                      else
+                        ::DeferrableGratification::GuardFailed.new(reason)
+                      end
+                    rescue => e
+                      e
+                    end
+        fail(exception) if exception
       end
       self
     end

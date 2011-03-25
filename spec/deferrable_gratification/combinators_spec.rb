@@ -283,6 +283,22 @@ describe DeferrableGratification::Combinators do
         end
       end
     end
+
+    describe 'operation.guard { raise "kaboom!" }' do
+      subject { operation.guard { raise "kaboom!" } }
+
+      describe 'if the operation succeeds' do
+        before { operation.succeed }
+
+        it 'should catch the exception' do
+          lambda { subject }.should_not raise_error(/kaboom/)
+        end
+
+        it 'should fail and pass through the exception' do
+          subject.should fail_with(RuntimeError, /kaboom!/)
+        end
+      end
+    end
   end
 
 
