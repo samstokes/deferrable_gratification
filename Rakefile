@@ -9,6 +9,22 @@ namespace :spec do
   RSpec::Core::RakeTask.new(:doc) do |t|
     t.rspec_opts = '--format documentation'
   end
+
+  # support for continuous integration
+  begin
+    gem 'ci_reporter', :version => '>= 1.6.4.1'
+    require 'ci/reporter/rake/rspec'
+
+    task :setup_ci_report_dir do
+      ENV['CI_REPORTS'] = 'doc/spec/reports'
+    end
+
+    desc 'Run all specs in spec directory outputting CI-friendly XML reports'
+    task :ci => [:setup_ci_report_dir, 'ci:setup:rspec', :default]
+  rescue LoadError => le
+    desc '(DISABLED) Run all specs in spec directory outputting CI-friendly XML reports'
+    task :ci do raise le end
+  end
 end
 desc 'Run RSpec code examples'
 task :spec => 'spec:default'
