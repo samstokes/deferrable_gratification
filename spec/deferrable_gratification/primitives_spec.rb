@@ -49,5 +49,11 @@ describe DeferrableGratification::Primitives do
 
       it { should fail_with(ArgumentError, 'unacceptable command') }
     end
+
+    describe 'DG.failure(RangeError.new("you shall not pass!"))' do
+      subject { DG.failure(RangeError.new("you shall not pass!")) }
+
+      it { should fail_with(RangeError, 'you shall not pass!') }
+    end
   end
 end

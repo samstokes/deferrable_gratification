@@ -25,14 +25,26 @@ module DeferrableGratification
     end
 
     # Return a Deferrable which immediately fails with an exception.
-    def failure(class_or_message, message_or_nil = nil)
+    #
+    # @overload failure(message)
+    #   Passes +RuntimeError.new(message)+ to errbacks.
+    # @overload failure(exception_class)
+    #   Passes +exception_class.new+ to errbacks.
+    # @overload failure(exception_class, message)
+    #   Passes +exception_class.new(message)+ to errbacks.
+    # @overload failure(exception)
+    #   Passes +exception+ to errbacks.
+    def failure(exception_class_or_message, message_or_nil = nil)
       blank.tap do |d|
         d.fail(
-          case class_or_message
+          case exception_class_or_message
+          when Exception
+            raise ArgumentError, "can't specify both exception and message" if message_or_nil
+            exception_class_or_message
           when Class
-            class_or_message.new(message_or_nil)
+            exception_class_or_message.new(message_or_nil)
           else
-            RuntimeError.new(class_or_message.to_s)
+            RuntimeError.new(exception_class_or_message.to_s)
           end)
       end
     end
