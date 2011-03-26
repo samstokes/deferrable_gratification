@@ -181,627 +181,631 @@ a {
 <div class="results">
 <div class="example_group">
   <dl style="margin-left: 0px;">
-  <dt id="example_group_1">Klass</dt>
+  <dt id="example_group_1">DeferrableGratification::Combinators</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_2">module included in another module</dt>
-    <script type="text/javascript">moveProgressBar('0.9');</script>
-    <dd class="spec passed"><span class="passed_spec_name">does not override existing methods</span></dd>
-    <script type="text/javascript">moveProgressBar('1.8');</script>
-    <dd class="spec passed"><span class="passed_spec_name">includes methods that do not shadow existing ones</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_3">module included afterward in the same class</dt>
-    <script type="text/javascript">moveProgressBar('2.7');</script>
-    <dd class="spec passed"><span class="passed_spec_name">overrides existing methods</span></dd>
-    <script type="text/javascript">moveProgressBar('3.7');</script>
-    <dd class="spec passed"><span class="passed_spec_name">includes methods that do not shadow existing ones</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 0px;">
-  <dt id="example_group_4">DeferrableGratification::Combinators</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_5">#&gt;&gt;</dt>
+  <dt id="example_group_2">#&gt;&gt;</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_6">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;) &gt;&gt; lambda {|id| DummyDB.query(:age, :id =&gt; id) }</dt>
-    <script type="text/javascript">moveProgressBar('4.6');</script>
+  <dt id="example_group_3">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;) &gt;&gt; lambda {|id| DummyDB.query(:age, :id =&gt; id) }</dt>
+    <script type="text/javascript">moveProgressBar('0.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with 26</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_7">DummyDB.query(:id, :name =&gt; :nonexistent) &gt;&gt; lambda {|id| DummyDB.query(:age, :id =&gt; id) }</dt>
-    <script type="text/javascript">moveProgressBar('5.5');</script>
+  <dt id="example_group_4">DummyDB.query(:id, :name =&gt; :nonexistent) &gt;&gt; lambda {|id| DummyDB.query(:age, :id =&gt; id) }</dt>
+    <script type="text/javascript">moveProgressBar('1.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;No such user&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_8">DummyDB.query(:name, :id =&gt; 42) &gt;&gt; lambda {|name| &quot;Hello #{name}!&quot; }</dt>
-    <script type="text/javascript">moveProgressBar('6.4');</script>
+  <dt id="example_group_5">DummyDB.query(:name, :id =&gt; 42) &gt;&gt; lambda {|name| &quot;Hello #{name}!&quot; }</dt>
+    <script type="text/javascript">moveProgressBar('2.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;Hello Sam!&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_9">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;) &gt;&gt; lambda {|id| raise &quot;User #{id} not allowed!&quot; }</dt>
-    <script type="text/javascript">moveProgressBar('7.4');</script>
+  <dt id="example_group_6">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;) &gt;&gt; lambda {|id| raise &quot;User #{id} not allowed!&quot; }</dt>
+    <script type="text/javascript">moveProgressBar('3.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;User 42 not allowed!&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_10">#transform</dt>
+  <dt id="example_group_7">#transform</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_11">operation.transform(&amp;:upcase)</dt>
+  <dt id="example_group_8">operation.transform(&amp;:upcase)</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_12">if the operation succeeds with &quot;Hello&quot;</dt>
-    <script type="text/javascript">moveProgressBar('8.3');</script>
+  <dt id="example_group_9">if the operation succeeds with &quot;Hello&quot;</dt>
+    <script type="text/javascript">moveProgressBar('4.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;HELLO&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_13">if the operation fails with &quot;bad robot&quot;</dt>
-    <script type="text/javascript">moveProgressBar('9.2');</script>
+  <dt id="example_group_10">if the operation fails with &quot;bad robot&quot;</dt>
+    <script type="text/javascript">moveProgressBar('4.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;bad robot&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_14">operation.transform { raise &quot;kaboom!&quot; }</dt>
+  <dt id="example_group_11">operation.transform { raise &quot;kaboom!&quot; }</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_15">if the operation succeeds</dt>
-    <script type="text/javascript">moveProgressBar('10.1');</script>
+  <dt id="example_group_12">if the operation succeeds</dt>
+    <script type="text/javascript">moveProgressBar('5.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should catch the exception</span></dd>
-    <script type="text/javascript">moveProgressBar('11.1');</script>
+    <script type="text/javascript">moveProgressBar('6.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail and pass through the exception</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_16">@results = []; operation.transform(&amp;@results.method(:&lt;&lt;))</dt>
+  <dt id="example_group_13">@results = []; operation.transform(&amp;@results.method(:&lt;&lt;))</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_17">if operation succeeds with :wahey!</dt>
-    <script type="text/javascript">moveProgressBar('12.0');</script>
+  <dt id="example_group_14">if operation succeeds with :wahey!</dt>
+    <script type="text/javascript">moveProgressBar('7.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should add :wahey! to @results</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_18">if operation fails</dt>
-    <script type="text/javascript">moveProgressBar('12.9');</script>
+  <dt id="example_group_15">if operation fails</dt>
+    <script type="text/javascript">moveProgressBar('8.1');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not touch @results</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_19">#transform_error</dt>
+  <dt id="example_group_16">#transform_error</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_20">operation.transform_error {|msg| RuntimeError.new(msg) }</dt>
+  <dt id="example_group_17">operation.transform_error {|msg| RuntimeError.new(msg) }</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_21">if the operation succeeds with &quot;Hello&quot;</dt>
-    <script type="text/javascript">moveProgressBar('13.8');</script>
+  <dt id="example_group_18">if the operation succeeds with &quot;Hello&quot;</dt>
+    <script type="text/javascript">moveProgressBar('8.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;Hello&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_22">if the operation fails with the string &quot;bad robot&quot;</dt>
-    <script type="text/javascript">moveProgressBar('14.8');</script>
+  <dt id="example_group_19">if the operation fails with the string &quot;bad robot&quot;</dt>
+    <script type="text/javascript">moveProgressBar('9.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;bad robot&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_23">operation.transform_error { raise &quot;kaboom!&quot; }</dt>
+  <dt id="example_group_20">operation.transform_error { raise &quot;kaboom!&quot; }</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_24">if the operation succeeds</dt>
-    <script type="text/javascript">moveProgressBar('15.7');</script>
+  <dt id="example_group_21">if the operation succeeds</dt>
+    <script type="text/javascript">moveProgressBar('10.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;Hello&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_25">if the operation fails</dt>
-    <script type="text/javascript">moveProgressBar('16.6');</script>
+  <dt id="example_group_22">if the operation fails</dt>
+    <script type="text/javascript">moveProgressBar('11.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should catch the exception</span></dd>
-    <script type="text/javascript">moveProgressBar('17.5');</script>
+    <script type="text/javascript">moveProgressBar('12.1');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail and pass through the exception</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_26">@errors = []; operation.transform_error(&amp;@errors.method(:&lt;&lt;))</dt>
+  <dt id="example_group_23">@errors = []; operation.transform_error(&amp;@errors.method(:&lt;&lt;))</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_27">if operation succeeds with :wahey!</dt>
-    <script type="text/javascript">moveProgressBar('18.5');</script>
+  <dt id="example_group_24">if operation succeeds with :wahey!</dt>
+    <script type="text/javascript">moveProgressBar('13.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not touch @errors</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_28">if operation fails</dt>
-    <script type="text/javascript">moveProgressBar('19.4');</script>
+  <dt id="example_group_25">if operation fails</dt>
+    <script type="text/javascript">moveProgressBar('13.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should add RuntimeError(&quot;Boom!&quot;) to @errors</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_29">#bind!</dt>
+  <dt id="example_group_26">#bind!</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_30">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;).bind! {|id| DummyDB.query(:location, :id =&gt; id) }</dt>
+  <dt id="example_group_27">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;).bind! {|id| DummyDB.query(:location, :id =&gt; id) }</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_31">if first query succeeds with id 42</dt>
-    <script type="text/javascript">moveProgressBar('20.3');</script>
+  <dt id="example_group_28">if first query succeeds with id 42</dt>
+    <script type="text/javascript">moveProgressBar('14.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should pass id 42 to the second query</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_32">if the second query succeeds with &quot;San Francisco&quot;</dt>
+  <dt id="example_group_29">if the second query succeeds with &quot;San Francisco&quot;</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 75px;">
-  <dt id="example_group_33">return value</dt>
-    <script type="text/javascript">moveProgressBar('21.2');</script>
+  <dt id="example_group_30">return value</dt>
+    <script type="text/javascript">moveProgressBar('15.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;San Francisco&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_34">if the second query fails with &quot;no location found&quot;</dt>
+  <dt id="example_group_31">if the second query fails with &quot;no location found&quot;</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 75px;">
-  <dt id="example_group_35">return value</dt>
-    <script type="text/javascript">moveProgressBar('22.2');</script>
+  <dt id="example_group_32">return value</dt>
+    <script type="text/javascript">moveProgressBar('16.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;no location found&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_36">if first query fails</dt>
-    <script type="text/javascript">moveProgressBar('23.1');</script>
+  <dt id="example_group_33">if first query fails</dt>
+    <script type="text/javascript">moveProgressBar('17.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not run the second query</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_37">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;).bind! {|id| raise &quot;id #{id} not authorised&quot; }</dt>
+  <dt id="example_group_34">DummyDB.query(:id, :name =&gt; &quot;Sam&quot;).bind! {|id| raise &quot;id #{id} not authorised&quot; }</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_38">if first query succeeds with id 42</dt>
-    <script type="text/javascript">moveProgressBar('24.0');</script>
+  <dt id="example_group_35">if first query succeeds with id 42</dt>
+    <script type="text/javascript">moveProgressBar('17.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not stop the first query from succeeding (in case other code subscribed to it)</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_39">.chain</dt>
+  <dt id="example_group_36">#guard</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_40">DG.chain()</dt>
-    <script type="text/javascript">moveProgressBar('25.0');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with nil</span></dd>
+  <dt id="example_group_37">operation.guard(&quot;must be even&quot;, &amp;:even?)</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_38">if the operation succeeds with 300</dt>
+    <script type="text/javascript">moveProgressBar('18.6');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with 300</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_39">if the operation succeeds with 317</dt>
+    <script type="text/javascript">moveProgressBar('19.5');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with DeferrableGratification::GuardFailed and /must be even/</span></dd>
+    <script type="text/javascript">moveProgressBar('20.3');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with DeferrableGratification::GuardFailed and /317/</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_40">if the operation fails with &quot;bad robot&quot;</dt>
+    <script type="text/javascript">moveProgressBar('21.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;bad robot&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_41">DG.chain(lambda { 2 })</dt>
-    <script type="text/javascript">moveProgressBar('25.9');</script>
+  <dt id="example_group_41">operation.guard(&quot;must have job&quot;) {|person| person[:job] }.guard(&quot;must have title&quot;) {|person| person[:job][:title] }</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_42">if the operation succeeds with {:name =&gt; &quot;Sam&quot;}</dt>
+    <script type="text/javascript">moveProgressBar('21.9');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not raise an exception</span></dd>
+    <script type="text/javascript">moveProgressBar('22.7');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not fail with NoMethodError</span></dd>
+    <script type="text/javascript">moveProgressBar('23.5');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with DeferrableGratification::GuardFailed and /job/</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_43">if the operation succeeds with {:job =&gt; {:company =&gt; &quot;Rapportive&quot;}}</dt>
+    <script type="text/javascript">moveProgressBar('24.3');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with DeferrableGratification::GuardFailed and /title/</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_44">if the operation succeeds with {:job =&gt; {:title =&gt; &quot;CTO&quot;, :company =&gt; &quot;Rapportive&quot;}}</dt>
+    <script type="text/javascript">moveProgressBar('25.2');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with {:job=&gt;{:company=&gt;&quot;Rapportive&quot;, :title=&gt;&quot;CTO&quot;}}</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_45">operation.callback {|value| @results &lt;&lt; value }.guard(&amp;:even?).callback {|value| @even_results &lt;&lt; value }</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_46">if the value passes the guard</dt>
+    <script type="text/javascript">moveProgressBar('26.0');</script>
+    <dd class="spec passed"><span class="passed_spec_name">both callbacks should fire</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_47">if the value fails the guard</dt>
+    <script type="text/javascript">moveProgressBar('26.8');</script>
+    <dd class="spec passed"><span class="passed_spec_name">the first callback should fire</span></dd>
+    <script type="text/javascript">moveProgressBar('27.6');</script>
+    <dd class="spec passed"><span class="passed_spec_name">the second callback should not fire</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_48">operation.guard { raise &quot;kaboom!&quot; }</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_49">if the operation succeeds</dt>
+    <script type="text/javascript">moveProgressBar('28.4');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should catch the exception</span></dd>
+    <script type="text/javascript">moveProgressBar('29.2');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail and pass through the exception</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_50">.chain</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_51">DG.chain()</dt>
+    <script type="text/javascript">moveProgressBar('30.0');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_52">DG.chain(lambda { 2 })</dt>
+    <script type="text/javascript">moveProgressBar('30.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with 2</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_42">DG.chain(
+  <dt id="example_group_53">DG.chain(
   lambda { DummyDB.query(:person_id, :name =&gt; 'Sam') },
   lambda {|person_id| DummyDB.query(:products, :buyer_id =&gt; person_id) },
   lambda {|products| DummyDB.query(:description, :product_id =&gt; products.map(&amp;:id)) },
   lambda {|descriptions| descriptions.map(&amp;:brief) })</dt>
-    <script type="text/javascript">moveProgressBar('26.8');</script>
+    <script type="text/javascript">moveProgressBar('31.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with [&quot;Car&quot;, &quot;Dishwasher&quot;, &quot;Laptop&quot;]</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_43">DG.chain(
+  <dt id="example_group_54">DG.chain(
   lambda { DummyDB.query(:person_id, :name =&gt; :nonexistent) },
   lambda {|person_id| DummyDB.query(:products, :buyer_id =&gt; person_id) },
   lambda {|products| DummyDB.query(:description, :product_id =&gt; products.map(&amp;:id)) },
   lambda {|descriptions| descriptions.map(&amp;:brief) })</dt>
-    <script type="text/javascript">moveProgressBar('27.7');</script>
+    <script type="text/javascript">moveProgressBar('32.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;No such person&quot;</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_44">.join_successes</dt>
+  <dt id="example_group_55">.join_successes</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_45">DG.join_successes()</dt>
-    <script type="text/javascript">moveProgressBar('28.7');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with []</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_46">DG.join_successes(first, second)</dt>
-    <script type="text/javascript">moveProgressBar('29.6');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_47">after first succeeds with :one</dt>
-    <script type="text/javascript">moveProgressBar('30.5');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_48">after second succeeds with :two</dt>
-    <script type="text/javascript">moveProgressBar('31.4');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with [:one, :two]</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_49">after second fails</dt>
-    <script type="text/javascript">moveProgressBar('32.4');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with [:one]</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_50">after both fail</dt>
+  <dt id="example_group_56">DG.join_successes()</dt>
     <script type="text/javascript">moveProgressBar('33.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with []</span></dd>
   </dl>
 </div>
 <div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_57">DG.join_successes(first, second)</dt>
+    <script type="text/javascript">moveProgressBar('34.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
+  </dl>
+</div>
+<div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_51">preserving order of operations</dt>
+  <dt id="example_group_58">after first succeeds with :one</dt>
+    <script type="text/javascript">moveProgressBar('34.9');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_52">if second succeeds before first does</dt>
-    <script type="text/javascript">moveProgressBar('34.2');</script>
+  <dt id="example_group_59">after second succeeds with :two</dt>
+    <script type="text/javascript">moveProgressBar('35.7');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with [:one, :two]</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_60">after second fails</dt>
+    <script type="text/javascript">moveProgressBar('36.5');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with [:one]</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_61">after both fail</dt>
+    <script type="text/javascript">moveProgressBar('37.3');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with []</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_62">preserving order of operations</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_63">if second succeeds before first does</dt>
+    <script type="text/javascript">moveProgressBar('38.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should still succeed with [:one, :two]</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_53">.join_first_success</dt>
+  <dt id="example_group_64">.join_first_success</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_54">DG.join_first_success()</dt>
-    <script type="text/javascript">moveProgressBar('35.1');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should not succeed with /./</span></dd>
+  <dt id="example_group_65">DG.join_first_success()</dt>
+    <script type="text/javascript">moveProgressBar('39.0');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not succeed</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_55">DG.join_first_success(first, second)</dt>
-    <script type="text/javascript">moveProgressBar('36.1');</script>
+  <dt id="example_group_66">DG.join_first_success(first, second)</dt>
+    <script type="text/javascript">moveProgressBar('39.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_56">after first succeeds with :one</dt>
-    <script type="text/javascript">moveProgressBar('37.0');</script>
+  <dt id="example_group_67">after first succeeds with :one</dt>
+    <script type="text/javascript">moveProgressBar('40.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :one</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_57">after second succeeds with :two</dt>
-    <script type="text/javascript">moveProgressBar('37.9');</script>
+  <dt id="example_group_68">after second succeeds with :two</dt>
+    <script type="text/javascript">moveProgressBar('41.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should still succeed with :one</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_58">after second fails</dt>
-    <script type="text/javascript">moveProgressBar('38.8');</script>
+  <dt id="example_group_69">after second fails</dt>
+    <script type="text/javascript">moveProgressBar('42.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should still succeed with :one</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_59">after second succeeds with :two</dt>
-    <script type="text/javascript">moveProgressBar('39.8');</script>
+  <dt id="example_group_70">after second succeeds with :two</dt>
+    <script type="text/javascript">moveProgressBar('43.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :two</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_60">after first fails</dt>
-    <script type="text/javascript">moveProgressBar('40.7');</script>
+  <dt id="example_group_71">after first fails</dt>
+    <script type="text/javascript">moveProgressBar('43.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_61">after second succeeds with :two</dt>
-    <script type="text/javascript">moveProgressBar('41.6');</script>
+  <dt id="example_group_72">after second succeeds with :two</dt>
+    <script type="text/javascript">moveProgressBar('44.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :two</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_62">after second also fails</dt>
-    <script type="text/javascript">moveProgressBar('42.5');</script>
+  <dt id="example_group_73">after second also fails</dt>
+    <script type="text/javascript">moveProgressBar('45.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not succeed or fail</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_63">.loop_until_success</dt>
+  <dt id="example_group_74">.loop_until_success</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_64">outside EventMachine</dt>
+  <dt id="example_group_75">outside EventMachine</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_65">DG.loop_until_success { ui.wait_for_click(1) }</dt>
-    <script type="text/javascript">moveProgressBar('43.5');</script>
+  <dt id="example_group_76">DG.loop_until_success { ui.wait_for_click(1) }</dt>
+    <script type="text/javascript">moveProgressBar('46.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should call ui.wait_for_click at least once</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_66">if the user already clicked</dt>
-    <script type="text/javascript">moveProgressBar('44.4');</script>
+  <dt id="example_group_77">if the user already clicked</dt>
+    <script type="text/javascript">moveProgressBar('47.1');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :click!</span></dd>
-    <script type="text/javascript">moveProgressBar('45.3');</script>
+    <script type="text/javascript">moveProgressBar('47.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not call ui.wait_for_click again</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_67">if ui.wait_for_click throws an exception</dt>
-    <script type="text/javascript">moveProgressBar('46.2');</script>
+  <dt id="example_group_78">if ui.wait_for_click throws an exception</dt>
+    <script type="text/javascript">moveProgressBar('48.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;User eaten by weasel&quot;</span></dd>
-    <script type="text/javascript">moveProgressBar('47.2');</script>
+    <script type="text/javascript">moveProgressBar('49.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not call ui.wait_for_click again</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_68">if the user takes 4 seconds to click</dt>
-    <script type="text/javascript">moveProgressBar('48.1');</script>
+  <dt id="example_group_79">if the user takes 4 seconds to click</dt>
+    <script type="text/javascript">moveProgressBar('50.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should try 4 times</span></dd>
-    <script type="text/javascript">moveProgressBar('49.0');</script>
+    <script type="text/javascript">moveProgressBar('51.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :click!</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_69">in EventMachine</dt>
+  <dt id="example_group_80">in EventMachine</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_70">DG.loop_until_success { ui.wait_for_click(1) }</dt>
-    <script type="text/javascript">moveProgressBar('50.0');</script>
+  <dt id="example_group_81">DG.loop_until_success { ui.wait_for_click(1) }</dt>
+    <script type="text/javascript">moveProgressBar('52.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should call ui.wait_for_click at least once</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_71">if the user already clicked</dt>
-    <script type="text/javascript">moveProgressBar('50.9');</script>
+  <dt id="example_group_82">if the user already clicked</dt>
+    <script type="text/javascript">moveProgressBar('52.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :click!</span></dd>
-    <script type="text/javascript">moveProgressBar('51.8');</script>
+    <script type="text/javascript">moveProgressBar('53.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not call ui.wait_for_click again</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_72">if ui.wait_for_click throws an exception</dt>
-    <script type="text/javascript">moveProgressBar('52.7');</script>
+  <dt id="example_group_83">if ui.wait_for_click throws an exception</dt>
+    <script type="text/javascript">moveProgressBar('54.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with &quot;User eaten by weasel&quot;</span></dd>
-    <script type="text/javascript">moveProgressBar('53.7');</script>
+    <script type="text/javascript">moveProgressBar('55.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not call ui.wait_for_click again</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_73">if the user takes 4 seconds to click</dt>
-    <script type="text/javascript">moveProgressBar('54.6');</script>
+  <dt id="example_group_84">if the user takes 4 seconds to click</dt>
+    <script type="text/javascript">moveProgressBar('56.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should try 4 times</span></dd>
-    <script type="text/javascript">moveProgressBar('55.5');</script>
+    <script type="text/javascript">moveProgressBar('56.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with :click!</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 0px;">
-  <dt id="example_group_74">DeferrableGratification::DefaultDeferrable</dt>
-    <script type="text/javascript">moveProgressBar('56.4');</script>
+  <dt id="example_group_85">DeferrableGratification::DefaultDeferrable</dt>
+    <script type="text/javascript">moveProgressBar('57.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Fluent</span></dd>
-    <script type="text/javascript">moveProgressBar('57.4');</script>
+    <script type="text/javascript">moveProgressBar('58.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Bothback</span></dd>
-    <script type="text/javascript">moveProgressBar('58.3');</script>
+    <script type="text/javascript">moveProgressBar('59.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Combinators</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_75">it should behave like a Deferrable</dt>
-    <script type="text/javascript">moveProgressBar('59.2');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should respond to #callback</span></dd>
+  <dt id="example_group_86">it should behave like a Deferrable</dt>
     <script type="text/javascript">moveProgressBar('60.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should respond to #callback</span></dd>
+    <script type="text/javascript">moveProgressBar('60.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should respond to #errback</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 0px;">
-  <dt id="example_group_76">DeferrableGratification::Combinators::Bind</dt>
+  <dt id="example_group_87">DeferrableGratification::Combinators::Bind</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_77">constructed with a block returning a deferrable</dt>
+  <dt id="example_group_88">constructed with a block returning a deferrable</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_78">side effects on first deferrable</dt>
+  <dt id="example_group_89">side effects on first deferrable</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_79">if block behaves itself</dt>
+  <dt id="example_group_90">if block behaves itself</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_80">if first Deferrable succeeds</dt>
-    <script type="text/javascript">moveProgressBar('61.1');</script>
+  <dt id="example_group_91">if first Deferrable succeeds</dt>
+    <script type="text/javascript">moveProgressBar('61.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should invoke the block with the value passed to #succeed</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_81">if first Deferrable fails</dt>
-    <script type="text/javascript">moveProgressBar('62.0');</script>
+  <dt id="example_group_92">if first Deferrable fails</dt>
+    <script type="text/javascript">moveProgressBar('62.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should not invoke the block</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
-  <dt id="example_group_82">if block calls first_deferrable.fail</dt>
-    <script type="text/javascript">moveProgressBar('62.9');</script>
+  <dt id="example_group_93">if block calls first_deferrable.fail</dt>
+    <script type="text/javascript">moveProgressBar('63.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;found invalid user&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_83">the DeferrableGratification::Combinators::Bind Deferrable itself</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_84">it should behave like a Deferrable</dt>
-    <script type="text/javascript">moveProgressBar('63.8');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should respond to #callback</span></dd>
-    <script type="text/javascript">moveProgressBar('64.8');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should respond to #errback</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_85">if first Deferrable succeeds</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_86">if the Deferrable returned by the block succeeds</dt>
-    <script type="text/javascript">moveProgressBar('65.7');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with the value that Deferrable succeeded with</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_87">if the Deferrable returned by the block fails</dt>
-    <script type="text/javascript">moveProgressBar('66.6');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with the error that Deferrable failed with</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_88">if block calls first_deferrable.fail</dt>
-    <script type="text/javascript">moveProgressBar('67.5');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;found invalid user&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_89">if first Deferrable fails with RuntimeError</dt>
-    <script type="text/javascript">moveProgressBar('68.5');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_90">constructed with a block not returning a Deferrable</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_91">side effects</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 45px;">
-  <dt id="example_group_92">if first Deferrable succeeds</dt>
-    <script type="text/javascript">moveProgressBar('69.4');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should invoke the block anyway</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 60px;">
-  <dt id="example_group_93">if block raises an exception</dt>
-    <script type="text/javascript">moveProgressBar('70.3');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should not prevent the first Deferrable succeeding</span></dd>
   </dl>
 </div>
 <div class="example_group">
@@ -812,39 +816,110 @@ a {
 <div class="example_group">
   <dl style="margin-left: 45px;">
   <dt id="example_group_95">it should behave like a Deferrable</dt>
-    <script type="text/javascript">moveProgressBar('71.2');</script>
+    <script type="text/javascript">moveProgressBar('64.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should respond to #callback</span></dd>
-    <script type="text/javascript">moveProgressBar('72.2');</script>
+    <script type="text/javascript">moveProgressBar('65.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should respond to #errback</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 45px;">
   <dt id="example_group_96">if first Deferrable succeeds</dt>
-    <script type="text/javascript">moveProgressBar('73.1');</script>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_97">if the Deferrable returned by the block succeeds</dt>
+    <script type="text/javascript">moveProgressBar('65.8');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with the value that Deferrable succeeded with</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_98">if the Deferrable returned by the block fails</dt>
+    <script type="text/javascript">moveProgressBar('66.6');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with the error that Deferrable failed with</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_99">if block calls first_deferrable.fail</dt>
+    <script type="text/javascript">moveProgressBar('67.4');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;found invalid user&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_100">if first Deferrable fails with RuntimeError</dt>
+    <script type="text/javascript">moveProgressBar('68.2');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_101">constructed with a block not returning a Deferrable</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_102">side effects</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_103">if first Deferrable succeeds</dt>
+    <script type="text/javascript">moveProgressBar('69.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should invoke the block anyway</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 60px;">
+  <dt id="example_group_104">if block raises an exception</dt>
+    <script type="text/javascript">moveProgressBar('69.9');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should not prevent the first Deferrable succeeding</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_105">the DeferrableGratification::Combinators::Bind Deferrable itself</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_106">it should behave like a Deferrable</dt>
+    <script type="text/javascript">moveProgressBar('70.7');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should respond to #callback</span></dd>
+    <script type="text/javascript">moveProgressBar('71.5');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should respond to #errback</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 45px;">
+  <dt id="example_group_107">if first Deferrable succeeds</dt>
+    <script type="text/javascript">moveProgressBar('72.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should succeed with whatever the block returned</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 60px;">
-  <dt id="example_group_97">if block raises an exception</dt>
-    <script type="text/javascript">moveProgressBar('74.0');</script>
+  <dt id="example_group_108">if block raises an exception</dt>
+    <script type="text/javascript">moveProgressBar('73.1');</script>
     <dd class="spec passed"><span class="passed_spec_name">should fail and pass through the exception</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_98">nested bind! equivalent to chained bind! (monad law: associativity)</dt>
+  <dt id="example_group_109">nested bind! equivalent to chained bind! (monad law: associativity)</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_99">good_op(0).bind! do |x|
+  <dt id="example_group_110">good_op(0).bind! do |x|
                    transform(x)
                  end.bind! do |y|
                    good_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('75.0');</script>
+    <script type="text/javascript">moveProgressBar('73.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should NOT behave the same as:
                 good_op(0).bind! do |x|
                   transform(x).bind! do |y|
@@ -855,12 +930,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_100">good_op(0).bind! do |x|
+  <dt id="example_group_111">good_op(0).bind! do |x|
                    boom(x)
                  end.bind! do |y|
                    good_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('75.9');</script>
+    <script type="text/javascript">moveProgressBar('74.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   boom(x).bind! do |y|
@@ -871,12 +946,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_101">good_op(0).bind! do |x|
+  <dt id="example_group_112">good_op(0).bind! do |x|
                    good_op(x)
                  end.bind! do |y|
                    boom(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('76.8');</script>
+    <script type="text/javascript">moveProgressBar('75.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   good_op(x).bind! do |y|
@@ -887,12 +962,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_102">good_op(0).bind! do |x|
+  <dt id="example_group_113">good_op(0).bind! do |x|
                    good_op(x)
                  end.bind! do |y|
                    bad_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('77.7');</script>
+    <script type="text/javascript">moveProgressBar('76.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   good_op(x).bind! do |y|
@@ -903,12 +978,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_103">good_op(0).bind! do |x|
+  <dt id="example_group_114">good_op(0).bind! do |x|
                    transform(x)
                  end.bind! do |y|
                    transform(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('78.7');</script>
+    <script type="text/javascript">moveProgressBar('77.2');</script>
     <dd class="spec passed"><span class="passed_spec_name">should NOT behave the same as:
                 good_op(0).bind! do |x|
                   transform(x).bind! do |y|
@@ -919,12 +994,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_104">bad_op(0).bind! do |x|
+  <dt id="example_group_115">bad_op(0).bind! do |x|
                    good_op(x)
                  end.bind! do |y|
                    good_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('79.6');</script>
+    <script type="text/javascript">moveProgressBar('78.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 bad_op(0).bind! do |x|
                   good_op(x).bind! do |y|
@@ -935,12 +1010,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_105">good_op(0).bind! do |x|
+  <dt id="example_group_116">good_op(0).bind! do |x|
                    bad_op(x)
                  end.bind! do |y|
                    good_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('80.5');</script>
+    <script type="text/javascript">moveProgressBar('78.8');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   bad_op(x).bind! do |y|
@@ -951,12 +1026,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_106">good_op(0).bind! do |x|
+  <dt id="example_group_117">good_op(0).bind! do |x|
                    good_op(x)
                  end.bind! do |y|
                    transform(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('81.4');</script>
+    <script type="text/javascript">moveProgressBar('79.6');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   good_op(x).bind! do |y|
@@ -967,12 +1042,12 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
-  <dt id="example_group_107">good_op(0).bind! do |x|
+  <dt id="example_group_118">good_op(0).bind! do |x|
                    good_op(x)
                  end.bind! do |y|
                    good_op(y)
                  end</dt>
-    <script type="text/javascript">moveProgressBar('82.4');</script>
+    <script type="text/javascript">moveProgressBar('80.4');</script>
     <dd class="spec passed"><span class="passed_spec_name">should behave the same as:
                 good_op(0).bind! do |x|
                   good_op(x).bind! do |y|
@@ -983,134 +1058,169 @@ a {
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_108">.setup! without a block</dt>
-    <script type="text/javascript">moveProgressBar('83.3');</script>
+  <dt id="example_group_119">.setup! without a block</dt>
+    <script type="text/javascript">moveProgressBar('81.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">.new should raise ArgumentError</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 0px;">
-  <dt id="example_group_109">DeferrableGratification.enhance!</dt>
+  <dt id="example_group_120">DeferrableGratification.enhance!</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_110">EnhancedDeferrable</dt>
-    <script type="text/javascript">moveProgressBar('84.2');</script>
+  <dt id="example_group_121">EnhancedDeferrable</dt>
+    <script type="text/javascript">moveProgressBar('82.1');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Fluent</span></dd>
-    <script type="text/javascript">moveProgressBar('85.1');</script>
+    <script type="text/javascript">moveProgressBar('82.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Bothback</span></dd>
-    <script type="text/javascript">moveProgressBar('86.1');</script>
+    <script type="text/javascript">moveProgressBar('83.7');</script>
     <dd class="spec passed"><span class="passed_spec_name">should include DeferrableGratification::Combinators</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 0px;">
-  <dt id="example_group_111">DeferrableGratification::Fluent</dt>
-    <script type="text/javascript">moveProgressBar('87.0');</script>
+  <dt id="example_group_122">DeferrableGratification::Fluent</dt>
+    <script type="text/javascript">moveProgressBar('84.5');</script>
     <dd class="spec passed"><span class="passed_spec_name">should allow fluently adding multiple callbacks</span></dd>
-    <script type="text/javascript">moveProgressBar('87.9');</script>
+    <script type="text/javascript">moveProgressBar('85.3');</script>
     <dd class="spec passed"><span class="passed_spec_name">should allow fluently adding multiple errbacks</span></dd>
-    <script type="text/javascript">moveProgressBar('88.8');</script>
+    <script type="text/javascript">moveProgressBar('86.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should allow fluently setting a timeout</span></dd>
+    <script type="text/javascript">moveProgressBar('86.9');</script>
     <dd class="spec passed"><span class="passed_spec_name">should allow fluently mixing callbacks and errbacks</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 15px;">
-  <dt id="example_group_112">after fluently registering a bunch of callbacks and errbacks</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_113">on success</dt>
-    <script type="text/javascript">moveProgressBar('89.8');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should call all the callbacks</span></dd>
-    <script type="text/javascript">moveProgressBar('90.7');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should call none of the errbacks</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_114">on failure</dt>
-    <script type="text/javascript">moveProgressBar('91.6');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should call none of the callbacks</span></dd>
-    <script type="text/javascript">moveProgressBar('92.5');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should call all the errbacks</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 0px;">
-  <dt id="example_group_115">DeferrableGratification::Primitives</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_116">.const</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_117">DG.const(&quot;Hello&quot;)</dt>
-    <script type="text/javascript">moveProgressBar('93.5');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;Hello&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_118">.failure</dt>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_119">DG.failure(&quot;does not compute&quot;)</dt>
-    <script type="text/javascript">moveProgressBar('94.4');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;does not compute&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_120">DG.failure(ArgumentError)</dt>
-    <script type="text/javascript">moveProgressBar('95.3');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with ArgumentError</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 30px;">
-  <dt id="example_group_121">DG.failure(ArgumentError, &quot;unacceptable command&quot;)</dt>
-    <script type="text/javascript">moveProgressBar('96.2');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should fail with ArgumentError and &quot;unacceptable command&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 0px;">
-  <dt id="example_group_122">DeferrableGratification::Bothback</dt>
-    <script type="text/javascript">moveProgressBar('97.2');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should allow registering a &quot;bothback&quot;</span></dd>
-    <script type="text/javascript">moveProgressBar('98.1');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should support fluent syntax to register several &quot;bothbacks&quot;</span></dd>
-  </dl>
-</div>
-<div class="example_group">
-  <dl style="margin-left: 15px;">
-  <dt id="example_group_123">after registering a bothback</dt>
+  <dt id="example_group_123">after fluently registering a bunch of callbacks and errbacks</dt>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
   <dt id="example_group_124">on success</dt>
-    <script type="text/javascript">moveProgressBar('99.0');</script>
-    <dd class="spec passed"><span class="passed_spec_name">should call the bothback</span></dd>
+    <script type="text/javascript">moveProgressBar('87.8');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should call all the callbacks</span></dd>
+    <script type="text/javascript">moveProgressBar('88.6');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should call none of the errbacks</span></dd>
   </dl>
 </div>
 <div class="example_group">
   <dl style="margin-left: 30px;">
   <dt id="example_group_125">on failure</dt>
+    <script type="text/javascript">moveProgressBar('89.4');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should call none of the callbacks</span></dd>
+    <script type="text/javascript">moveProgressBar('90.2');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should call all the errbacks</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 0px;">
+  <dt id="example_group_126">DeferrableGratification::Primitives</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_127">.success</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_128">DG.success</dt>
+    <script type="text/javascript">moveProgressBar('91.0');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_129">DG.success(42)</dt>
+    <script type="text/javascript">moveProgressBar('91.8');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with 42</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_130">DG.success(:foo, :bar, :baz)</dt>
+    <script type="text/javascript">moveProgressBar('92.6');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with [:foo, :bar, :baz]</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_131">.const</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_132">DG.const(&quot;Hello&quot;)</dt>
+    <script type="text/javascript">moveProgressBar('93.4');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should succeed with &quot;Hello&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_133">.failure</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_134">DG.failure(&quot;does not compute&quot;)</dt>
+    <script type="text/javascript">moveProgressBar('94.3');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with RuntimeError and &quot;does not compute&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_135">DG.failure(ArgumentError)</dt>
+    <script type="text/javascript">moveProgressBar('95.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with ArgumentError</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_136">DG.failure(ArgumentError, &quot;unacceptable command&quot;)</dt>
+    <script type="text/javascript">moveProgressBar('95.9');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with ArgumentError and &quot;unacceptable command&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_137">DG.failure(RangeError.new(&quot;you shall not pass!&quot;))</dt>
+    <script type="text/javascript">moveProgressBar('96.7');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should fail with RangeError and &quot;you shall not pass!&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 0px;">
+  <dt id="example_group_138">DeferrableGratification::Bothback</dt>
+    <script type="text/javascript">moveProgressBar('97.5');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should allow registering a &quot;bothback&quot;</span></dd>
+    <script type="text/javascript">moveProgressBar('98.3');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should support fluent syntax to register several &quot;bothbacks&quot;</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 15px;">
+  <dt id="example_group_139">after registering a bothback</dt>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_140">on success</dt>
+    <script type="text/javascript">moveProgressBar('99.1');</script>
+    <dd class="spec passed"><span class="passed_spec_name">should call the bothback</span></dd>
+  </dl>
+</div>
+<div class="example_group">
+  <dl style="margin-left: 30px;">
+  <dt id="example_group_141">on failure</dt>
     <script type="text/javascript">moveProgressBar('100.0');</script>
     <dd class="spec passed"><span class="passed_spec_name">should call the bothback</span></dd>
   </dl>
 </div>
-<script type="text/javascript">document.getElementById('duration').innerHTML = "Finished in <strong>0.138228 seconds</strong>";</script>
-<script type="text/javascript">document.getElementById('totals').innerHTML = "108 examples, 0 failures";</script>
+<script type="text/javascript">document.getElementById('duration').innerHTML = "Finished in <strong>0.177833 seconds</strong>";</script>
+<script type="text/javascript">document.getElementById('totals').innerHTML = "123 examples, 0 failures";</script>
 </div>
 </div>
 </body>

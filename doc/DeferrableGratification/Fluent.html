@@ -146,6 +146,31 @@ Register <tt>block</tt> to be called on failure.
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#timeout-instance_method" title="#timeout (instance method)">- (Deferrable, Fluent) <strong>timeout</strong>(seconds) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Ensure that if this Deferrable doesn&#8217;t either succeed or fail within
+the timeout, it will call its errback with no parameters.
+</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
   
 
@@ -291,12 +316,81 @@ Register <tt>block</tt> to be called on failure.
 </table>
 </div>
     
+      <div class="method_details ">
+  <p class="signature " id="timeout-instance_method">
+  
+    - (<tt>Deferrable</tt>, <tt><span class='object_link'><a href="" title="DeferrableGratification::Fluent (module)">Fluent</a></span></tt>) <strong>timeout</strong>(seconds) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Ensure that if this Deferrable doesn&#8217;t either succeed or fail within
+the timeout, it will call its errback with no parameters.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>Deferrable</tt>, <tt><span class='object_link'><a href="" title="DeferrableGratification::Fluent (module)">Fluent</a></span></tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>self</tt>
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <h3>See Also:</h3>
+  <ul class="see">
+    
+      <li>EventMachine::Deferrable#timeout</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/fluent.rb', line 40</span>
+
+<span class='def def kw'>def</span> <span class='timeout identifier id'>timeout</span><span class='lparen token'>(</span><span class='seconds identifier id'>seconds</span><span class='rparen token'>)</span>
+  <span class='super super kw'>super</span><span class='lparen token'>(</span><span class='seconds identifier id'>seconds</span><span class='rparen token'>)</span>
+  <span class='self self kw'>self</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
     
     <div id="footer">
-  Generated on Fri Jan 21 14:00:19 2011 by 
+  Generated on Fri Mar 25 18:02:07 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

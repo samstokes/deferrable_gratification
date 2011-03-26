@@ -140,7 +140,8 @@ Return a completely uninteresting Deferrable.
 
   
     <span class="summary_desc"><div class='inline'><p>
-Return a Deferrable which immediately succeeds with a constant value.
+Return a Deferrable which immediately succeeds, passing a constant value to
+callbacks.
 </p>
 </div></span>
   
@@ -150,7 +151,7 @@ Return a Deferrable which immediately succeeds with a constant value.
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#failure-instance_method" title="#failure (instance method)">- (Object) <strong>failure</strong>(class_or_message, message_or_nil = nil) </a>
+      <a href="#failure-instance_method" title="#failure (instance method)">- (Object) <strong>failure</strong>(exception_class_or_message, message_or_nil = nil) </a>
     
 
     
@@ -165,6 +166,31 @@ Return a Deferrable which immediately succeeds with a constant value.
   
     <span class="summary_desc"><div class='inline'><p>
 Return a Deferrable which immediately fails with an exception.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#success-instance_method" title="#success (instance method)">- (Object) <strong>success</strong>(*values) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Return a Deferrable which immediately succeeds, passing 0 or more values to
+callbacks.
 </p>
 </div></span>
   
@@ -204,12 +230,12 @@ Return a completely uninteresting Deferrable.
       <pre class="lines">
 
 
-34
-35
-36</pre>
+53
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 53</span>
 
 <span class='def def kw'>def</span> <span class='blank identifier id'>blank</span>
   <span class='DeferrableGratification constant id'>DeferrableGratification</span><span class='colon2 op'>::</span><span class='DefaultDeferrable constant id'>DefaultDeferrable</span><span class='dot token'>.</span><span class='new identifier id'>new</span>
@@ -230,7 +256,8 @@ Return a completely uninteresting Deferrable.
 </p><div class="docstring">
   <div class="discussion">
     <p>
-Return a Deferrable which immediately succeeds with a constant value.
+Return a Deferrable which immediately succeeds, passing a constant value to
+callbacks.
 </p>
 
 
@@ -244,15 +271,15 @@ Return a Deferrable which immediately succeeds with a constant value.
       <pre class="lines">
 
 
-16
-17
-18</pre>
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 16</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 23</span>
 
 <span class='def def kw'>def</span> <span class='const identifier id'>const</span><span class='lparen token'>(</span><span class='value identifier id'>value</span><span class='rparen token'>)</span>
-  <span class='blank identifier id'>blank</span><span class='dot token'>.</span><span class='tap identifier id'>tap</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='d identifier id'>d</span><span class='bitor op'>|</span> <span class='d identifier id'>d</span><span class='dot token'>.</span><span class='succeed identifier id'>succeed</span><span class='lparen token'>(</span><span class='value identifier id'>value</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
+  <span class='success identifier id'>success</span><span class='lparen token'>(</span><span class='value identifier id'>value</span><span class='rparen token'>)</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -263,7 +290,15 @@ Return a Deferrable which immediately succeeds with a constant value.
       <div class="method_details ">
   <p class="signature " id="failure-instance_method">
   
-    - (<tt>Object</tt>) <strong>failure</strong>(class_or_message, message_or_nil = nil) 
+    
+      <span class="overload">- (<tt>Object</tt>) <strong>failure</strong>(message) </span>
+    
+      <span class="overload">- (<tt>Object</tt>) <strong>failure</strong>(exception_class) </span>
+    
+      <span class="overload">- (<tt>Object</tt>) <strong>failure</strong>(exception_class, message) </span>
+    
+      <span class="overload">- (<tt>Object</tt>) <strong>failure</strong>(exception) </span>
+    
   
 
   
@@ -278,37 +313,157 @@ Return a Deferrable which immediately fails with an exception.
 </div>
 <div class="tags">
   
+  <h3>Overloads:</h3>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">- (<tt>Object</tt>) <strong>failure</strong>(message) </span>
+        <div class="docstring">
+  <div class="discussion">
+    <p>
+Passes <tt>RuntimeError.new(message)</tt> to errbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">- (<tt>Object</tt>) <strong>failure</strong>(exception_class) </span>
+        <div class="docstring">
+  <div class="discussion">
+    <p>
+Passes <tt>exception_class.new</tt> to errbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">- (<tt>Object</tt>) <strong>failure</strong>(exception_class, message) </span>
+        <div class="docstring">
+  <div class="discussion">
+    <p>
+Passes <tt>exception_class.new(message)</tt> to errbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">- (<tt>Object</tt>) <strong>failure</strong>(exception) </span>
+        <div class="docstring">
+  <div class="discussion">
+    <p>
+Passes <tt>exception</tt> to errbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div>
+      </li>
+    
+  </ul>
+
 </div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31</pre>
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 37</span>
 
-<span class='def def kw'>def</span> <span class='failure identifier id'>failure</span><span class='lparen token'>(</span><span class='class_or_message identifier id'>class_or_message</span><span class='comma token'>,</span> <span class='message_or_nil identifier id'>message_or_nil</span> <span class='assign token'>=</span> <span class='nil nil kw'>nil</span><span class='rparen token'>)</span>
+<span class='def def kw'>def</span> <span class='failure identifier id'>failure</span><span class='lparen token'>(</span><span class='exception_class_or_message identifier id'>exception_class_or_message</span><span class='comma token'>,</span> <span class='message_or_nil identifier id'>message_or_nil</span> <span class='assign token'>=</span> <span class='nil nil kw'>nil</span><span class='rparen token'>)</span>
   <span class='blank identifier id'>blank</span><span class='dot token'>.</span><span class='tap identifier id'>tap</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='d identifier id'>d</span><span class='bitor op'>|</span>
     <span class='d identifier id'>d</span><span class='dot token'>.</span><span class='fail identifier id'>fail</span><span class='lparen token'>(</span>
-      <span class='case case kw'>case</span> <span class='class_or_message identifier id'>class_or_message</span>
+      <span class='case case kw'>case</span> <span class='exception_class_or_message identifier id'>exception_class_or_message</span>
+      <span class='when when kw'>when</span> <span class='Exception constant id'>Exception</span>
+        <span class='raise identifier id'>raise</span> <span class='ArgumentError constant id'>ArgumentError</span><span class='comma token'>,</span> <span class='string val'>&quot;can't specify both exception and message&quot;</span> <span class='if if_mod kw'>if</span> <span class='message_or_nil identifier id'>message_or_nil</span>
+        <span class='exception_class_or_message identifier id'>exception_class_or_message</span>
       <span class='when when kw'>when</span> <span class='Class constant id'>Class</span>
-        <span class='class_or_message identifier id'>class_or_message</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='message_or_nil identifier id'>message_or_nil</span><span class='rparen token'>)</span>
+        <span class='exception_class_or_message identifier id'>exception_class_or_message</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='message_or_nil identifier id'>message_or_nil</span><span class='rparen token'>)</span>
       <span class='else else kw'>else</span>
-        <span class='RuntimeError constant id'>RuntimeError</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='class_or_message identifier id'>class_or_message</span><span class='dot token'>.</span><span class='to_s identifier id'>to_s</span><span class='rparen token'>)</span>
+        <span class='RuntimeError constant id'>RuntimeError</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='exception_class_or_message identifier id'>exception_class_or_message</span><span class='dot token'>.</span><span class='to_s identifier id'>to_s</span><span class='rparen token'>)</span>
       <span class='end end kw'>end</span><span class='rparen token'>)</span>
   <span class='end end kw'>end</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="success-instance_method">
+  
+    - (<tt>Object</tt>) <strong>success</strong>(*values) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Return a Deferrable which immediately succeeds, passing 0 or more values to
+callbacks.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/primitives.rb', line 17</span>
+
+<span class='def def kw'>def</span> <span class='success identifier id'>success</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='values identifier id'>values</span><span class='rparen token'>)</span>
+  <span class='blank identifier id'>blank</span><span class='dot token'>.</span><span class='tap identifier id'>tap</span> <span class='lbrace token'>{</span><span class='bitor op'>|</span><span class='d identifier id'>d</span><span class='bitor op'>|</span> <span class='d identifier id'>d</span><span class='dot token'>.</span><span class='succeed identifier id'>succeed</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='values identifier id'>values</span><span class='rparen token'>)</span> <span class='rbrace token'>}</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -321,7 +476,7 @@ Return a Deferrable which immediately fails with an exception.
 </div>
     
     <div id="footer">
-  Generated on Fri Jan 21 14:00:18 2011 by 
+  Generated on Fri Mar 25 18:02:07 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

@@ -242,6 +242,32 @@ representing the status of a second operation.
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#guard-instance_method" title="#guard (instance method)">- (Object) <strong>guard</strong>(reason = nil) {|*args| ... }</a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+If this Deferrable succeeds, ensure that the arguments passed to
+<tt>Deferrable#succeed</tt> meet certain criteria (specified by passing a
+predicate as a block).
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#transform-instance_method" title="#transform (instance method)">- (Deferrable) <strong>transform</strong>(&amp;block) </a>
     
 
@@ -322,12 +348,12 @@ Boilerplate hook to extend <span class='object_link'><a href="Combinators/ClassM
       <pre class="lines">
 
 
-169
-170
-171</pre>
+221
+222
+223</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 221</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='included identifier id'>included</span><span class='lparen token'>(</span><span class='base identifier id'>base</span><span class='rparen token'>)</span>
   <span class='base identifier id'>base</span><span class='dot token'>.</span><span class='send identifier id'>send</span> <span class='symbol val'>:extend</span><span class='comma token'>,</span> <span class='ClassMethods constant id'>ClassMethods</span>
@@ -583,6 +609,175 @@ into the block.
 </div>
     
       <div class="method_details ">
+  <p class="signature " id="guard-instance_method">
+  
+    - (<tt>Object</tt>) <strong>guard</strong>(reason = nil) {|*args| ... }
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+If this Deferrable succeeds, ensure that the arguments passed to
+<tt>Deferrable#succeed</tt> meet certain criteria (specified by passing a
+predicate as a block).  If they do, subsequently defined callbacks will
+fire as normal, receiving the same arguments; if they do not, this
+Deferrable will fail instead, calling its errbacks with a <span class='object_link'><a href="GuardFailed.html" title="DeferrableGratification::GuardFailed (class)">GuardFailed</a></span>
+exception.
+</p>
+<p>
+This follows the usual Deferrable semantics of calling <tt>Deferrable#fail</tt>
+inside a callback: any callbacks defined <b>before</b> the call to <span class='object_link'><a href="#guard-instance_method" title="DeferrableGratification::Combinators#guard (method)">#guard</a></span>
+will still execute as normal, but those defined <b>after</b> the call to
+<span class='object_link'><a href="#guard-instance_method" title="DeferrableGratification::Combinators#guard (method)">#guard</a></span> will only execute if the predicate returns truthy.
+</p>
+<p>
+Multiple successive calls to <span class='object_link'><a href="#guard-instance_method" title="DeferrableGratification::Combinators#guard (method)">#guard</a></span> will work as expected: the predicates
+will be evaluated in order, stopping as soon as any of them returns falsy,
+and subsequent callbacks will fire only if all the predicates pass.
+</p>
+<p>
+If instead of returning a boolean, the predicate raises an exception, the
+Deferrable will fail, but errbacks will receive the exception raised
+instead of <span class='object_link'><a href="GuardFailed.html" title="DeferrableGratification::GuardFailed (class)">GuardFailed</a></span>.  You could use this to indicate the reason for
+failure in a complex guard expression; however the same intent might be
+more clearly expressed by multiple guard expressions with appropriate
+reason messages.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <span class='name'>reason</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>
+optional description of the reason for the guard: specifying this will both
+serve as code documentation, and be included in the <span class='object_link'><a href="GuardFailed.html" title="DeferrableGratification::GuardFailed (class)">GuardFailed</a></span> exception
+for error handling purposes.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Yield Parameters:</h3>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='type'></span>
+      
+      
+        <span class='name'>*args</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+the arguments passed to callbacks if this Deferrable succeeds.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Yield Returns:</h3>
+<ul class="yieldreturn">
+  
+    <li>
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>true</tt> if subsequent callbacks should fire (with the same
+arguments); <tt>false</tt> if instead errbacks should fire.
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Raises:</h3>
+<ul class="raise">
+  
+    <li>
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+if called without a predicate
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification/combinators.rb', line 205</span>
+
+<span class='def def kw'>def</span> <span class='guard identifier id'>guard</span><span class='lparen token'>(</span><span class='reason identifier id'>reason</span> <span class='assign token'>=</span> <span class='nil nil kw'>nil</span><span class='comma token'>,</span> <span class='bitand op'>&amp;</span><span class='block identifier id'>block</span><span class='rparen token'>)</span>
+  <span class='raise identifier id'>raise</span> <span class='ArgumentError constant id'>ArgumentError</span><span class='comma token'>,</span> <span class='string val'>'must be called with a block'</span> <span class='unless unless_mod kw'>unless</span> <span class='block_given? fid id'>block_given?</span>
+  <span class='callback identifier id'>callback</span> <span class='do do kw'>do</span> <span class='bitor op'>|</span><span class='mult op'>*</span><span class='callback_args identifier id'>callback_args</span><span class='bitor op'>|</span>
+    <span class='begin begin kw'>begin</span>
+      <span class='unless unless kw'>unless</span> <span class='block identifier id'>block</span><span class='dot token'>.</span><span class='call identifier id'>call</span><span class='lparen token'>(</span><span class='mult op'>*</span><span class='callback_args identifier id'>callback_args</span><span class='rparen token'>)</span>
+        <span class='raise identifier id'>raise</span> <span class='colon3 op'>::</span><span class='DeferrableGratification constant id'>DeferrableGratification</span><span class='colon2 op'>::</span><span class='GuardFailed constant id'>GuardFailed</span><span class='dot token'>.</span><span class='new identifier id'>new</span><span class='lparen token'>(</span><span class='reason identifier id'>reason</span><span class='comma token'>,</span> <span class='callback_args identifier id'>callback_args</span><span class='rparen token'>)</span>
+      <span class='end end kw'>end</span>
+    <span class='rescue rescue kw'>rescue</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='exception identifier id'>exception</span>
+      <span class='fail identifier id'>fail</span><span class='lparen token'>(</span><span class='exception identifier id'>exception</span><span class='rparen token'>)</span>
+    <span class='end end kw'>end</span>
+  <span class='end end kw'>end</span>
+  <span class='self self kw'>self</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <p class="signature " id="transform-instance_method">
   
     - (<tt>Deferrable</tt>) <strong>transform</strong>(&amp;block) 
@@ -784,7 +979,7 @@ transforming the error value with which this operation failed.
 </div>
     
     <div id="footer">
-  Generated on Fri Jan 21 14:00:19 2011 by 
+  Generated on Fri Mar 25 18:02:07 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>

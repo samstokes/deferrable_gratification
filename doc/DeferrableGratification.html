@@ -103,7 +103,7 @@ more pleasant to work with.
     
    
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="DeferrableGratification/DefaultDeferrable.html" title="DeferrableGratification::DefaultDeferrable (class)">DefaultDeferrable</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="DeferrableGratification/DefaultDeferrable.html" title="DeferrableGratification::DefaultDeferrable (class)">DefaultDeferrable</a></span>, <span class='object_link'><a href="DeferrableGratification/GuardFailed.html" title="DeferrableGratification::GuardFailed (class)">GuardFailed</a></span>
     
   
 </p>
@@ -187,7 +187,7 @@ DG goodness.
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="DeferrableGratification/Primitives.html" title="DeferrableGratification::Primitives (module)">Primitives</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Primitives.html#blank-instance_method" title="DeferrableGratification::Primitives#blank (method)">blank</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#const-instance_method" title="DeferrableGratification::Primitives#const (method)">const</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#failure-instance_method" title="DeferrableGratification::Primitives#failure (method)">failure</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="DeferrableGratification/Primitives.html#blank-instance_method" title="DeferrableGratification::Primitives#blank (method)">blank</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#const-instance_method" title="DeferrableGratification::Primitives#const (method)">const</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#failure-instance_method" title="DeferrableGratification::Primitives#failure (method)">failure</a></span>, <span class='object_link'><a href="DeferrableGratification/Primitives.html#success-instance_method" title="DeferrableGratification::Primitives#success (method)">success</a></span></p>
 
   
   
@@ -232,14 +232,14 @@ already included that module.
       <pre class="lines">
 
 
-26
-27
-28
-29
-30</pre>
+39
+40
+41
+42
+43</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 26</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 39</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enhance! fid id'>enhance!</span><span class='lparen token'>(</span><span class='module_or_class identifier id'>module_or_class</span><span class='rparen token'>)</span>
   <span class='module_or_class identifier id'>module_or_class</span><span class='dot token'>.</span><span class='send identifier id'>send</span> <span class='symbol val'>:include</span><span class='comma token'>,</span> <span class='Combinators constant id'>Combinators</span>
@@ -285,19 +285,19 @@ Deferrable classes.  (If that isn&#8217;t possible, you can always call
       <pre class="lines">
 
 
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50</pre>
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'lib/deferrable_gratification.rb', line 54</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enhance_all_deferrables! fid id'>enhance_all_deferrables!</span>
   <span class='require identifier id'>require</span> <span class='string val'>'eventmachine'</span>
@@ -320,7 +320,7 @@ Deferrable classes.  (If that isn&#8217;t possible, you can always call
 </div>
     
     <div id="footer">
-  Generated on Fri Jan 21 14:00:18 2011 by 
+  Generated on Fri Mar 25 18:02:06 2011 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.6.4 (ruby-1.8.7).
 </div>
