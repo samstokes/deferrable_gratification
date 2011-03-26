@@ -81,12 +81,31 @@ end
 desc 'Generate HTML documentation'
 task :doc => 'doc:all'
 
+def shell(cmd)
+  system(cmd) or raise "Command failed: #{cmd}"
+end
+
 def gemspec_file() Dir[File.join(File.dirname(__FILE__), '*.gemspec')].first or raise "Couldn't find gemspec" end
 def gemspec() Gem::Specification.load(gemspec_file) end
-Rake::GemPackageTask.new(gemspec) do |pkg|
-  pkg.need_zip = true
-  pkg.need_tar = true
+namespace :package do
+  Rake::GemPackageTask.new(gemspec) do |pkg|
+    pkg.need_zip = true
+    pkg.need_tar = true
+  end
 end
+namespace :gem do
+  desc 'Build the gem file'
+  task :build => '^package:gem'
+
+  desc 'Rebuild the gem file cleanly'
+  task :rebuild => ['^package:clobber_package', :build]
+
+  desc 'Publish rebuilt gem to RubyGems.org'
+  task :publish => :rebuild do
+    shell 'gem push pkg/deferrable_gratification*.gem'
+  end
+end
+task :gem => 'package:gem'
 
 namespace :version do
   namespace :bump do
@@ -94,9 +113,6 @@ namespace :version do
     SEGMENTS.each do |segment|
       desc "Bump #{segment} version number"
       task(segment) { bump(segment) }
-    end
-    def shell(cmd)
-      system(cmd) or raise "Command failed: #{cmd}"
     end
     def bump(segment)
       segment_index = SEGMENTS.index(segment)
