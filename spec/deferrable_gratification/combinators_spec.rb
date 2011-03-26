@@ -252,6 +252,33 @@ describe DeferrableGratification::Combinators do
       end
     end
 
+    describe 'operation.guard("must have job") {|person| person[:job] }.guard("must have title") {|person| person[:job][:title] }' do
+      # note that the job title block can raise NoMethodError
+      subject { operation.guard("must have job") {|person| person[:job] }.guard("must have title") {|person| person[:job][:title] } }
+
+      describe 'if the operation succeeds with {:name => "Sam"}' do
+        before { operation.succeed :name => "Sam" }
+
+        it 'should not raise an exception' do
+          lambda { subject }.should_not raise_error
+        end
+        it { should_not fail_with(NoMethodError) }
+        it { should fail_with(DG::GuardFailed, /job/) }
+      end
+
+      describe 'if the operation succeeds with {:job => {:company => "Rapportive"}}' do
+        before { operation.succeed :job => {:company => "Rapportive"} }
+
+        it { should fail_with(DG::GuardFailed, /title/) }
+      end
+
+      describe 'if the operation succeeds with {:job => {:title => "CTO", :company => "Rapportive"}}' do
+        before { operation.succeed :job => {:title => "CTO", :company => "Rapportive"} }
+
+        it { should succeed_with({:job => {:title => "CTO", :company => "Rapportive"}}) }
+      end
+    end
+
     describe 'operation.callback {|value| @results << value }.guard(&:even?).callback {|value| @even_results << value }' do
       before do
         @results = []
