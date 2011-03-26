@@ -81,11 +81,34 @@ end
 desc 'Generate HTML documentation'
 task :doc => 'doc:all'
 
-gemspec_file = Dir[File.join(File.dirname(__FILE__), '*.gemspec')].first or raise "Couldn't find gemspec"
-gemspec = Gem::Specification.load(gemspec_file)
+def gemspec_file() Dir[File.join(File.dirname(__FILE__), '*.gemspec')].first or raise "Couldn't find gemspec" end
+def gemspec() Gem::Specification.load(gemspec_file) end
 Rake::GemPackageTask.new(gemspec) do |pkg|
   pkg.need_zip = true
   pkg.need_tar = true
+end
+
+namespace :version do
+  namespace :bump do
+    SEGMENTS = %w(major minor patch)
+    SEGMENTS.each do |segment|
+      desc "Bump #{segment} version number"
+      task(segment) { bump(segment) }
+    end
+    def shell(cmd)
+      system(cmd) or raise "Command failed: #{cmd}"
+    end
+    def bump(segment)
+      segment_index = SEGMENTS.index(segment)
+      raise ArgumentError unless segment_index
+      old_version = gemspec.version.to_s
+      segments = gemspec.version.segments
+      segments[segment_index] += 1
+      new_version = segments.join('.')
+      shell "sed -i '/gem\\.version/s/#{old_version.gsub('.', '\.')}/#{new_version}/' #{gemspec_file}"
+      puts "Bumped version from #{old_version} to #{new_version}"
+    end
+  end
 end
 
 task :default => :spec
