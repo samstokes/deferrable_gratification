@@ -26,9 +26,9 @@ module DeferrableGratification
     attr_reader :args
 
     def initialize(reason, args)
-      @reason = reason
+      @reason = reason || 'guard failed'
       @args = args
-      super("#{args.inspect}: #{reason}")
+      super("#{@args.inspect}: #{@reason}")
     end
   end
 
