@@ -102,6 +102,19 @@ describe DeferrableGratification::Combinators do
         end
       end
     end
+
+    describe 'when the return value of the block happens to be a Deferrable' do
+      before do
+        @result = EM::DefaultDeferrable.new
+      end
+
+      subject { operation.transform { @result } }
+
+      it "should succeed with the return value itself, not wait for the return value's callback" do
+        operation.succeed :test
+        subject.should succeed_with(@result)
+      end
+    end
   end
 
 

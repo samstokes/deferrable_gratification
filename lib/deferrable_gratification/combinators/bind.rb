@@ -43,8 +43,12 @@ module DeferrableGratification
       # @param &block  block to run on success; should return a Deferrable.
       #
       # @raise [ArgumentError] if called without a block.
-      def initialize(first, &block)
+      def initialize(first, options = {}, &block)
         @first = first
+
+        @with_chaining = !options.delete(:without_chaining)
+        bad_keys = options.keys.join(', ')
+        raise "Unknown options: #{bad_keys}" unless bad_keys.empty?
 
         raise ArgumentError, 'must pass a block' unless block
         @proc = block
@@ -64,8 +68,8 @@ module DeferrableGratification
       # @return [Bind] Deferrable representing the compound operation.
       #
       # @raise (see #initialize)
-      def self.setup!(first, &block)
-        new(first, &block).tap(&:setup!)
+      def self.setup!(first, options = {}, &block)
+        new(first, options, &block).tap(&:setup!)
       end
 
       private
@@ -79,7 +83,7 @@ module DeferrableGratification
           # callbacks.  However, as referred to in the class comment above, we
           # can't assume that it will, and need to behave sensibly if it
           # doesn't.
-          if second.respond_to?(:callback) && second.respond_to?(:errback)
+          if @with_chaining && second.respond_to?(:callback) && second.respond_to?(:errback)
             second.callback {|*args2| self.succeed(*args2) }
             second.errback {|*error| self.fail(*error) }
           else

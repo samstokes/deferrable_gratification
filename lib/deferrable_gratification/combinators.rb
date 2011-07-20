@@ -139,7 +139,7 @@ module DeferrableGratification
     # @example Retrieve a web page and call back with its title.
     #   HTTP.request(url).transform {|page| Hpricot(page).at(:title).inner_html }
     def transform(&block)
-      bind!(&block)
+      Bind.setup!(self, :without_chaining => true, &block)
     end
 
     # Transform the value passed to the errback of this Deferrable by invoking
