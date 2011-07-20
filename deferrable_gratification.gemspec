@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name = 'deferrable_gratification'
-  gem.version = '0.3.0'
+  gem.version = '0.3.1'
 
   gem.summary = 'Makes evented programming easier with composition and abstraction.'
   gem.description = <<-DESC
