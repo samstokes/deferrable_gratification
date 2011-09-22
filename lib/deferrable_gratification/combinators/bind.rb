@@ -76,7 +76,7 @@ module DeferrableGratification
       def run_bound_proc(*args)
         begin
           second = @proc.call(*args)
-        rescue => error
+        rescue Exception => error
           self.fail(error)
         else
           # We expect the block to return a Deferrable, on which we can set
