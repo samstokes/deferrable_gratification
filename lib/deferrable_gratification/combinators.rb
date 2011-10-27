@@ -302,6 +302,34 @@ module DeferrableGratification
       def loop_until_success(&block)
         Combinators::Loop::UntilSuccess.setup!(&block)
       end
+
+      # Combinator that repeatedly executes the supplied block until it
+      # fails, then fails itself with the eventual error.
+      #
+      # This Deferrable may never fail, if the operation never fails.
+      #
+      # This combinator has similar semantics to the inbuilt +loop+ construct,
+      # in that you need to do something drastic to break out of the loop.
+      #
+      # If you want to stop the loop early, you can call {#succeed} or {#fail}
+      # on the returned deferrable.
+      #
+      # @note this combinator is intended for use inside EventMachine.  It will
+      #   still work outside of EventMachine, _provided_ that the operation is
+      #   synchronous (although a simple +while+ loop might be preferable in
+      #   this case!).
+      #
+      # @param &block operation to execute until it fails.
+      #
+      # @yieldreturn [Deferrable] deferred status of the operation.  If it
+      #   succeeds, the operation will be retried.  If it fails, the combinator
+      #   will fail with the result.
+      #
+      # @return [Deferrable] a deferred status that will fail once the
+      #   supplied operation eventually fails.
+      def loop_until_failure(&block)
+        Combinators::Loop::UntilFailure.setup!(&block)
+      end
     end
   end
 end

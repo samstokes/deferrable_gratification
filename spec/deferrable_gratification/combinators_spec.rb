@@ -611,4 +611,82 @@ DG.chain(
       end
     end
   end
+
+  describe '.loop_until_failure' do
+    let(:resource) do
+      double().tap do |resource|
+        resource.stub!(:get) { raise "Invalid URI" }
+      end
+    end
+    describe 'DG.loop_until_failure { resource.get("http//:tyop.com") }' do
+      subject { DG.loop_until_failure { resource.get("http://:tyop.com") } }
+
+      it 'should not raise an exception' do
+        lambda { subject }.should_not raise_error
+      end
+
+      it { should fail_with(RuntimeError, /Invalid URI/) }
+
+      it 'should call the block exactly once' do
+        resource.should_receive(:get).once
+        subject
+      end
+    end
+
+    describe 'DG.loop_until_failure { resource.get(@page += 1) }' do
+      before do
+        @page = 0
+        resource.stub!(:get) do |page|
+          if page < 2
+            DG::success "lots of data"
+          else
+            DG::failure(RuntimeError.new("No more pages"))
+          end
+        end
+      end
+
+      subject { DG.loop_until_failure{ resource.get(@page += 1) } }
+
+      it { should fail_with(RuntimeError, /No more pages/) }
+
+      it 'should call the block until there are no more pages' do
+        resource.should_receive(:get).twice
+        subject
+      end
+    end
+
+    describe 'DG.loop_until_failure { resource.get(:slow, @page += 1) }' do
+      before do
+        @page = 0
+        resource.stub!(:get) do |slow, page|
+          DG::blank.tap do |result|
+            EM::next_tick do
+              if page < 3
+                result.succeed "lots of data"
+              else
+                result.fail RuntimeError.new("No more pages")
+              end
+            end
+          end
+        end
+      end
+
+      subject do
+        d = nil
+        EM.run do
+          d = DG.loop_until_failure { resource.get(:slow, @page += 1) }.
+            bothback { EM.stop }.
+            tap {|l| l.timeout(1) } # stop tests hanging forever if we screw up
+        end
+        d
+      end
+
+      it { should fail_with(RuntimeError, /No more pages/) }
+
+      it 'should call the block until there are no more pages' do
+        resource.should_receive(:get).exactly(3).times
+        subject
+      end
+    end
+  end
 end

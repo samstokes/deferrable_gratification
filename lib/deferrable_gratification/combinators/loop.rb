@@ -92,6 +92,25 @@ module DeferrableGratification
           succeed(successes.first)
         end
       end
+
+      # Combinator that runs each deferrable yielded by a block sequentially
+      # until one of them fails, then fails with the resulting error.
+      #
+      # This Deferrable will fail if the block raises an exception directly, and,
+      # like a while loop, # may never fail if the block continues to succeed.
+      #
+      # You probably want to call {ClassMethods#loop_until_failure} rather than
+      # using this class directly.
+      class UntilFailure < Loop
+        private
+        def done?
+          failures.length > 0
+        end
+
+        def finish
+          fail(failures.first)
+        end
+      end
     end
   end
 end
