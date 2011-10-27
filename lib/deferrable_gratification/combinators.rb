@@ -217,6 +217,49 @@ module DeferrableGratification
     end
 
 
+    # If this Deferrable fails with a matching exception, it will instead succeed
+    # with the return value of the provided block, or nil if no block is given.
+    #
+    # The parameters to this method are as the parameters to the inbuilt rescue
+    # statement. They should be modules that respond true to the {#===} method for
+    # exceptions that they wish to catch. The most common example of such
+    # modules are subclasses of Exception.
+    #
+    # If you pass a block to this method then when a matching exception is rescued,
+    # the block will be called and the return value of the block will be passed
+    # to +Deferrable#succeed+. If you don't pass a block, then {nil} will be
+    # used in place of a custom value.
+    #
+    # @param [Exception Class]  The classes of exception to rescue.
+    #
+    # @yieldparam exception the exception that matched one of the exception
+    #                       classes.
+    # @yieldparam *args the remaining arguments passed to the errback when
+    #                   this exception was rescued.
+    # @yieldreturn value the value with which the deferrable should succeed
+    #                    now that the exception has been rescued.
+    #
+    # @raise [ArgumentError] if called with no exception classes.
+    #
+    def rescue_from(*to_rescue, &block)
+      raise ArgumentError, 'must be called with at least one exception class' if to_rescue.empty?
+      errback do |exception, *errback_args|
+        begin
+          if to_rescue.any?{ |exception_class| exception_class === exception }
+            if block
+              succeed block.call(exception, *errback_args)
+            else
+              succeed nil
+            end
+          end
+        rescue => e
+          fail(e)
+        end
+      end
+      self
+    end
+
+
     # Boilerplate hook to extend {ClassMethods}.
     def self.included(base)
       base.send :extend, ClassMethods

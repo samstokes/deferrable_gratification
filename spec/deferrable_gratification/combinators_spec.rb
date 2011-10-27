@@ -342,6 +342,109 @@ describe DeferrableGratification::Combinators do
     end
   end
 
+  describe '#rescue_from' do
+    let(:operation) { DG::DefaultDeferrable.new }
+    describe 'operation.rescue_from(RuntimeError)' do
+      subject { operation.rescue_from(ArgumentError) }
+
+      describe 'if the operation fails with an ArgumentError' do
+        before { operation.fail(ArgumentError.new) }
+        it { should succeed_with(nil) }
+      end
+
+      describe 'if the operation fails with a RuntimeError' do
+        before { operation.fail(RuntimeError.new("kazam!")) }
+        it { should fail_with(RuntimeError, /kazam/) }
+      end
+
+      describe 'if the operation fails with a non-exception' do
+        before { operation.fail 15 }
+        it { should fail_with(Integer) }
+      end
+
+      describe 'if the operation fails with no exception' do
+        before { operation.fail }
+        it 'should fail with nothing' do
+          results = nil
+          operation.errback{ |*r| results = r }
+          results.should == []
+        end
+      end
+
+      describe 'if the operation succeeds with "good robot"' do
+        before { operation.succeed('good robot') }
+        it { should succeed_with('good robot') }
+      end
+    end
+
+    describe 'operation.rescue_from(FloatDomainError){|e| @log << e; 100 }' do
+      before do
+        @log = []
+        operation.rescue_from(FloatDomainError){|e| @log << e; 100 }
+      end
+
+      subject { operation }
+
+      describe 'if the operation fails with a FloatDomainError' do
+        before do
+          @error = FloatDomainError.new('Infinity')
+          operation.fail(@error)
+        end
+        it 'should log the error' do
+          @log.should == [@error]
+        end
+        it { should succeed_with(100) }
+      end
+
+      describe 'if the operation fails with an ArgumentError' do
+        before { operation.fail(ArgumentError.new("wrongly called")) }
+        it 'should not log the error' do
+          @log.should == []
+        end
+        it { should fail_with(ArgumentError, /wrongly called/) }
+      end
+    end
+
+    describe 'operation.rescue_from(FloatDomainError){|e| raise "whoops!" }' do
+      subject { operation.rescue_from(FloatDomainError){|e| raise "whoops!" } }
+      describe 'if the operation fails with a FloatDomainError' do
+        before { operation.fail(FloatDomainError.new('Infinity')) }
+        it { should fail_with(RuntimeError, /whoops/) }
+      end
+
+      describe 'if the operation fails with an ArgumentError' do
+        before { operation.fail(ArgumentError.new("wrongly called")) }
+        it { should fail_with(ArgumentError, /wrongly called/) }
+      end
+    end
+
+    describe 'operation.rescue_from(Module.new{ def self.===(o); raise "whoops!"; end })' do
+      subject { operation.rescue_from(Module.new{ def self.===(o); raise "whoops!"; end }) }
+      describe 'if the operation fails with an exception' do
+        before { operation.fail(ArgumentError.new("wrongly called")) }
+        it { should fail_with(RuntimeError, /whoops!/) }
+      end
+    end
+
+    describe 'operation.rescue_from(FloatDomainError){|e, a, b| a + b}' do
+      subject { operation.rescue_from(FloatDomainError){|e, a, b| a + b} }
+      describe 'if the operation fails with an FloatDomainError and details' do
+        before { operation.fail(FloatDomainError.new('Infinity'), 1.2, 2.3) }
+        it { should succeed_with(3.5) }
+      end
+
+      describe 'if the operation fails with an ArgumentError and details' do
+        before { operation.fail(ArgumentError.new("wrongly called"), :foo, :bar) }
+        it 'should fail with the ArgumentError and details' do
+          results = nil
+          operation.errback{ |*r| results = r }
+          results[0].should be_a ArgumentError
+          results[1..2].should == [:foo, :bar]
+        end
+      end
+    end
+  end
+
 
   describe '.chain' do
     describe 'DG.chain()' do
