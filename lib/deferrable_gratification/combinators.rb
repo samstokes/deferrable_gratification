@@ -1,4 +1,4 @@
-Dir.glob(File.join(File.dirname(__FILE__), *%w[combinators *.rb])) do |file|
+Dir.glob(File.join(File.dirname(__FILE__), *%w[combinators *.rb])).sort.each do |file|
   require file.sub(/\.rb$/, '')
 end
 
@@ -291,7 +291,6 @@ module DeferrableGratification
       #   synchronous (although a simple +while+ loop might be preferable in
       #   this case!).
       #
-      # @param loop_deferrable for internal use only, always omit this.
       # @param &block operation to execute until it succeeds.
       #
       # @yieldreturn [Deferrable] deferred status of the operation.  If it
@@ -300,33 +299,8 @@ module DeferrableGratification
       #
       # @return [Deferrable] a deferred status that will succeed once the
       #   supplied operation eventually succeeds.
-      def loop_until_success(loop_deferrable = DefaultDeferrable.new, &block)
-        if EM.reactor_running?
-          EM.next_tick do
-            begin
-              attempt = yield
-            rescue => e
-              loop_deferrable.fail(e)
-            else
-              attempt.callback(&loop_deferrable.method(:succeed))
-              attempt.errback { loop_until_success(loop_deferrable, &block) }
-            end
-          end
-        else
-          # In the synchronous case, we could simply use the same
-          # implementation as in EM, but without the next_tick; unfortunately
-          # that means direct recursion, so risks stack overflow.  Instead we
-          # just reimplement as a loop.
-          results = []
-          begin
-            yield.callback {|*values| results << values } while results.empty?
-          rescue => e
-            loop_deferrable.fail(e)
-          else
-            loop_deferrable.succeed(*results[0])
-          end
-        end
-        loop_deferrable
+      def loop_until_success(&block)
+        Combinators::Loop::UntilSuccess.setup!(&block)
       end
     end
   end
