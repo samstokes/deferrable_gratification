@@ -84,4 +84,31 @@ describe DeferrableGratification::Fluent do
       end
     end
   end
+
+  describe '#safe_callback' do
+    describe 'DG::success("bar").safe_callback{ |arg| raise "foo#{arg}" }' do
+      subject{ DG::success("bar").safe_callback{ |arg| raise "foo#{arg}" } }
+
+      it 'should not raise an exception' do
+        lambda{ subject }.should_not raise_error
+      end
+
+      it 'should fail with foobar' do
+        subject.should fail_with /foobar/
+      end
+    end
+  end
+
+  describe '#safe_errback' do
+    describe 'DG::failure(ArgumentErrror.new("bar")).safe_errback{ |err| raise "foo#{err.message}" }' do
+      subject{ DG::failure(ArgumentError.new("bar")).safe_errback{ |err| raise "foo#{err.message}" } }
+      it 'should not raise an exception' do
+        lambda{ subject }.should_not raise_error
+      end
+
+      it 'should fail with foobar' do
+        subject.should fail_with /foobar/
+      end
+    end
+  end
 end
