@@ -111,6 +111,52 @@ module DeferrableGratification
           fail(failures.first)
         end
       end
+
+      # Combinator that runs the condition lambda and then the provided block
+      # sequentially until either the condition lambda returns true, or an
+      # exception is raised, or the provided block returns a deferrable that
+      # fails.
+      #
+      # This is, in other words, a normal ruby "while" loop, except that the
+      # body of the loop sets up a deferrable which runs asynchronously instead
+      # of requiring that the whole operation is synchronous.
+      #
+      # You probably want to call {ClassMethods#loop_while} or
+      # {ClassMethods#loop_until} rather than using this class directly.
+      class While < Loop
+        # Prepare to loop over deferrables yielded by +block+, stopping when
+        # +condition+ returns a truthy value.
+        #
+        # Does not actually set up any callbacks or errbacks: call {#setup!} for
+        # that.
+        #
+        # @param [Proc, Method, #call] A condition that returns truthy when the
+        #                              loop should stop.
+        # @param [&Block] A block to lazily yield deferrables.
+        #
+        # @yieldreturn Deferrable
+        def initialize(condition, &block)
+          raise ArgumentError, "condition must be callable" unless condition.respond_to?(:call)
+          raise ArgumentError, "no loop body given" unless block_given?
+          @condition = condition
+          super &block
+        end
+
+        private
+        def done?
+          failures.length > 0 || !@condition.call(successes.last)
+        rescue => e
+          fail e
+        end
+
+        def finish
+          if failures.length > 0
+            fail failures.last
+          else
+            succeed successes.last
+          end
+        end
+      end
     end
   end
 end

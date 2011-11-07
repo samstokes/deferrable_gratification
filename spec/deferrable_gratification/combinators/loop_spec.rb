@@ -154,4 +154,67 @@ describe DeferrableGratification::Combinators do
       end
     end
   end
+
+  describe '.loop_while' do
+    before do
+      @log = []
+    end
+    describe 'DG.loop_while(lambda{ false }){ @log << 1}' do
+      subject { DG.loop_while(lambda{ false }){ @log << 1 } }
+
+      it "should not call the loop ever" do
+        subject
+        @log.should == []
+      end
+
+      it{ should succeed_with(nil) }
+    end
+
+    describe 'DG.loop_while(lambda{ @log.length < 3 }){ @log << 1 }' do
+      subject { DG.loop_while(lambda{ @log.length < 3 }){ @log << 1; DG::success("returnme#{@log.length}") } }
+
+      it 'should call the loop three times' do
+        subject
+        @log.should == [1, 1, 1]
+      end
+
+      it{ should succeed_with("returnme3") }
+    end
+
+    describe 'DG.loop_while(lambda{ raise "condition" }){ raise "body" }' do
+      subject { DG.loop_while(lambda{ raise "condition" }){ raise "body" } } 
+
+      it 'should not raise an exception' do
+        lambda{ subject }.should_not raise_error
+      end
+
+      it{ should fail_with("condition") }
+    end
+
+    describe 'DG.loop_while(lambda{ true }){ raise "body" }' do
+      subject { DG.loop_while(lambda{ true }){ raise "body" } }
+
+      it 'should not raise an exception' do
+        lambda{ subject }.should_not raise_error
+      end
+
+      it{ should fail_with("body") }
+    end
+
+    describe 'DG.loop_while(lambda{ true }){ @log << 1; DG::failure(RuntimeError.new("foo")) }' do
+      subject { DG.loop_while(lambda{ true }){ @log << 1; DG::failure(RuntimeError.new("foo")) } }
+
+      it 'should call the loop once' do
+        subject
+        @log.should == [1]
+      end
+
+      it{ should fail_with(/foo/) }
+    end
+
+    describe 'DG.loop_while(lambda{ true }){ "not-a-deferrable" }' do
+      subject{ DG.loop_while(lambda{ true }){ "not-a-deferrable" } }
+      it{ should fail_with(NoMethodError) }
+    end
+  end
 end
