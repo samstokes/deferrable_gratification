@@ -53,5 +53,29 @@ module DeferrableGratification
     def blank
       DeferrableGratification::DefaultDeferrable.new
     end
+
+    # Convert callback-style, exception-raising code to deferrable style, so
+    # you can compose it using DG combinators etc.  Yields a callback object
+    # to be passed as a callback to a method call inside the block (see
+    # example).  When the callback is invoked, the deferrable will succeed; if
+    # the block raises an exception, the deferrable will fail with the
+    # exception.
+    #
+    # @example Convert a callback-invoking method to return a deferrable.
+    #   # Assuming fetch(&callback) invokes its callback passing in the data
+    #   # that was fetched.
+    #   DG.deferrably do |callback|
+    #     raise SomethingIsWrongException if anything_is_wrong
+    #     fetch(&callback)
+    #   end
+    def deferrably
+      DG.blank.tap do |deferrable|
+        begin
+          yield deferrable.method(:succeed)
+        rescue Exception => e
+          deferrable.fail(e)
+        end
+      end
+    end
   end
 end
