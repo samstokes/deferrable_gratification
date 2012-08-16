@@ -95,6 +95,26 @@ module DeferrableGratification
       end
 
 
+      # Combinator that waits for all of the supplied asynchronous operations
+      # to succeed or fail, and the succeeds with a list of the successes and
+      # a list of the failures.
+      #
+      # This deferrable will never fail. It may never succeed if one of
+      # the supplied operations never completes.
+      #
+      # You probably want to call {ClassMethods#in_parallel} rather than
+      # using this class directly.
+      class InParallel < Join
+        private
+        def done?
+          all_completed?
+        end
+
+        def finish
+          succeed(successes, failures)
+        end
+      end
+
       private
       def successes
         without_sentinels(@successes)
