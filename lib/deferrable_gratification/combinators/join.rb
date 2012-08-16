@@ -49,31 +49,6 @@ module DeferrableGratification
       end
 
 
-      # Combinator that waits for all of the supplied asynchronous operations
-      # to succeed or fail, then succeeds with the results of all those
-      # operations that were successful.
-      #
-      # This Deferrable will never fail.  It may also never succeed, if _any_
-      # of the supplied operations does not either succeed or fail.
-      #
-      # The successful results are guaranteed to be in the same order as the
-      # operations were passed in (which may _not_ be the same as the
-      # chronological order in which they succeeded).
-      #
-      # You probably want to call {ClassMethods#join_successes} rather than
-      # using this class directly.
-      class Successes < Join
-        private
-        def done?
-          all_completed?
-        end
-
-        def finish
-          succeed(successes)
-        end
-      end
-
-
       # Combinator that waits for any of the supplied asynchronous operations
       # to succeed, and succeeds with the result of the first (chronologically)
       # to do so.

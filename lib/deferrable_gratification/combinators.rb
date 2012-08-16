@@ -261,7 +261,9 @@ module DeferrableGratification
       #   passed an +Enumerable+ containing the results of those operations
       #   that succeeded.
       def join_successes(*operations)
-        Join::Successes.setup!(*operations)
+        in_parallel(*operations).transform do |successes, failures|
+          successes
+        end
       end
 
       # Combinator that waits for any of the supplied asynchronous operations
