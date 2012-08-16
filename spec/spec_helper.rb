@@ -110,15 +110,13 @@ end
 DummyDB = SpecTools::DummyDB
 
 
-RSpec::Matchers.define :succeed_with do |*value_or_empty|
-  case value_or_empty.size
+RSpec::Matchers.define :succeed_with do |*values_or_empty|
+  case values_or_empty.size
   when 0
     @cares_about_value = false
-  when 1
-    @cares_about_value = true
-    @value = value_or_empty[0]
   else
-    raise ArgumentError, 'too many arguments to succeed_with'
+    @cares_about_value = true
+    @values = values_or_empty
   end
 
   match do |deferrable|
@@ -130,11 +128,13 @@ RSpec::Matchers.define :succeed_with do |*value_or_empty|
 
     !@errback.called? && @callback.called? && (
       if @cares_about_value
-        @callback.result_satisfies? do |result|
-          if @value.respond_to? :match
-            @value.match(result)
-          else
-            @value == result
+        @callback.result_satisfies? do |*results|
+          @values.zip(results).each do |(value, result)|
+            if value.respond_to? :match
+              value.match(result)
+            else
+              value == result
+            end
           end
         end
       else
@@ -148,7 +148,7 @@ RSpec::Matchers.define :succeed_with do |*value_or_empty|
 
   def expectation_description
     if @cares_about_value
-      "succeed with #{@value.inspect}"
+      "succeed with #{@values.map(&:inspect).join(", ")}"
     else
       'succeed'
     end
