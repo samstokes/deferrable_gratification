@@ -8,8 +8,6 @@ Deferrable Gratification (DG) facilitates asynchronous programming in Ruby, by h
 
 Features include:
 
- * fluent (aka chainable) syntax for registering multiple callbacks and errbacks to the same Deferrable.
-
  * a #bothback method for registering code to run on either success or failure.
  
  * a combinator library for building up complex asynchronous operations out of simpler ones.
@@ -23,7 +21,7 @@ Features include:
 
   gem.required_ruby_version = '>= 1.8.7'
 
-  gem.add_dependency 'eventmachine'
+  gem.add_dependency 'eventmachine', '>= 1.0.3'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
