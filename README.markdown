@@ -144,39 +144,6 @@ callback wiring and reveal the logic of the code.
 
 ## Examples ##
 
-### [Fluent callback syntax](http://samstokes.github.com/deferrable_gratification/doc/DeferrableGratification/Fluent.html): because it feels right ###
-
-The return value of
-[`Deferrable#callback`](http://eventmachine.rubyforge.org/EventMachine/Deferrable.html#M000264)
-isn't useful, which means if you want to set a callback on a Deferrable and
-then return it, you have to name the Deferrable first, so you can return it
-explicitly.  You also have to mention the name again to set another callback,
-which leads to a lot of noisy repetition:
-
-    def google_homepage
-      request = EM::HttpRequest.new('http://google.com').get(:redirects => 1)
-      request.callback {|http| puts http.response }
-      request.callback { $call_count = ($call_count || 0) + 1 }
-      request.errback { puts "Oh noes!" }
-      request
-    end
-    EM.run { r = google_homepage; r.callback { EM.stop }; r.errback { EM.stop } }
-    # prints a lot of HTML
-
-DG lets you chain callbacks and errbacks using "fluent syntax" familiar from
-JQuery:
-
-    DG.enhance! EM::HttpClient
-
-    def google_homepage
-      EM::HttpRequest.new('http://google.com').get(:redirects => 1).
-        callback {|http| puts http.response }.
-        callback { $call_count = ($call_count || 0) + 1 }.
-        errback { puts "Oh noes!" }
-    end
-    EM.run { google_homepage.callback { EM.stop }.errback { EM.stop } }
-    # prints a lot of HTML
-
 ### [`bothback`](http://samstokes.github.com/deferrable\_gratification/doc/DeferrableGratification/Bothback.html#bothback-instance\_method): when you absolutely, positively got to... ###
 
 Sometimes you need to do something after an asynchronous action completes,
