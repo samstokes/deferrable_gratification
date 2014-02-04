@@ -21,6 +21,23 @@ module DeferrableGratification
       self
     end
 
+    # Register +block+ to be called on success.
+    #
+    # If the block raises an exception, the deferrable will be failed.
+    #
+    # @return [Deferrable, Fluent] +self+
+    #
+    # @see EventMachine::Deferrable#errback
+    def safe_callback(&block)
+      callback do |*args|
+        begin
+          yield *args
+        rescue => e
+          fail e
+        end
+      end
+    end
+
     # Register +block+ to be called on failure.
     #
     # @return [Deferrable, Fluent] +self+
@@ -29,6 +46,24 @@ module DeferrableGratification
     def errback(&block)
       super(&block)
       self
+    end
+
+    # Register +block+ to be called on success.
+    #
+    # If the block raises an exception, the deferrable will be re-failed
+    # with the new exception.
+    #
+    # @return [Deferrable, Fluent] +self+
+    #
+    # @see EventMachine::Deferrable#errback
+    def safe_errback(&block)
+      errback do |*args|
+        begin
+          yield *args
+        rescue => e
+          fail e
+        end
+      end
     end
 
     # Ensure that if this Deferrable doesn't either succeed or fail within the
