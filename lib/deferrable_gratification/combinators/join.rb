@@ -8,7 +8,7 @@ module DeferrableGratification
     # @abstract Subclasses should override {#done?} to define whether they wait
     #   for some or all of the operations to complete, and {#finish} to define
     #   what they do when {#done?} returns true.
-    class Join < DefaultDeferrable
+    class Join < Base
       # Prepare to wait for the completion of +operations+.
       #
       # Does not actually set up any callbacks or errbacks: call {#setup!} for
@@ -17,26 +17,15 @@ module DeferrableGratification
       # @param [*Deferrable] *operations deferred statuses of asynchronous
       #   operations to wait for.
       def initialize(*operations)
+        super()
         @operations = operations
-        @successes = Array.new(@operations.size, Sentinel.new)
-        @failures = Array.new(@operations.size, Sentinel.new)
       end
 
       # Register callbacks and errbacks on the supplied operations to notify
       # this {Join} of completion.
       def setup!
         finish if done?
-
-        @operations.each_with_index do |op, index|
-          op.callback do |result|
-            @successes[index] = result
-            finish if done?
-          end
-          op.errback do |error|
-            @failures[index] = error
-            finish if done?
-          end
-        end
+        @operations.each &method(:register_attempt)
       end
 
       # Create a {Join} and register the callbacks.
@@ -94,36 +83,11 @@ module DeferrableGratification
         end
       end
 
-
       private
-      def successes
-        without_sentinels(@successes)
-      end
-
-      def failures
-        without_sentinels(@failures)
-      end
 
       def all_completed?
         successes.length + failures.length >= @operations.length
       end
-
-      def done?
-        raise NotImplementedError, 'subclasses should override this'
-      end
-
-      def finish
-        raise NotImplementedError, 'subclasses should override this'
-      end
-
-      def without_sentinels(ary)
-        ary.reject {|item| item.instance_of? Sentinel }
-      end
-
-      # @private
-      # Used internally to distinguish between the absence of a response and
-      # a response with the value +nil+.
-      class Sentinel; end
     end
   end
 end

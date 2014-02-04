@@ -1,4 +1,4 @@
-Dir.glob(File.join(File.dirname(__FILE__), *%w[combinators *.rb])) do |file|
+Dir.glob(File.join(File.dirname(__FILE__), *%w[combinators *.rb])).sort.each do |file|
   require file.sub(/\.rb$/, '')
 end
 
@@ -291,7 +291,6 @@ module DeferrableGratification
       #   synchronous (although a simple +while+ loop might be preferable in
       #   this case!).
       #
-      # @param loop_deferrable for internal use only, always omit this.
       # @param &block operation to execute until it succeeds.
       #
       # @yieldreturn [Deferrable] deferred status of the operation.  If it
@@ -300,33 +299,106 @@ module DeferrableGratification
       #
       # @return [Deferrable] a deferred status that will succeed once the
       #   supplied operation eventually succeeds.
-      def loop_until_success(loop_deferrable = DefaultDeferrable.new, &block)
-        if EM.reactor_running?
-          EM.next_tick do
-            begin
-              attempt = yield
-            rescue => e
-              loop_deferrable.fail(e)
-            else
-              attempt.callback(&loop_deferrable.method(:succeed))
-              attempt.errback { loop_until_success(loop_deferrable, &block) }
-            end
-          end
-        else
-          # In the synchronous case, we could simply use the same
-          # implementation as in EM, but without the next_tick; unfortunately
-          # that means direct recursion, so risks stack overflow.  Instead we
-          # just reimplement as a loop.
-          results = []
-          begin
-            yield.callback {|*values| results << values } while results.empty?
-          rescue => e
-            loop_deferrable.fail(e)
-          else
-            loop_deferrable.succeed(*results[0])
-          end
-        end
-        loop_deferrable
+      def loop_until_success(&block)
+        Combinators::Loop::UntilSuccess.setup!(&block)
+      end
+
+      # Combinator that repeatedly executes the supplied block until it
+      # fails, then fails itself with the eventual error.
+      #
+      # This Deferrable may never fail, if the operation never fails.
+      #
+      # This combinator has similar semantics to the inbuilt +loop+ construct,
+      # in that you need to do something drastic to break out of the loop.
+      #
+      # If you want to stop the loop early, you can call {#succeed} or {#fail}
+      # on the returned deferrable.
+      #
+      # @note this combinator is intended for use inside EventMachine.  It will
+      #   still work outside of EventMachine, _provided_ that the operation is
+      #   synchronous (although a simple +while+ loop might be preferable in
+      #   this case!).
+      #
+      # @param &block operation to execute until it fails.
+      #
+      # @yieldreturn [Deferrable] deferred status of the operation.  If it
+      #   succeeds, the operation will be retried.  If it fails, the combinator
+      #   will fail with the result.
+      #
+      # @return [Deferrable] a deferred status that will fail once the
+      #   supplied operation eventually fails.
+      def loop_until_failure(&block)
+        Combinators::Loop::UntilFailure.setup!(&block)
+      end
+
+      # Combinator that repeatedly calls the supplied condition followed by the
+      # supplied block until either the condition returns a falsey value or
+      # the block fails.
+      #
+      # In other words, this is an asynchonous version of the Ruby {while} loop.
+      #
+      # Failure can occur if either the condition or the block raise an
+      # exception, or if the deferrable returned by the block fails.
+      #
+      # @note this combinator is intended for use inside EventMachine.  It will
+      #   still work outside of EventMachine, _provided_ that the operation is
+      #   synchronous (although a simple +while+ loop might be preferable in
+      #   this case!).
+      #
+      # @param [Proc, Method, #===] condition returns truthy if the loop should
+      #   continue.
+      #
+      # @callparam [*Object, nil] the result with which the previous execution of
+      #   the block succeeded, or nil on the first call.
+      #
+      # @param [&Block] block operation to execute until it fails.
+      #
+      # @yieldreturn [Deferrable] deferred status of the operation. If it
+      #   succeeds, the condition will be executed again.  If it fails, the
+      #   combinator will fail with the result.
+      #
+      # @return [Deferrable] a deferred status that will succeed when the
+      #   condition returns falsey with the success value of the most recently
+      #   executed deferrable returned by the block.
+      #
+      # @see {#loop_until}
+      #
+      def loop_while(condition, &block)
+        Combinators::Loop::While.setup!(condition, &block)
+      end
+
+      # Combinator that repeatedly calls the supplied condition followed by the
+      # supplied block until either the condition returns a truthy value or the
+      # block fails.
+      #
+      # In other words, this is an asynchornous version of the Ruby {until}
+      # loop.
+      #
+      # @note this combinator is intended for use inside EventMachine.  It will
+      #   still work outside of EventMachine, _provided_ that the operation is
+      #   synchronous (although a simple +while+ loop might be preferable in
+      #   this case!).
+      #
+      # @param [Proc, Method, #===] condition returns truthy if the loop should
+      #   stop.
+      #
+      # @callparam [*Object, nil] the result with which the previous execution of
+      #   the block succeeded, or nil on the first call.
+      #
+      # @param [&Block] block operation to execute until it fails.
+      #
+      # @yieldreturn [Deferrable] deferred status of the operation. If it
+      #   succeeds, the condition will be executed again.  If it fails, the
+      #   combinator will fail with the result.
+      #
+      # @return [Deferrable] a deferred status that will succeed when the
+      #   condition returns truthy with the success value of the most recently
+      #   executed deferrable returned by the block.
+      #
+      # @see {#loop_while}
+      #
+      def loop_until(condition, &block)
+        loop_while(lambda{ |*args| !condition.call *args }, &block)
       end
     end
   end
